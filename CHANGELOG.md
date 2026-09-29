@@ -4,7 +4,7 @@
 
 ### Added
 
-- Cortex integration: when `jayi/cortex` is installed, the MCP server registers with it as `impex` and every tool joins its tool registry, so agents can use them. Published instruction and tool description overrides are served to MCP clients and agents. Configured under `impex.cortex`; Cortex stays optional.
+- Cortex integration: when `jayi/cortex` is installed, the MCP server registers with it as `impex` and every tool joins its tool registry (tagged `impex`), so agents can use them. Published instruction and tool description overrides are served to MCP clients and agents. Configured under `impex.cortex`; Cortex stays optional.
 - `ImpexServer::TOOLS`, the server's tool catalog as a flat list.
 - Model events: every model fires a class-based event for each Eloquent hook (`RunCreatingEvent`, `RunStepCreatedEvent`, ...), mapped by the `DispatchesModelEvents` trait.
 - Action events: every action fires a start event before its work and a finish event after commit, on success (`FlowRunningActionEvent` / `FlowRanActionEvent`, ...).

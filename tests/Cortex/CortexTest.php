@@ -28,7 +28,8 @@ it('offers every Impex tool to Cortex agents under its own name', function (): v
 
     expect(ImpexServer::TOOLS)->toHaveCount(14)
         ->and(array_diff($names, $tools->names()))->toBe([])
-        ->and($tools->get('list-runs-tool'))->toBeInstanceOf(AgentTool::class);
+        ->and($tools->get('list-runs-tool'))->toBeInstanceOf(AgentTool::class)
+        ->and($tools->tagsFor('list-runs-tool'))->toContain('impex');
 });
 
 it('offers only the tools listed in config', function (): void {

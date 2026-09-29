@@ -302,7 +302,7 @@ listings.
 
 When [`jayi/cortex`](https://github.com/jayjfletcher/cortex) is installed, Impex connects its MCP server to it. Nothing needs registering in your app.
 
-- **Agents can run workflows.** Every Impex MCP tool joins Cortex's tool registry under its own name (`list-runs-tool`, `run-flow-tool`, `signal-run-tool`, ...), so an agent can start, inspect and control runs.
+- **Agents can run workflows.** Every Impex MCP tool joins Cortex's tool registry under its own name (`list-runs-tool`, `run-flow-tool`, `signal-run-tool`, ...), so an agent can start, inspect and control runs. They are tagged with the server name (`impex`), so they filter together in the Cortex dashboard.
 - **Instructions and descriptions can change without a deploy.** The server is registered with Cortex as `impex`, so its instructions get Cortex's versioned, publishable overrides, and so does each tool's description. Published overrides are served both to MCP clients (for example at `/mcp/impex`) and to agents.
 
 ```php

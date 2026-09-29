@@ -21,8 +21,8 @@ use Laravel\Mcp\Server\Tool;
  * - The server is registered with Cortex, so its instructions can be
  *   overridden with versioned, publishable content.
  * - Each tool is registered in Cortex's tool registry under its own name,
- *   so Cortex agents can run and inspect workflows, and its description can
- *   be overridden the same way.
+ *   tagged with the server's name, so Cortex agents can run and inspect
+ *   workflows, and its description can be overridden the same way.
  *
  * Cortex is optional. Nothing here runs unless its service provider is
  * loaded and `impex.cortex.enabled` is true, and every Cortex class is
@@ -64,7 +64,7 @@ final class CortexIntegration
                 $tool = $container->make($class);
 
                 if ($tool instanceof Tool && ! $tools->has($tool->name())) {
-                    $tools->register($tool->name(), $class);
+                    $tools->register($tool->name(), $class, [$this->serverName()]);
                 }
             }
         });
