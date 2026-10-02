@@ -1,5 +1,3 @@
-@use(JayI\Impex\Atrium\Badges)
-
 <x-atrium::layout :title="__('impex::impex.runs')">
     <x-atrium::page-header :title="__('impex::impex.runs')" />
 
@@ -28,8 +26,8 @@
 
                 <x-atrium::form.input name="flow" :label="__('impex::impex.flow')" :value="$filters['flow'] ?? null" wrapper="w-48" />
 
-                <x-atrium::button type="submit" data-testid="filter-runs">{{ __('impex::impex.filter') }}</x-atrium::button>
-                <x-atrium::button variant="ghost" :href="route('atrium.impex.runs.index')">{{ __('impex::impex.clear') }}</x-atrium::button>
+                <x-atrium::icon-button icon="funnel" :label="__('impex::impex.filter')" variant="primary" type="submit" data-testid="filter-runs" />
+                <x-atrium::icon-button icon="x-mark" :label="__('impex::impex.clear')" variant="ghost" :href="route('atrium.impex.runs.index')" />
             </form>
         </x-atrium::card>
 
@@ -55,7 +53,7 @@
                                href="{{ route('atrium.impex.runs.show', $run) }}">{{ $run->flow }}</a>
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
-                            <x-atrium::badge :variant="Badges::forRun($run->status)">{{ $run->status->value }}</x-atrium::badge>
+                            <x-impex::status :status="$run->status" />
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>{{ $run->trigger->value }}</x-atrium::table.cell>
                         <x-atrium::table.cell>

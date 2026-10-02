@@ -12,6 +12,8 @@ use JayI\Impex\Atrium\ImpexPlugin;
 use JayI\Impex\Enums\Direction;
 use JayI\Impex\Enums\RunStatus;
 use JayI\Impex\Enums\StepStatus;
+use JayI\Impex\Features\ImpexSupportFeature;
+use JayI\Impex\Tests\Fixtures\Features\OrphanedSupportFeature;
 
 it('registers itself with atrium', function (): void {
     expect(app(PluginRegistry::class)->has('impex'))->toBeTrue();
@@ -44,21 +46,64 @@ it('offers widgets without placing any', function (): void {
     expect(app(WidgetRegistry::class)->all())->toHaveKeys($keys);
 });
 
-it('maps every run status to a badge variant', function (): void {
-    foreach (RunStatus::cases() as $status) {
-        expect(Badges::forRun($status))->toBeIn(['success', 'danger', 'neutral', 'warning', 'info']);
+it('colours every run and step status, keeping info for pending alone', function (): void {
+    $variants = ['success', 'danger', 'neutral', 'warning', 'info', 'primary'];
+
+    foreach ([...RunStatus::cases(), ...StepStatus::cases()] as $status) {
+        expect(Badges::forStatus($status))->toBeIn($variants);
     }
+
+    // Pending - waiting to start, or waiting on a signal - and nothing else.
+    $pending = array_filter(
+        [...RunStatus::cases(), ...StepStatus::cases()],
+        fn (RunStatus|StepStatus $status): bool => Badges::forStatus($status) === 'info',
+    );
+
+    expect(array_map(fn (RunStatus|StepStatus $status): string => $status->value, array_values($pending)))
+        ->toBe(['pending', 'waiting', 'pending']);
 });
 
-it('maps every step status to a badge variant', function (): void {
-    foreach (StepStatus::cases() as $status) {
-        expect(Badges::forStep($status))->toBeIn(['success', 'danger', 'neutral', 'info']);
-    }
+it('colours runs and steps as they are in progress, done, failed or over', function (): void {
+    expect(Badges::forRun(RunStatus::Running))->toBe('primary')
+        ->and(Badges::forRun(RunStatus::Completed))->toBe('success')
+        ->and(Badges::forRun(RunStatus::Failed))->toBe('danger')
+        ->and(Badges::forRun(RunStatus::RollingBack))->toBe('warning')
+        ->and(Badges::forRun(RunStatus::Cancelled))->toBe('neutral')
+        ->and(Badges::forStep(StepStatus::Running))->toBe('primary')
+        ->and(Badges::forStep(StepStatus::Skipped))->toBe('neutral');
+});
+
+it('colours flows and signatures without info', function (): void {
+    expect(Badges::forFlow(true))->toBe('success')
+        ->and(Badges::forFlow(false))->toBe('neutral')
+        ->and(Badges::forSignature(true))->toBe('success')
+        ->and(Badges::forSignature(false))->toBe('danger')
+        ->and(Badges::forSignature(null))->toBe('neutral');
 });
 
 it('maps both message directions', function (): void {
-    expect(Badges::forDirection(Direction::Inbound))->toBe('info')
+    expect(Badges::forDirection(Direction::Inbound))->toBe('neutral')
         ->and(Badges::forDirection(Direction::Outbound))->toBe('primary');
+});
+
+it('gives every navigation item an icon', function (): void {
+    foreach (app(ImpexPlugin::class)->navigation() as $item) {
+        expect($item->icon)->toStartWith('<svg');
+    }
+});
+
+it('switches on the bundled feature, skipping classes that are not installed', function (): void {
+    expect(app(ImpexPlugin::class)->features())->toBe([ImpexSupportFeature::class]);
+
+    config()->set('impex.atrium.features', ['impex-dashboard', 'App\\Features\\Missing', ImpexSupportFeature::class]);
+
+    expect(app(ImpexPlugin::class)->features())->toBe(['impex-dashboard', ImpexSupportFeature::class]);
+});
+
+it('skips a feature whose parent class is not installed rather than throwing', function (): void {
+    config()->set('impex.atrium.features', [OrphanedSupportFeature::class, 'impex-dashboard']);
+
+    expect(app(ImpexPlugin::class)->features())->toBe(['impex-dashboard']);
 });
 
 it('offers a settings panel', function (): void {

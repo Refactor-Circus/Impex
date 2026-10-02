@@ -113,6 +113,19 @@ return [
     'path' => 'Path',
     'no_channels' => 'No channels are registered.',
 
+    // Statuses, of runs and steps
+    'statuses' => [
+        'pending' => 'Pending',
+        'running' => 'Running',
+        'waiting' => 'Waiting for a signal',
+        'rolling_back' => 'Rolling back',
+        'completed' => 'Completed',
+        'failed' => 'Failed',
+        'cancelled' => 'Cancelled',
+        'undone' => 'Undone',
+        'skipped' => 'Skipped',
+    ],
+
     // Shared
     'none' => '—',
 

@@ -11,6 +11,9 @@ final class ChannelUiController
 {
     public function __invoke(): View
     {
+        // No policy covers channels: the API lets anyone signed in list them.
+        abort_unless(ScreenAccess::signedIn(), 403);
+
         /** @var view-string $view */
         $view = 'impex::ui.channels.index';
 

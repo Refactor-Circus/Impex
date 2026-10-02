@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JayI\Impex;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use JayI\Atrium\Facades\Atrium;
@@ -17,6 +18,7 @@ use JayI\Impex\Console\Commands\TickCommand;
 use JayI\Impex\Contracts\RollbackStrategy;
 use JayI\Impex\Cortex\CortexIntegration;
 use JayI\Impex\Flows\FlowRegistry;
+use JayI\Impex\Http\Ui\ScreenAccess;
 use JayI\Impex\Mcp\ImpexServer;
 use JayI\Impex\Runtime\BatchRunner;
 use JayI\Impex\Runtime\Children;
@@ -95,6 +97,10 @@ class ImpexServiceProvider extends ServiceProvider
         $this->registerMcpServer();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'impex');
+
+        // @impexCan('cancel', $run) ... @endimpexCan: shown exactly when the
+        // action behind the control would be allowed.
+        Blade::if('impexCan', ScreenAccess::allows(...));
 
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'impex');
 

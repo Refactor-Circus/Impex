@@ -335,14 +335,52 @@ Screens: runs filterable by status, flow, trigger, owner and tag; run detail wit
 
 Impex also contributes three dashboard widgets — run status counts, recent failures and message volume. They are **offered** in Atrium's widget picker; none is placed on anyone's dashboard automatically.
 
-Atrium owns the path, the middleware and the authorization gate, so the only setting here is the switch:
+The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `JayI\Impex\Atrium\Badges` is the one place that maps states to colours.
+
+### Who sees what
+
+With `impex.authorization` on, the dashboard asks exactly what the JSON API and MCP tools ask, of the same policy, so a nav item, widget, card or button is shown only when the action behind it would be allowed — and the action is refused (403) when it is not:
+
+| Shown when the user may... | Nav item, widget or control |
+| --- | --- |
+| `viewAny` on `Run` | Runs nav item (its badge counts their active runs), run status and recent failures widgets, search |
+| `viewAny` on `Message` | Messages nav item, message volume widget, a run's messages card |
+| `viewAny` on `FlowOverride` | Flows nav item |
+| sign in (no policy, as the API) | Channels nav item |
+| `view` the run | run page |
+| `cancel` / `retry` the run | Cancel / Retry buttons |
+| `create` a `Signal` for the run | Send signal card (while the run waits) |
+| `viewAny` `RunStep` / `RunOwner` for the run | Steps / Owners cards |
+| `view` the message | message page |
+| `create` a `Run` for the flow | a flow's Run form |
+
+Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; give operators a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Http\Ui\ScreenAccess`.
+
+### Switching it off
+
+Atrium owns the path, the middleware and the gate, so Impex has two switches:
 
 ```php
 // config/impex.php
 'ui' => ['enabled' => true],
+
+'atrium' => [
+    'features' => [\JayI\Impex\Features\ImpexSupportFeature::class],
+],
 ```
 
-Set it to `false` to keep the JSON API without adding Impex to the dashboard.
+Set `ui.enabled` to `false` to keep the JSON API without adding Impex to the dashboard.
+
+`atrium.features` switches Impex in Atrium on and off at runtime: while any feature listed is off, its navigation, widgets, settings and search are hidden and its pages answer 404. With [jayi/pennantplus](https://github.com/jayjfletcher/PennantPlus) installed, `ImpexSupportFeature` is on until its **global** value is set — per-user values are ignored, so who sees what stays with the policies:
+
+```php
+use JayI\Impex\Features\ImpexSupportFeature;
+use Laravel\Pennant\Feature;
+
+Feature::for(null)->deactivate(ImpexSupportFeature::class);
+```
+
+Without PennantPlus the class is skipped and nothing is checked. Name a subclass (to default it off, say) or your own feature instead; an empty list removes the switch.
 
 > **Gate this carefully.** The dashboard renders every payload that has crossed your application boundary.
 

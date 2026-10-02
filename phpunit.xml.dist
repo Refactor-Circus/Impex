@@ -28,6 +28,9 @@
         <testsuite name="Cortex">
             <directory>tests/Cortex</directory>
         </testsuite>
+        <testsuite name="PennantPlus">
+            <directory>tests/PennantPlus</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

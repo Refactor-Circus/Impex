@@ -9,44 +9,71 @@ use JayI\Impex\Enums\RunStatus;
 use JayI\Impex\Enums\StepStatus;
 
 /**
- * Maps Impex's enums onto Atrium badge variants.
+ * Maps Impex's states onto Atrium colours.
  *
  * Kept in one place so the pages and the dashboard widgets colour the same
- * state identically.
+ * state identically. Statuses render as Atrium status dots; `info` is kept
+ * for pending - waiting to start, or waiting on a signal - and used by no
+ * other state, so it reads the same in every package.
  */
 final class Badges
 {
-    public static function forRun(RunStatus $status): string
+    /**
+     * The colour of a run or step status: `info` pending, `primary` in
+     * progress, `warning` rolling back, `success` done, `danger` failed and
+     * `neutral` over.
+     */
+    public static function forStatus(RunStatus|StepStatus $status): string
     {
         return match ($status) {
-            RunStatus::Completed => 'success',
-            RunStatus::Failed => 'danger',
-            RunStatus::Cancelled => 'neutral',
-            RunStatus::Waiting, RunStatus::RollingBack => 'warning',
-            RunStatus::Running, RunStatus::Pending => 'info',
+            RunStatus::Pending, RunStatus::Waiting, StepStatus::Pending => 'info',
+            RunStatus::Running, StepStatus::Running => 'primary',
+            RunStatus::RollingBack => 'warning',
+            RunStatus::Completed, StepStatus::Completed => 'success',
+            RunStatus::Failed, StepStatus::Failed => 'danger',
+            RunStatus::Cancelled, StepStatus::Undone, StepStatus::Skipped => 'neutral',
         };
+    }
+
+    public static function forRun(RunStatus $status): string
+    {
+        return self::forStatus($status);
     }
 
     public static function forStep(StepStatus $status): string
     {
-        return match ($status) {
-            StepStatus::Completed => 'success',
-            StepStatus::Failed => 'danger',
-            StepStatus::Running, StepStatus::Pending => 'info',
-            StepStatus::Undone, StepStatus::Skipped => 'neutral',
+        return self::forStatus($status);
+    }
+
+    /**
+     * A flow is enabled (`success`) or paused (`neutral`).
+     */
+    public static function forFlow(bool $enabled): string
+    {
+        return $enabled ? 'success' : 'neutral';
+    }
+
+    /**
+     * A signature that verified (`success`), failed (`danger`), or was never
+     * checked (`neutral`).
+     */
+    public static function forSignature(?bool $valid): string
+    {
+        return match ($valid) {
+            true => 'success',
+            false => 'danger',
+            null => 'neutral',
         };
     }
 
+    /**
+     * Directions are not statuses, so they stay badges, and never `info`.
+     */
     public static function forDirection(Direction $direction): string
     {
         return match ($direction) {
-            Direction::Inbound => 'info',
+            Direction::Inbound => 'neutral',
             Direction::Outbound => 'primary',
         };
-    }
-
-    public static function forBoolean(bool $value): string
-    {
-        return $value ? 'success' : 'neutral';
     }
 }

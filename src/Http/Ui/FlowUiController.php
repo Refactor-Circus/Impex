@@ -9,11 +9,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use JayI\Impex\Actions\ListFlowsAction;
 use JayI\Impex\Actions\RunFlowAction;
+use JayI\Impex\Http\Ui\Concerns\AuthorizesScreens;
+use JayI\Impex\Models\FlowOverride;
+use JayI\Impex\Models\Run;
 
 final class FlowUiController
 {
+    use AuthorizesScreens;
+
     public function index(): View
     {
+        $this->authorizeScreen('viewAny', FlowOverride::class);
+
         /** @var view-string $view */
         $view = 'impex::ui.flows.index';
 
@@ -22,6 +29,8 @@ final class FlowUiController
 
     public function run(Request $request, string $flow): RedirectResponse
     {
+        $this->authorizeScreen('create', Run::class, [$flow]);
+
         $validated = $request->validate([
             'arguments' => ['nullable', 'string'],
         ]);
@@ -38,7 +47,8 @@ final class FlowUiController
             $arguments = $decoded;
         }
 
-        $run = app(RunFlowAction::class)->execute($flow, ['arguments' => $arguments]);
+        // The user who starts a run owns it, as with the JSON API.
+        $run = app(RunFlowAction::class)->execute($flow, ['arguments' => $arguments], owner: ScreenAccess::actor());
 
         return redirect()
             ->route('atrium.impex.runs.show', $run)

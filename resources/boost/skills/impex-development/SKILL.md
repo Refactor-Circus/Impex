@@ -165,7 +165,14 @@ repeat a side effect.
 The dashboard renders through Atrium: define Atrium's `viewAtrium` gate and
 Impex appears in its sidebar (set `impex.ui.enabled` to `false` to leave it
 out). Atrium's gate decides who may load the dashboard, `impex.routes.middleware`
-decides who may call the API. Over MCP the tools sit behind `search_tools` and
+decides who may call the API. With `impex.authorization` on, the dashboard asks
+the same policies as the API: a nav item, card or button shows only when its
+action would be allowed (`@impexCan('cancel', $run)` in Blade, `ScreenAccess`
+in PHP), and lists cover only the user's own runs. With `jayi/pennantplus`,
+`Feature::for(null)->deactivate(ImpexSupportFeature::class)` hides Impex in
+Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
+`JayI\Impex\Atrium\Badges` (`info` only for pending/waiting); actions are
+icon buttons. Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
 check the steps with phase `rollback` to see what was rolled back.

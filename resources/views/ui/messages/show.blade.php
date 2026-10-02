@@ -1,4 +1,5 @@
 @use(JayI\Impex\Atrium\Badges)
+@use(JayI\Impex\Http\Ui\ScreenAccess)
 
 <x-atrium::layout :title="$message->channel">
     <x-atrium::page-header :title="$message->channel" :description="$message->endpoint">
@@ -33,9 +34,10 @@
                     <div>
                         <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.signature') }}</dt>
                         <dd>
-                            <x-atrium::badge :variant="$message->signature_valid ? 'success' : 'danger'">
-                                {{ $message->signature_valid ? __('impex::impex.verified') : __('impex::impex.bad_signature') }}
-                            </x-atrium::badge>
+                            <x-impex::status :variant="Badges::forSignature($message->signature_valid)"
+                                             :label="$message->signature_valid ? __('impex::impex.verified') : __('impex::impex.bad_signature')"
+                                             :data-status="$message->signature_valid ? 'verified' : 'bad_signature'"
+                                             data-testid="message-signature" />
                         </dd>
                     </div>
                 @endif
@@ -48,9 +50,13 @@
                 @if ($message->run_id)
                     <div>
                         <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.run') }}</dt>
-                        <dd class="text-sm">
-                            <a class="underline-offset-2 hover:underline"
-                               href="{{ route('atrium.impex.runs.show', $message->run_id) }}">{{ $message->run_id }}</a>
+                        <dd class="font-mono text-sm">
+                            @if ($message->run !== null && ScreenAccess::allows('view', $message->run))
+                                <a class="underline-offset-2 hover:underline"
+                                   href="{{ route('atrium.impex.runs.show', $message->run_id) }}" data-testid="message-run">{{ $message->run_id }}</a>
+                            @else
+                                {{ $message->run_id }}
+                            @endif
                         </dd>
                     </div>
                 @endif

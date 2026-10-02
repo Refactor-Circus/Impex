@@ -42,7 +42,8 @@ it('lists runs', function (): void {
     $this->get(route('atrium.impex.runs.index'))
         ->assertOk()
         ->assertSee('linear')
-        ->assertSee('completed');
+        ->assertSee('data-status="completed"', false)
+        ->assertSee('aria-label="Completed"', false);
 });
 
 it('shows an empty state when nothing matches', function (): void {
@@ -65,7 +66,8 @@ it('filters runs by status', function (): void {
 
     $this->get(route('atrium.impex.runs.index', ['status' => 'failed']))
         ->assertOk()
-        ->assertSee('failed');
+        ->assertSee('data-status="failed"', false)
+        ->assertDontSee('data-status="completed"', false);
 });
 
 it('rejects a status that is not a real case', function (): void {
@@ -166,4 +168,32 @@ it('rejects arguments that are not a json array', function (): void {
 
 it('lists channels', function (): void {
     $this->get(route('atrium.impex.channels.index'))->assertOk();
+});
+
+it('shows whether each channel verifies signatures', function (): void {
+    config()->set('impex.channels', [
+        'signed-feed' => ['direction' => 'inbound', 'signing_secret' => 'secret', 'flow' => 'linear'],
+        'open-feed' => ['direction' => 'inbound', 'flow' => 'linear'],
+    ]);
+
+    $this->get(route('atrium.impex.channels.index'))
+        ->assertOk()
+        ->assertSee('data-status="verified"', false)
+        ->assertSee('data-status="unsigned"', false);
+});
+
+it('shows statuses as dots and actions as icon buttons', function (): void {
+    $run = makeRun(RunStatus::Waiting);
+
+    $this->get(route('atrium.impex.runs.show', $run))
+        ->assertOk()
+        ->assertSee('data-status="waiting"', false)
+        ->assertSee('aria-label="'.__('impex::impex.statuses.waiting').'"', false)
+        ->assertSee('aria-label="'.__('impex::impex.cancel').'"', false)
+        ->assertSee('aria-label="'.__('impex::impex.retry').'"', false)
+        ->assertSee('aria-label="'.__('impex::impex.send').'"', false);
+
+    $this->get(route('atrium.impex.flows.index'))
+        ->assertSee('data-status="enabled"', false)
+        ->assertSee('aria-label="'.__('impex::impex.start').'"', false);
 });

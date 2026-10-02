@@ -1,3 +1,5 @@
+@use(JayI\Impex\Atrium\Badges)
+
 <x-atrium::layout :title="__('impex::impex.channels')">
     <x-atrium::page-header :title="__('impex::impex.channels')" />
 
@@ -21,9 +23,10 @@
                         <x-atrium::table.cell><code class="text-xs">{{ $channel['path'] ?? 'channels/'.$channel['name'] }}</code></x-atrium::table.cell>
                         <x-atrium::table.cell>{{ $channel['flow'] ?? __('impex::impex.none') }}</x-atrium::table.cell>
                         <x-atrium::table.cell>
-                            <x-atrium::badge :variant="($channel['signed'] ?? false) ? 'success' : 'neutral'">
-                                {{ ($channel['signed'] ?? false) ? __('impex::impex.verified') : __('impex::impex.unsigned') }}
-                            </x-atrium::badge>
+                            @php($signed = (bool) ($channel['verifies_signatures'] ?? false))
+                            <x-impex::status :variant="Badges::forSignature($signed ?: null)"
+                                             :label="$signed ? __('impex::impex.verified') : __('impex::impex.unsigned')"
+                                             :data-status="$signed ? 'verified' : 'unsigned'" />
                         </x-atrium::table.cell>
                     </x-atrium::table.row>
                 @endforeach

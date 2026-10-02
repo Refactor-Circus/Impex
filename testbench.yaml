@@ -7,6 +7,9 @@ providers:
 migrations:
   - database/migrations
   - workbench/database/migrations
+  # jayi/pennantplus (dev dependency, auto-discovered) decides ImpexSupportFeature
+  # through Pennant, whose features table lives here.
+  - vendor/laravel/pennant/database/migrations
 
 seeders:
   - Workbench\Database\Seeders\DatabaseSeeder

@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "jayi/cortex": "dev-main",
+        "jayi/pennantplus": "dev-main",
         "larastan/larastan": "^3.12",
         "laravel/pao": "^1.0",
         "laravel/pint": "^1.29",
@@ -37,7 +38,8 @@
         "phpstan/extension-installer": "^1.4"
     },
     "suggest": {
-        "jayi/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main)."
+        "jayi/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main).",
+        "jayi/pennantplus": "Switch Impex in Atrium on and off with the ImpexSupportFeature Pennant feature (dev-main)."
     },
     "autoload": {
         "psr-4": {
@@ -129,6 +131,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/jayjfletcher/cortex.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/jayjfletcher/PennantPlus.git"
         }
     ]
 }

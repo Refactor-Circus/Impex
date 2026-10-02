@@ -15,12 +15,24 @@ use JayI\Impex\Actions\RetryRunAction;
 use JayI\Impex\Actions\SignalRunAction;
 use JayI\Impex\Enums\RunStatus;
 use JayI\Impex\Enums\RunTrigger;
+use JayI\Impex\Http\Ui\Concerns\AuthorizesScreens;
+use JayI\Impex\Models\Message;
 use JayI\Impex\Models\Run;
+use JayI\Impex\Models\RunStep;
+use JayI\Impex\Models\Signal;
 
+/**
+ * Each action asks the same ability, of the same subject, as its JSON API
+ * request, and lists are limited to the runs the user owns the same way.
+ */
 final class RunUiController
 {
+    use AuthorizesScreens;
+
     public function index(Request $request): View
     {
+        $this->authorizeScreen('viewAny', Run::class);
+
         // Filters are validated by the Action's own rules, so the page and the
         // JSON API accept exactly the same query.
         $filters = $request->validate(ListRunsAction::rules());
@@ -29,7 +41,7 @@ final class RunUiController
         $view = 'impex::ui.runs.index';
 
         return view($view, [
-            'runs' => app(ListRunsAction::class)->execute($filters),
+            'runs' => app(ListRunsAction::class)->execute($filters, ScreenAccess::actor()),
             'filters' => $filters,
             'statuses' => RunStatus::cases(),
             'triggers' => RunTrigger::cases(),
@@ -38,18 +50,26 @@ final class RunUiController
 
     public function show(Run $run): View
     {
+        $this->authorizeScreen('view', $run);
+
         /** @var view-string $view */
         $view = 'impex::ui.runs.show';
 
         return view($view, [
             'run' => $run->load('owners'),
-            'steps' => app(ListRunStepsAction::class)->execute($run),
-            'messages' => app(ListMessagesAction::class)->execute(['run' => $run->getKey()]),
+            'steps' => ScreenAccess::allows('viewAny', RunStep::class, [$run])
+                ? app(ListRunStepsAction::class)->execute($run)
+                : collect(),
+            'messages' => ScreenAccess::allows('viewAny', Message::class)
+                ? app(ListMessagesAction::class)->execute(['run' => $run->getKey()], ScreenAccess::actor())
+                : collect(),
         ]);
     }
 
     public function cancel(Run $run): RedirectResponse
     {
+        $this->authorizeScreen('cancel', $run);
+
         app(CancelRunAction::class)->execute($run, [
             'reason' => __('impex::impex.cancelled_from_dashboard'),
         ]);
@@ -61,6 +81,8 @@ final class RunUiController
 
     public function retry(Run $run): RedirectResponse
     {
+        $this->authorizeScreen('retry', $run);
+
         app(RetryRunAction::class)->execute($run);
 
         return redirect()
@@ -70,6 +92,8 @@ final class RunUiController
 
     public function signal(Request $request, Run $run): RedirectResponse
     {
+        $this->authorizeScreen('create', Signal::class, [$run]);
+
         $data = $request->validate(SignalRunAction::rules());
 
         // A payload arrives from the form as a JSON string.

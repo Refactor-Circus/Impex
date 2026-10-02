@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use JayI\Impex\Features\ImpexSupportFeature;
 use JayI\Impex\Models\Artifact;
 use JayI\Impex\Models\Batch;
 use JayI\Impex\Models\BatchItem;
@@ -337,6 +338,27 @@ return [
         */
 
         'enabled' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Atrium Features
+    |--------------------------------------------------------------------------
+    |
+    | Features that switch Impex in Atrium on and off as a whole: while any is
+    | off its navigation, widgets, settings and search are hidden and its
+    | pages answer 404. With jayi/pennantplus installed, ImpexSupportFeature
+    | is on until its global value is set; per-user values are ignored, so
+    | who sees what stays with the policies above. Without PennantPlus the
+    | class is skipped and nothing is checked. Name a subclass, or your own
+    | feature, to change it; an empty list turns the switch off.
+    |
+    */
+
+    'atrium' => [
+        'features' => [
+            ImpexSupportFeature::class,
+        ],
     ],
 
     /*

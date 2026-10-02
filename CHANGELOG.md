@@ -4,6 +4,19 @@
 
 ### Added
 
+- Atrium screens follow Atrium's screen conventions (needs Atrium f5eb488 or later): every action is an icon button (`<x-atrium::icon-button>`), run, step, flow and channel/message signature states are status dots (`<x-impex::status>`, with `data-status`), and every Impex nav item has a Heroicons icon. `Badges::forStatus()`, `forFlow()` and `forSignature()` decide every colour; `info` is kept for pending (`pending`, and a run `waiting` on a signal).
+- The dashboard asks the same policies as the JSON API and MCP tools: nav items, widgets, search, cards and buttons are shown only when their action would be allowed, through `JayI\Impex\Http\Ui\ScreenAccess` and the `@impexCan` Blade conditional.
+- `ImpexSupportFeature` (needs `jayi/pennantplus`) and `impex.atrium.features`: turning the feature off globally hides Impex in Atrium and 404s its pages. Classes that are not installed are skipped.
+
+### Changed
+
+- With `impex.authorization` on, the Atrium screens now authorize every page and action against `impex.policies` (403 when refused), list and count only the runs the user owns (and their messages) as the API does, and make the user who starts a flow from the dashboard its owner. Previously every Atrium user could see and act on every run. Turn `impex.authorization` off, or register your own policies, for an operator dashboard.
+- Status colours: running is now `primary` and pending/waiting `info`; inbound messages are `neutral` rather than `info`.
+
+### Fixed
+
+- The channels screen read a `signed` key the action never returns, so every channel showed as unsigned; it now reads `verifies_signatures`.
+
 - Cortex integration: when `jayi/cortex` is installed, the MCP server registers with it as `impex` and every tool joins its tool registry (tagged `impex`), so agents can use them. Published instruction and tool description overrides are served to MCP clients and agents. Configured under `impex.cortex`; Cortex stays optional.
 - `ImpexServer::TOOLS`, the server's tool catalog as a flat list.
 - Model events: every model fires a class-based event for each Eloquent hook (`RunCreatingEvent`, `RunStepCreatedEvent`, ...), mapped by the `DispatchesModelEvents` trait.

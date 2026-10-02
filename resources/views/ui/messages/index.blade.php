@@ -16,8 +16,8 @@
 
                 <x-atrium::form.input name="channel" :label="__('impex::impex.channel')" :value="$filters['channel'] ?? null" wrapper="w-48" />
 
-                <x-atrium::button type="submit">{{ __('impex::impex.filter') }}</x-atrium::button>
-                <x-atrium::button variant="ghost" :href="route('atrium.impex.messages.index')">{{ __('impex::impex.clear') }}</x-atrium::button>
+                <x-atrium::icon-button icon="funnel" :label="__('impex::impex.filter')" variant="primary" type="submit" data-testid="filter-messages" />
+                <x-atrium::icon-button icon="x-mark" :label="__('impex::impex.clear')" variant="ghost" :href="route('atrium.impex.messages.index')" />
             </form>
         </x-atrium::card>
 
@@ -48,7 +48,7 @@
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
                             @if ($message->signature_valid === false)
-                                <x-atrium::badge variant="danger">{{ __('impex::impex.bad_signature') }}</x-atrium::badge>
+                                <x-impex::status :variant="Badges::forSignature(false)" :label="__('impex::impex.bad_signature')" data-status="bad_signature" />
                             @else
                                 {{ $message->status_code ?? __('impex::impex.none') }}
                             @endif
