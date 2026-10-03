@@ -2,6 +2,7 @@ laravel: '@testbench'
 
 providers:
   - JayI\Atrium\AtriumServiceProvider
+  - JayI\Impex\ImpexServiceProvider
   - Workbench\App\Providers\WorkbenchServiceProvider
 
 migrations:
@@ -16,6 +17,7 @@ seeders:
 
 workbench:
   start: '/'
+  user: test@example.com
   install: true
   health: false
   discovers:

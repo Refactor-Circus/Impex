@@ -23,5 +23,9 @@ class WorkbenchServiceProvider extends ServiceProvider
         // The workbench dashboard is open so `composer serve` is usable
         // without logging in. A real application defines a real gate.
         Gate::define('viewAtrium', fn ($user = null): bool => true);
+
+        // Show every run on the dashboard, including scheduled and channel
+        // runs nobody owns, as an operator dashboard would.
+        config()->set('impex.atrium.show_all', true);
     }
 }
