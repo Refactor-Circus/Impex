@@ -16,8 +16,8 @@ A channel is a named boundary configuration.
         'direction' => 'inbound',
         'signing_secret' => env('IMPEX_SUPPLIER_SECRET'),
         'signature_header' => 'X-Signature',
-        'signature_validator' => \JayI\Impex\Channels\Validators\HmacSha256Validator::class,
-        'profile' => \JayI\Impex\Channels\Profiles\ProcessEverything::class,
+        'signature_validator' => \JayI\Impex\Domains\Message\Support\HmacSha256Validator::class,
+        'profile' => \JayI\Impex\Domains\Message\Support\ProcessEverything::class,
         'idempotency_header' => 'X-Request-Id',
         'flow' => 'extract-products',
         'store_headers' => ['content-type', 'x-request-id'],
@@ -67,8 +67,8 @@ Every upstream signs differently.
 namespace App\Impex;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Channels\ChannelConfig;
-use JayI\Impex\Contracts\SignatureValidator;
+use JayI\Impex\Domains\Message\Data\ChannelConfig;
+use JayI\Impex\Domains\Message\Contracts\SignatureValidator;
 
 final class StripeSignatureValidator implements SignatureValidator
 {
@@ -102,8 +102,8 @@ final class StripeSignatureValidator implements SignatureValidator
 namespace App\Impex;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Channels\ChannelConfig;
-use JayI\Impex\Contracts\ChannelProfile;
+use JayI\Impex\Domains\Message\Data\ChannelConfig;
+use JayI\Impex\Domains\Message\Contracts\ChannelProfile;
 
 final class OnlyProductEvents implements ChannelProfile
 {
@@ -153,9 +153,9 @@ Impex::record(
 ## Reading the ledger
 
 ```php
-use JayI\Impex\Enums\Direction;
+use JayI\Impex\Domains\Message\Enums\Direction;
 
-Message::query()->where('direction', Direction::Inbound)->latest('occurred_at')->get();
+MessageModel::query()->where('direction', Direction::Inbound)->latest('occurred_at')->get();
 
 $run->messages;                       // everything this run caused
 

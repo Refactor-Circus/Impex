@@ -22,9 +22,9 @@ domain calls it.
 ## Querying
 
 ```php
-Run::query()->whereOwnedBy($customer)->active()->get();
-Run::query()->whereOwnedBy($user, 'user')->get();          // restricted to a role
-Run::query()->whereOwnedByAny([$team, $user])->get();
+RunModel::query()->whereOwnedBy($customer)->active()->get();
+RunModel::query()->whereOwnedBy($user, 'user')->get();          // restricted to a role
+RunModel::query()->whereOwnedByAny([$team, $user])->get();
 ```
 
 ## Your model
@@ -32,13 +32,13 @@ Run::query()->whereOwnedByAny([$team, $user])->get();
 ```php
 namespace App\Models;
 
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Run\Models\RunModel;
 
 class Customer extends Model
 {
     public function impexRuns()
     {
-        return Run::query()->whereOwnedBy($this);
+        return RunModel::query()->whereOwnedBy($this);
     }
 }
 ```
@@ -71,7 +71,7 @@ final class OwnerScope
 ```
 
 ```php
-Run::query()->whereOwnedByAny(app(OwnerScope::class)->expand($customer))->get();
+RunModel::query()->whereOwnedByAny(app(OwnerScope::class)->expand($customer))->get();
 ```
 
 ## Authorizing the API
@@ -100,16 +100,16 @@ With it on, every call acts as the authenticated user:
 
 ```php
 'policies' => [
-    Run::class => \JayI\Impex\Policies\RunPolicy::class,
-    RunStep::class => \JayI\Impex\Policies\RunStepPolicy::class,
-    RunOwner::class => \JayI\Impex\Policies\RunOwnerPolicy::class,
-    Signal::class => \JayI\Impex\Policies\SignalPolicy::class,
-    Timer::class => \JayI\Impex\Policies\TimerPolicy::class,
-    Batch::class => \JayI\Impex\Policies\BatchPolicy::class,
-    BatchItem::class => \JayI\Impex\Policies\BatchItemPolicy::class,
-    Message::class => \JayI\Impex\Policies\MessagePolicy::class,
-    Artifact::class => \JayI\Impex\Policies\ArtifactPolicy::class,
-    FlowOverride::class => \JayI\Impex\Policies\FlowOverridePolicy::class,
+    RunModel::class => \JayI\Impex\Domains\Run\Policies\RunPolicy::class,
+    RunStepModel::class => \JayI\Impex\Domains\Run\Policies\RunStepPolicy::class,
+    RunOwnerModel::class => \JayI\Impex\Domains\Run\Policies\RunOwnerPolicy::class,
+    SignalModel::class => \JayI\Impex\Domains\Signal\Policies\SignalPolicy::class,
+    TimerModel::class => \JayI\Impex\Domains\Signal\Policies\TimerPolicy::class,
+    BatchModel::class => \JayI\Impex\Domains\Batch\Policies\BatchPolicy::class,
+    BatchItemModel::class => \JayI\Impex\Domains\Batch\Policies\BatchItemPolicy::class,
+    MessageModel::class => \JayI\Impex\Domains\Message\Policies\MessagePolicy::class,
+    ArtifactModel::class => \JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy::class,
+    FlowOverrideModel::class => \JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy::class,
 ],
 ```
 
@@ -138,18 +138,18 @@ policy is registered.
 
 | HTTP | MCP tool | Ability |
 |---|---|---|
-| `GET flows` | `list-flows-tool` | `viewAny` on `FlowOverride` |
-| `POST flows/{flow}/runs` | `run-flow-tool` | `create` on `Run`, with the slug |
-| `GET runs` | `list-runs-tool` | `viewAny` on `Run` |
+| `GET flows` | `list-flows-tool` | `viewAny` on `FlowOverrideModel` |
+| `POST flows/{flow}/runs` | `run-flow-tool` | `create` on `RunModel`, with the slug |
+| `GET runs` | `list-runs-tool` | `viewAny` on `RunModel` |
 | `GET runs/{run}` | `show-run-tool` | `view` on the run |
 | `POST runs/{run}/cancel` | `cancel-run-tool` | `cancel` on the run |
 | `POST runs/{run}/retry` | `retry-run-tool` | `retry` on the run |
-| `GET runs/{run}/steps` | `list-run-steps-tool` | `viewAny` on `RunStep`, with the run |
-| `POST runs/{run}/signals` | `signal-run-tool` | `create` on `Signal`, with the run |
-| `GET runs/{run}/owners` | `list-run-owners-tool` | `viewAny` on `RunOwner`, with the run |
-| `POST runs/{run}/owners` | `attach-run-owner-tool` | `create` on `RunOwner`, with the run |
+| `GET runs/{run}/steps` | `list-run-steps-tool` | `viewAny` on `RunStepModel`, with the run |
+| `POST runs/{run}/signals` | `signal-run-tool` | `create` on `SignalModel`, with the run |
+| `GET runs/{run}/owners` | `list-run-owners-tool` | `viewAny` on `RunOwnerModel`, with the run |
+| `POST runs/{run}/owners` | `attach-run-owner-tool` | `create` on `RunOwnerModel`, with the run |
 | `DELETE runs/{run}/owners/{owner}` | `detach-run-owner-tool` | `delete` on the owner record |
-| `GET messages` | `list-messages-tool` | `viewAny` on `Message` |
+| `GET messages` | `list-messages-tool` | `viewAny` on `MessageModel` |
 | `GET messages/{message}` | `show-message-tool` | `view` on the message |
 | `GET channels` | `list-channels-tool` | signed in only — channels are config, not a model |
 
@@ -170,7 +170,7 @@ every run there — and only there. See [Dashboard](11-dashboard.md#who-sees-wha
 
   ```php
   'policies' => [
-      Run::class => App\Policies\RunPolicy::class,
+      RunModel::class => App\Policies\RunPolicy::class,
       // ...
   ],
   ```

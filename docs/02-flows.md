@@ -2,7 +2,7 @@
 
 ## A flow
 
-A flow is a class extending `JayI\Impex\Flows\Flow` with a public `handle()`.
+A flow is a class extending `JayI\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
 Its signature is yours — whatever arguments the flow needs.
 
 ```php
@@ -13,7 +13,7 @@ use App\Flows\Actions\FetchPricing;
 use App\Flows\Actions\RollbackPimWrite;
 use App\Flows\Actions\SearchProducts;
 use App\Flows\Actions\WriteToPim;
-use JayI\Impex\Flows\Flow;
+use JayI\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {
@@ -263,13 +263,13 @@ $this->tag('supplier', $supplier);
 ```
 
 ```php
-Run::query()->where('tags->tenant', 'acme')->get();
+RunModel::query()->where('tags->tenant', 'acme')->get();
 ```
 
 ## Starting a run
 
 ```php
-use JayI\Impex\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
 use JayI\Impex\Facades\Impex;
 
 $run = Impex::run(

@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace JayI\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Models\RunModel;
 
 /**
- * @extends Factory<Run>
+ * @extends Factory<RunModel>
  */
 final class RunFactory extends Factory
 {
-    protected $model = Run::class;
+    protected $model = RunModel::class;
 
     /**
      * @return array<string, mixed>

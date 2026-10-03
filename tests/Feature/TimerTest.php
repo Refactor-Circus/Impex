@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Carbon;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
-use JayI\Impex\Exceptions\StalledStepException;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Exceptions\StalledStepException;
+use JayI\Impex\Domains\Signal\Models\TimerModel;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Timer;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\SleepingFlow;
@@ -31,7 +31,7 @@ it('records a long wait as a timer rather than a delayed job', function (): void
     expect($run->refresh()->status)->toBe(RunStatus::Waiting)
         ->and(Calls::count('after-sleep'))->toBe(0);
 
-    $timer = Timer::query()->where('run_id', $run->getKey())->first();
+    $timer = TimerModel::query()->where('run_id', $run->getKey())->first();
 
     // Three days is far past SQS's 15-minute delay ceiling, which is the whole
     // reason this table exists.
@@ -55,7 +55,7 @@ it('wakes a sleeping run when the tick sweep fires its timer', function (): void
 
     expect($run->refresh()->status)->toBe(RunStatus::Completed)
         ->and(Calls::count('after-sleep'))->toBe(1)
-        ->and(Timer::query()->where('run_id', $run->getKey())->first()->fired_at)->not->toBeNull();
+        ->and(TimerModel::query()->where('run_id', $run->getKey())->first()->fired_at)->not->toBeNull();
 
     Carbon::setTestNow();
 });
@@ -94,7 +94,7 @@ it('fails a resumable step that yields without advancing its cursor', function (
 it('honours a database override that disables a registered flow', function (): void {
     expect(app(Impex::class)->flows()->enabled('linear'))->toBeTrue();
 
-    FlowOverride::query()->create(['slug' => 'linear', 'enabled' => false]);
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'enabled' => false]);
 
     expect(app(Impex::class)->flows()->enabled('linear'))->toBeFalse()
         // The registry still knows the flow exists — code is the source of
@@ -107,7 +107,7 @@ it('prefers a database schedule override over the configured one', function (): 
 
     expect(app(Impex::class)->flows()->schedule('linear'))->toBe('0 * * * *');
 
-    FlowOverride::query()->create(['slug' => 'linear', 'schedule' => '*/5 * * * *']);
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'schedule' => '*/5 * * * *']);
 
     expect(app(Impex::class)->flows()->schedule('linear'))->toBe('*/5 * * * *');
 });

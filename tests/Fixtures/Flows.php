@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Tests\Fixtures;
 
-use JayI\Impex\Contracts\BatchSource;
-use JayI\Impex\Contracts\Resumable;
-use JayI\Impex\Enums\ChildClosePolicy;
-use JayI\Impex\Enums\RollbackFailure;
-use JayI\Impex\Flows\Concerns\CanResume;
-use JayI\Impex\Flows\Flow;
-use JayI\Impex\Flows\ResumableAction;
-use JayI\Impex\Runtime\BatchChunk;
-use JayI\Impex\Runtime\BatchChunkItem;
-use JayI\Impex\Runtime\Resume;
+use JayI\Impex\Domains\Batch\Contracts\BatchSource;
+use JayI\Impex\Domains\Batch\Data\BatchChunk;
+use JayI\Impex\Domains\Batch\Data\BatchChunkItem;
+use JayI\Impex\Domains\Flow\Concerns\CanResume;
+use JayI\Impex\Domains\Flow\Contracts\Resumable;
+use JayI\Impex\Domains\Flow\Support\Flow;
+use JayI\Impex\Domains\Flow\Support\ResumableAction;
+use JayI\Impex\Domains\Run\Data\Resume;
+use JayI\Impex\Domains\Run\Enums\ChildClosePolicy;
+use JayI\Impex\Domains\Run\Enums\RollbackFailure;
 use RuntimeException;
 
 /**

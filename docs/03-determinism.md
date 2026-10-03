@@ -113,7 +113,7 @@ drive. A loop bounded by an unrecorded value is a divergence.
 ## Reading the exception
 
 ```
-JayI\Impex\Exceptions\HistoryMismatchException
+JayI\Impex\Domains\Run\Exceptions\HistoryMismatchException
 
   Replay diverged at sequence 3: history recorded [action:App\Actions\FetchPricing]
   but the flow asked for [action:App\Actions\FetchInventory]. Wrap
@@ -149,7 +149,7 @@ if ($this->version() === 'v1') {
 Without a version, drain first:
 
 ```php
-Run::query()->where('flow', 'extract-products')->active()->count();
+RunModel::query()->where('flow', 'extract-products')->active()->count();
 ```
 
 **Adding steps to the end of `handle()` is safe.** Inserting, removing, or

@@ -6,13 +6,13 @@ namespace JayI\Impex\Testing;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepPhase;
-use JayI\Impex\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepPhase;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Services\Engine;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Runtime\Engine;
 use PHPUnit\Framework\Assert;
 
 /**
@@ -41,7 +41,7 @@ final class Flows
      * @param  array<int|string, mixed>  $arguments  Positional, or keyed by
      *                                               parameter name.
      */
-    public static function run(string $slug, array $arguments = [], ?int $seconds = null): Run
+    public static function run(string $slug, array $arguments = [], ?int $seconds = null): RunModel
     {
         return app(Impex::class)->runSync($slug, $arguments, seconds: $seconds);
     }
@@ -60,7 +60,7 @@ final class Flows
         Carbon::setTestNow();
     }
 
-    public static function assertCompleted(Run $run): Run
+    public static function assertCompleted(RunModel $run): RunModel
     {
         $run = $run->refresh();
 
@@ -80,7 +80,7 @@ final class Flows
         return $run;
     }
 
-    public static function assertFailed(Run $run, ?string $messageContains = null): Run
+    public static function assertFailed(RunModel $run, ?string $messageContains = null): RunModel
     {
         $run = $run->refresh();
 
@@ -101,7 +101,7 @@ final class Flows
         return $run;
     }
 
-    public static function assertWaiting(Run $run): Run
+    public static function assertWaiting(RunModel $run): RunModel
     {
         $run = $run->refresh();
 
@@ -117,7 +117,7 @@ final class Flows
     /**
      * Assert an action ran, optionally a given number of times.
      */
-    public static function assertStepRan(Run $run, string $action, ?int $times = null): void
+    public static function assertStepRan(RunModel $run, string $action, ?int $times = null): void
     {
         $steps = $run->steps()->where('name', $action)->get();
 
@@ -137,7 +137,7 @@ final class Flows
         );
     }
 
-    public static function assertStepDidNotRun(Run $run, string $action): void
+    public static function assertStepDidNotRun(RunModel $run, string $action): void
     {
         Assert::assertFalse(
             $run->steps()->where('name', $action)->exists(),
@@ -148,7 +148,7 @@ final class Flows
     /**
      * Assert a rollback ran for the run.
      */
-    public static function assertRolledBack(Run $run, ?string $action = null): void
+    public static function assertRolledBack(RunModel $run, ?string $action = null): void
     {
         $query = $run->steps()
             ->where('phase', StepPhase::Rollback)
@@ -166,7 +166,7 @@ final class Flows
         );
     }
 
-    public static function assertNotRolledBack(Run $run): void
+    public static function assertNotRolledBack(RunModel $run): void
     {
         Assert::assertFalse(
             $run->steps()->where('phase', StepPhase::Rollback)->exists(),
@@ -180,7 +180,7 @@ final class Flows
      * Useful for pinning the cost of a flow: a batch should stay at one step
      * however many items it processes.
      */
-    public static function assertForwardStepCount(Run $run, int $expected): void
+    public static function assertForwardStepCount(RunModel $run, int $expected): void
     {
         Assert::assertSame(
             $expected,
@@ -192,7 +192,7 @@ final class Flows
     /**
      * Assert a run is parked on a named signal.
      */
-    public static function assertAwaitingSignal(Run $run, string $name): void
+    public static function assertAwaitingSignal(RunModel $run, string $name): void
     {
         self::assertWaiting($run);
 
@@ -211,12 +211,12 @@ final class Flows
      * This is the test that matters most for a queue with at-least-once
      * delivery: side effects must not repeat.
      */
-    public static function redeliverSteps(Run $run): void
+    public static function redeliverSteps(RunModel $run): void
     {
         $engine = app(Engine::class);
 
         foreach ($run->steps()->get() as $step) {
-            /** @var RunStep $step */
+            /** @var RunStepModel $step */
             $engine->executeStep((string) $run->getKey(), $step->phase->value, $step->sequence);
         }
     }

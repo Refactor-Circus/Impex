@@ -5,16 +5,16 @@ declare(strict_types=1);
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
-use JayI\Atrium\Navigation\NavItem;
-use JayI\Atrium\Search\SearchResult;
-use JayI\Atrium\Widgets\WidgetDefinition;
+use JayI\Atrium\Domains\Navigation\Data\NavItem;
+use JayI\Atrium\Domains\Search\Data\SearchResult;
+use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
 use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Http\Ui\ScreenAccess;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Atrium\ScreenAccess;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use Workbench\App\Models\User;
 
@@ -41,15 +41,15 @@ beforeEach(function (): void {
     $this->theirs = operatorRun('theirs-flow', RunStatus::Running, $this->bob);
     $this->unowned = operatorRun('unowned-flow', RunStatus::Failed);
 
-    Message::query()->create([
+    MessageModel::query()->create([
         'direction' => Direction::Inbound, 'channel' => 'unowned-channel', 'endpoint' => '/hook',
         'transport' => 'http', 'bytes' => 1, 'occurred_at' => now(), 'run_id' => $this->unowned->getKey(),
     ]);
 });
 
-function operatorRun(string $flow, RunStatus $status, ?User $owner = null): Run
+function operatorRun(string $flow, RunStatus $status, ?User $owner = null): RunModel
 {
-    $run = Run::query()->create([
+    $run = RunModel::query()->create([
         'flow' => $flow,
         'flow_class' => LinearFlow::class,
         'status' => $status,
@@ -152,7 +152,7 @@ it('lets an operator use every control on another user\'s run and an unowned one
 
     $this->actingAs($this->ann)->post(route('atrium.impex.runs.signal', $waiting), ['name' => 'approve'])->assertRedirect()->assertSessionHasNoErrors();
 
-    $message = Message::query()->sole();
+    $message = MessageModel::query()->sole();
 
     $this->actingAs($this->ann)->get(route('atrium.impex.messages.show', $message))->assertOk();
 
@@ -190,7 +190,7 @@ it('still owns the runs an operator starts from the dashboard', function (): voi
 
     $this->actingAs($this->ann)->post(route('atrium.impex.flows.run', 'linear'))->assertRedirect();
 
-    $run = Run::query()->where('flow', 'linear')->sole();
+    $run = RunModel::query()->where('flow', 'linear')->sole();
 
     expect($run->owners()->where('owner_id', (string) $this->ann->getKey())->exists())->toBeTrue();
 });

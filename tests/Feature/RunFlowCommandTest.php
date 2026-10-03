@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Facades\Impex;
-use JayI\Impex\Models\Run;
 use JayI\Impex\Tests\Fixtures\TypedArgumentsFlow;
 
 beforeEach(function (): void {
@@ -15,7 +15,7 @@ beforeEach(function (): void {
 /** The result of the run the command just started. */
 function lastRunResult(): array
 {
-    $run = Run::query()->latest('id')->firstOrFail();
+    $run = RunModel::query()->latest('id')->firstOrFail();
 
     expect($run->status)->toBe(RunStatus::Completed);
 
@@ -132,7 +132,7 @@ it('rejects a boolean it cannot read instead of silently running incrementally',
     $this->artisan('impex:run', ['flow' => 'typed', '--argument' => ['', '', 'maybe']])
         ->assertFailed();
 
-    expect(Run::query()->count())->toBe(0);
+    expect(RunModel::query()->count())->toBe(0);
 });
 
 it('rejects a non-numeric integer instead of casting it to zero', function (): void {
@@ -140,7 +140,7 @@ it('rejects a non-numeric integer instead of casting it to zero', function (): v
     // a silently empty run.
     $this->artisan('impex:run', ['flow' => 'typed', '--size' => 'lots'])->assertFailed();
 
-    expect(Run::query()->count())->toBe(0);
+    expect(RunModel::query()->count())->toBe(0);
 });
 
 it('leaves a flow with no arguments alone', function (): void {
@@ -157,7 +157,7 @@ it('persists named arguments by name, so a replay applies them the same way', fu
     $this->artisan('impex:run', ['flow' => 'typed', '--initial' => true, '--size' => '500'])
         ->assertSuccessful();
 
-    $run = Run::query()->latest('id')->firstOrFail();
+    $run = RunModel::query()->latest('id')->firstOrFail();
 
     // Keys survive into the stored payload rather than being flattened to
     // positions, so the history records what was actually asked for.
@@ -170,5 +170,5 @@ it('reports an unregistered flow rather than failing to parse', function (): voi
     // message.
     $this->artisan('impex:run', ['flow' => 'nope'])->assertFailed();
 
-    expect(Run::query()->count())->toBe(0);
+    expect(RunModel::query()->count())->toBe(0);
 });

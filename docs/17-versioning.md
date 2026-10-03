@@ -68,7 +68,7 @@ at a **different class** — the recorded history describes the original, so the
 engine refuses:
 
 ```
-JayI\Impex\Exceptions\FlowVersionMismatchException
+JayI\Impex\Domains\Flow\Exceptions\FlowVersionMismatchException
 
   The run started on [App\Flows\OldFlow] but the slug [extract-products] now
   resolves to [App\Flows\NewFlow]. The recorded history describes the original

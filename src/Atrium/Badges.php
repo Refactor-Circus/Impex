@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Atrium;
 
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepStatus;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
 
 /**
  * Maps Impex's states onto Atrium colours.

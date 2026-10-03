@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Enums\ChildClosePolicy;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Enums\StepType;
+use JayI\Impex\Domains\Run\Enums\ChildClosePolicy;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Services\Engine;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Runtime\Engine;
 use JayI\Impex\Testing\Flows;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\ChildFlow;
@@ -42,7 +42,7 @@ it('runs a child as a run in its own right and returns its result', function ():
         // replayed handle() does — which is why work belongs in actions.
         ->and(Calls::count('add-one'))->toBe(1);
 
-    $child = Run::query()->where('parent_run_id', $parent->getKey())->firstOrFail();
+    $child = RunModel::query()->where('parent_run_id', $parent->getKey())->firstOrFail();
 
     // Its own history, its own row — not a step hidden inside the parent.
     expect($child->flow)->toBe('child')
@@ -112,7 +112,7 @@ it('gives the child the parent queue routing and version', function (): void {
 
     app(Engine::class)->drive((string) $parent->getKey());
 
-    $child = Run::query()->where('parent_run_id', $parent->getKey())->firstOrFail();
+    $child = RunModel::query()->where('parent_run_id', $parent->getKey())->firstOrFail();
 
     expect($child->flow_version)->toBe('v7');
 });

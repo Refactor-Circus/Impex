@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Runtime\BatchRunner;
+use JayI\Impex\Domains\Batch\Services\BatchRunner;
 
 /**
  * Runs one batch item's action.

@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Carbon;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
-use JayI\Impex\Exceptions\CannotSignalTerminalRunException;
-use JayI\Impex\Exceptions\SignalTimeoutException;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Services\Engine;
+use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
+use JayI\Impex\Domains\Signal\Exceptions\SignalTimeoutException;
+use JayI\Impex\Domains\Signal\Mcp\Tools\SignalRunTool;
+use JayI\Impex\Domains\Signal\Models\SignalModel;
 use JayI\Impex\Impex;
-use JayI\Impex\Mcp\Tools\SignalRunTool;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\Signal;
-use JayI\Impex\Runtime\Engine;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\NullSignalFlow;
@@ -45,7 +45,7 @@ it('parks a run until the signal arrives', function (): void {
 });
 
 it('holds a signal delivered before the run reaches its wait', function (): void {
-    $run = Run::query()->create([
+    $run = RunModel::query()->create([
         'flow' => 'signal',
         'flow_class' => SignalFlow::class,
         'status' => RunStatus::Pending,
@@ -71,7 +71,7 @@ it('refuses to signal a run that has finished', function (): void {
     expect(fn () => app(Impex::class)->signal($run, 'approval'))
         ->toThrow(CannotSignalTerminalRunException::class, 'nothing will ever consume it');
 
-    expect(Signal::query()->count())->toBe(0);
+    expect(SignalModel::query()->count())->toBe(0);
 });
 
 it('treats a finished run as a no-op for signalIfRunning', function (): void {
@@ -89,14 +89,14 @@ it('does not deliver the same signal twice for one idempotency key', function ()
     app(Impex::class)->signal($run, 'approval', ['approved' => true], idempotencyKey: 'evt_1');
     app(Impex::class)->signalIfRunning($run->refresh(), 'approval', ['approved' => true], idempotencyKey: 'evt_1');
 
-    expect(Signal::query()->count())->toBe(1);
+    expect(SignalModel::query()->count())->toBe(1);
 });
 
 it('scopes to signalable runs, which running() would miss', function (): void {
     app(Impex::class)->run('signal');           // waiting
     app(Impex::class)->run('linear', [1]);      // completed
 
-    $signalable = Run::query()->signalable()->get();
+    $signalable = RunModel::query()->signalable()->get();
 
     // The whole point: a run parked on a signal is exactly the one you want,
     // and it is not "running".

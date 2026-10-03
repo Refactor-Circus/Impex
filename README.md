@@ -38,7 +38,7 @@ On Vapor/Lambda, point the artifact disk at S3 and the lock store at Redis or Dy
 ## Writing a flow
 
 ```php
-use JayI\Impex\Flows\Flow;
+use JayI\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {
@@ -124,7 +124,7 @@ A Lambda timeout cannot be caught, so an action that may run long stops *before*
 the ceiling and checkpoints:
 
 ```php
-use JayI\Impex\Flows\ResumableAction;
+use JayI\Impex\Domains\Flow\Support\ResumableAction;
 
 final class SeedProducts extends ResumableAction
 {
@@ -343,18 +343,18 @@ With `impex.authorization` on, the dashboard asks exactly what the JSON API and 
 
 | Shown when the user may... | Nav item, widget or control |
 | --- | --- |
-| `viewAny` on `Run` | Runs nav item (its badge counts their active runs), run status and recent failures widgets, search |
-| `viewAny` on `Message` | Messages nav item, message volume widget, a run's messages card |
-| `viewAny` on `FlowOverride` | Flows nav item |
+| `viewAny` on `RunModel` | Runs nav item (its badge counts their active runs), run status and recent failures widgets, search |
+| `viewAny` on `MessageModel` | Messages nav item, message volume widget, a run's messages card |
+| `viewAny` on `FlowOverrideModel` | Flows nav item |
 | sign in (no policy, as the API) | Channels nav item |
 | `view` the run | run page |
 | `cancel` / `retry` the run | Cancel / Retry buttons |
-| `create` a `Signal` for the run | Send signal card (while the run waits) |
-| `viewAny` `RunStep` / `RunOwner` for the run | Steps / Owners cards |
+| `create` a `SignalModel` for the run | Send signal card (while the run waits) |
+| `viewAny` `RunStepModel` / `RunOwnerModel` for the run | Steps / Owners cards |
 | `view` the message | message page |
-| `create` a `Run` for the flow | a flow's Run form |
+| `create` a `RunModel` for the flow | a flow's Run form |
 
-Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Http\Ui\ScreenAccess`.
+Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Atrium\ScreenAccess`.
 
 To let some dashboard users see and handle every run — scheduled and channel runs included — make them operators with `impex.atrium.show_all`:
 
@@ -378,7 +378,7 @@ Atrium owns the path, the middleware and the gate, so Impex has two switches:
 'ui' => ['enabled' => true],
 
 'atrium' => [
-    'features' => [\JayI\Impex\Features\ImpexSupportFeature::class],
+    'features' => [\JayI\Impex\Atrium\Features\ImpexSupportFeature::class],
 ],
 ```
 
@@ -387,7 +387,7 @@ Set `ui.enabled` to `false` to keep the JSON API without adding Impex to the das
 `atrium.features` switches Impex in Atrium on and off at runtime: while any feature listed is off, its navigation, widgets, settings and search are hidden and its pages answer 404. With [jayi/pennantplus](https://github.com/jayjfletcher/PennantPlus) installed, `ImpexSupportFeature` is on until its **global** value is set — per-user values are ignored, so who sees what stays with the policies:
 
 ```php
-use JayI\Impex\Features\ImpexSupportFeature;
+use JayI\Impex\Atrium\Features\ImpexSupportFeature;
 use Laravel\Pennant\Feature;
 
 Feature::for(null)->deactivate(ImpexSupportFeature::class);
@@ -465,7 +465,7 @@ Signalling a finished run throws rather than writing a row nothing will consume.
 A timed out wait is recorded as skipped, so `null` from a real payload stays
 distinguishable from nobody answering.
 
-Find the run with `Run::query()->signalable()` — `running()` would miss exactly
+Find the run with `RunModel::query()->signalable()` — `running()` would miss exactly
 the runs parked waiting for one.
 
 ## Long waits
@@ -497,8 +497,8 @@ Impex::run('extract-products', [$query], owners: [
     'user' => $user,
 ]);
 
-Run::query()->whereOwnedBy($customer)->active()->get();
-Run::query()->whereOwnedByAny([$team, $user])->get();
+RunModel::query()->whereOwnedBy($customer)->active()->get();
+RunModel::query()->whereOwnedByAny([$team, $user])->get();
 ```
 
 ## Events
@@ -513,8 +513,8 @@ Impex fires three families of events:
 
 Every model fires `retrieved`, `creating`, `created`, `updating`, `updated`, `saving`, `saved`, `deleting`, `deleted` and `replicating`:
 
-- **Models:** `Run`, `RunStep`, `RunOwner`, `Artifact`, `Batch`, `BatchItem`, `Message`, `Signal`, `Timer`, `FlowOverride`.
-- **Naming:** they live in `JayI\Impex\Events\Model` and are named `{Model}{Hook}Event`, e.g. `RunCreatingEvent` or `RunStepCreatedEvent`.
+- **Models:** `RunModel`, `RunStepModel`, `RunOwnerModel`, `ArtifactModel`, `BatchModel`, `BatchItemModel`, `MessageModel`, `SignalModel`, `TimerModel`, `FlowOverrideModel`.
+- **Naming:** they live in their model's domain, `JayI\Impex\Domains\{Domain}\Events`, and are named `{Entity}{Hook}Event` (the model name without its `Model` suffix), e.g. `RunCreatingEvent` or `RunStepCreatedEvent`.
 - **Payload:** the model is a typed property (`$event->run`, `$event->runStep`, ...) and is also available as `$event->model()`, alongside `$event->hook()`.
 - **Timing:** they fire synchronously, as Eloquent's own do. A `creating`, `updating`, `saving` or `deleting` listener that returns `false` stops the write.
 
@@ -533,7 +533,7 @@ Every action dispatches two events:
 - **Start:** `…ingActionEvent`, before any work. It carries the input.
 - **Finish:** `…edActionEvent`, after the surrounding transaction commits and only on success. It carries the result.
 
-An action that throws fires its start event only.
+An action that throws fires its start event only. Each action and its two events live in the same domain: `JayI\Impex\Domains\{Domain}\Actions` and `JayI\Impex\Domains\{Domain}\Events`.
 
 Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it does not clash with the engine's `RunStarted`. `FlowRan` marks the run being accepted. `RunStarted` marks it actually beginning, later, on the queue.
 
@@ -567,6 +567,21 @@ Listen to an interface in `JayI\Impex\Contracts` to receive every event of that 
 ```php
 Event::listen(ActionFinishedEvent::class, fn (ActionFinishedEvent $event) => Log::info(class_basename($event)));
 ```
+
+## Package layout
+
+The code is organised into domain modules under `src/Domains`, each with its own service provider registered by `JayI\Impex\Domains\DomainServiceProvider`:
+
+| Domain | Holds |
+| --- | --- |
+| `Run` | Runs, steps and owners; the engine (`Services\Engine` and its collaborators), the replay `Context`, `RunHandle` and `RunQuery`, `impex:tick` |
+| `Flow` | The `Flow` and `ResumableAction` base classes, the DSL builders, `FlowRegistry`, flow overrides, `impex:run` |
+| `Signal` | Signals and timers, `Waits`, `impex:signal` |
+| `Batch` | Batches and their items, `BatchSource`, `BatchChunk`, `BatchRunner` |
+| `Message` | The ledger, channels and their profiles and validators, outbound recording |
+| `Artifact` | Artifacts and the `PayloadStore` |
+
+Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, the event contracts in `Contracts`, the base `Http\Request`, `Mcp\Request`, `Mcp\Tool` and `Mcp\ImpexServer`, `Support` (locks, the authorizer, the base policy and model-event trait), `Testing\Flows`, `impex:prune`, the Atrium screens in `Atrium` and the Cortex bridge in `Cortex`. The queued jobs keep their `JayI\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
 ## Vapor notes
 

@@ -8,10 +8,10 @@ use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
 use JayI\Cortex\CortexServiceProvider;
-use JayI\Cortex\Mcp\McpInstructionOverrides;
-use JayI\Cortex\Mcp\McpServerRegistry;
-use JayI\Cortex\Tools\ToolDescriptionOverrides;
-use JayI\Cortex\Tools\ToolRegistry;
+use JayI\Cortex\Domains\McpServer\Services\McpInstructionOverrides;
+use JayI\Cortex\Domains\McpServer\Services\McpServerRegistry;
+use JayI\Cortex\Domains\Tool\Services\ToolDescriptionOverrides;
+use JayI\Cortex\Domains\Tool\Services\ToolRegistry;
 use JayI\Impex\Mcp\ImpexServer;
 use Laravel\Mcp\Server\Tool;
 

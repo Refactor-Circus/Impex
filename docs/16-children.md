@@ -89,7 +89,7 @@ a versioned run stays on the same code path all the way down.
 ## Querying
 
 ```php
-Run::query()->where('parent_run_id', $parent->id)->get();
+RunModel::query()->where('parent_run_id', $parent->id)->get();
 
 Impex::query()->whereParent($parent->id)->handles();
 ```

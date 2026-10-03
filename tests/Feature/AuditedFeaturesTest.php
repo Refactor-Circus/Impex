@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Carbon;
-use JayI\Impex\Enums\RollbackFailure;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Enums\StepPhase;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Exceptions\DeadlineExceededException;
-use JayI\Impex\Exceptions\FlowVersionMismatchException;
+use JayI\Impex\Domains\Flow\Exceptions\FlowVersionMismatchException;
+use JayI\Impex\Domains\Flow\Mcp\Tools\RunFlowTool;
+use JayI\Impex\Domains\Run\Enums\RollbackFailure;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Enums\StepPhase;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Exceptions\DeadlineExceededException;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Services\Engine;
 use JayI\Impex\Impex;
-use JayI\Impex\Mcp\Tools\RunFlowTool;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Runtime\Engine;
 use JayI\Impex\Testing\Flows;
 use JayI\Impex\Tests\Fixtures\AddOne;
 use JayI\Impex\Tests\Fixtures\AlwaysFails;
@@ -109,7 +109,7 @@ it('lets a run started on an old version keep taking the old path', function ():
 });
 
 it('fails a run whose slug was repointed at a different class', function (): void {
-    $run = Run::query()->create([
+    $run = RunModel::query()->create([
         'flow' => 'linear',
         'flow_class' => VersionedFlow::class,   // what it started on
         'status' => RunStatus::Pending,
@@ -279,7 +279,7 @@ it('exposes version, deadline and wait over the API', function (): void {
         // wait drove it inline, so the caller sees the terminal state.
         ->assertJsonPath('data.status', 'completed');
 
-    expect(Run::query()->firstOrFail()->expires_at)->not->toBeNull();
+    expect(RunModel::query()->firstOrFail()->expires_at)->not->toBeNull();
 });
 
 it('exposes the same over MCP', function (): void {

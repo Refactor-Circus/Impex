@@ -9,15 +9,15 @@ use Illuminate\Database\Seeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
-use JayI\Impex\Actions\AttachRunOwnerAction;
-use JayI\Impex\Actions\CancelRunAction;
-use JayI\Impex\Actions\RunFlowAction;
-use JayI\Impex\Actions\SignalRunAction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Runtime\Engine;
+use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
+use JayI\Impex\Domains\Run\Actions\AttachRunOwnerAction;
+use JayI\Impex\Domains\Run\Actions\CancelRunAction;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Services\Engine;
+use JayI\Impex\Domains\Signal\Actions\SignalRunAction;
 use Workbench\Database\Factories\UserFactory;
 
 /**
@@ -126,7 +126,7 @@ class DatabaseSeeder extends Seeder
             $this->held(function () use ($ada): void {
                 $this->advance(
                     $this->start('customer-import', ['customers-2026-10.csv'], $ada),
-                    fn (Run $run): bool => $run->steps()->where('status', StepStatus::Completed)->exists()
+                    fn (RunModel $run): bool => $run->steps()->where('status', StepStatus::Completed)->exists()
                         && $run->steps()->where('status', StepStatus::Pending)->exists(),
                 );
             });
@@ -136,13 +136,13 @@ class DatabaseSeeder extends Seeder
             $this->held(function () use ($grace): void {
                 $this->advance(
                     $this->start('customer-import', ['customers-legacy-emea.csv'], $grace),
-                    fn (Run $run): bool => $run->status === RunStatus::RollingBack,
+                    fn (RunModel $run): bool => $run->status === RunStatus::RollingBack,
                 );
             });
 
             // Started, not yet picked up by a worker.
             $at('5 minutes');
-            $this->held(fn (): Run => $this->start('order-export', [], $test));
+            $this->held(fn (): RunModel => $this->start('order-export', [], $test));
         } finally {
             Carbon::setTestNow();
         }
@@ -153,7 +153,7 @@ class DatabaseSeeder extends Seeder
      *
      * @param  array<int, mixed>  $arguments
      */
-    private function start(string $flow, array $arguments, Model $owner): Run
+    private function start(string $flow, array $arguments, Model $owner): RunModel
     {
         return app(RunFlowAction::class)->execute($flow, ['arguments' => $arguments], owner: $owner);
     }
@@ -171,7 +171,7 @@ class DatabaseSeeder extends Seeder
      *
      * @param  array<string, mixed>  $payload
      */
-    private function signal(Run $run, array $payload): void
+    private function signal(RunModel $run, array $payload): void
     {
         app(SignalRunAction::class)->execute($run, ['name' => 'approval', 'payload' => $payload]);
     }
@@ -219,9 +219,9 @@ class DatabaseSeeder extends Seeder
      * Drive a held run one step at a time, as a worker would, until it
      * reaches the state the demo wants to show.
      *
-     * @param  Closure(Run): bool  $reached
+     * @param  Closure(RunModel): bool  $reached
      */
-    private function advance(Run $run, Closure $reached): void
+    private function advance(RunModel $run, Closure $reached): void
     {
         $engine = app(Engine::class);
 
@@ -238,7 +238,7 @@ class DatabaseSeeder extends Seeder
                 ->orderBy('sequence')
                 ->first();
 
-            if ($step instanceof RunStep) {
+            if ($step instanceof RunStepModel) {
                 $engine->executeStep((string) $run->getKey(), $step->phase->value, $step->sequence);
             }
         }

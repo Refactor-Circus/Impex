@@ -3,35 +3,35 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Gate;
+use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
+use JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy;
+use JayI\Impex\Domains\Batch\Models\BatchItemModel;
+use JayI\Impex\Domains\Batch\Models\BatchModel;
+use JayI\Impex\Domains\Batch\Policies\BatchItemPolicy;
+use JayI\Impex\Domains\Batch\Policies\BatchPolicy;
+use JayI\Impex\Domains\Flow\Mcp\Tools\RunFlowTool;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy;
+use JayI\Impex\Domains\Message\Mcp\Tools\ShowMessageTool;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Message\Policies\MessagePolicy;
+use JayI\Impex\Domains\Run\Mcp\Tools\AttachRunOwnerTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\CancelRunTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\DetachRunOwnerTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\ShowRunTool;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Policies\RunOwnerPolicy;
+use JayI\Impex\Domains\Run\Policies\RunPolicy;
+use JayI\Impex\Domains\Run\Policies\RunStepPolicy;
+use JayI\Impex\Domains\Signal\Models\SignalModel;
+use JayI\Impex\Domains\Signal\Models\TimerModel;
+use JayI\Impex\Domains\Signal\Policies\SignalPolicy;
+use JayI\Impex\Domains\Signal\Policies\TimerPolicy;
 use JayI\Impex\Impex;
 use JayI\Impex\ImpexServiceProvider;
-use JayI\Impex\Mcp\Tools\AttachRunOwnerTool;
-use JayI\Impex\Mcp\Tools\CancelRunTool;
-use JayI\Impex\Mcp\Tools\DetachRunOwnerTool;
-use JayI\Impex\Mcp\Tools\ListRunsTool;
-use JayI\Impex\Mcp\Tools\RunFlowTool;
-use JayI\Impex\Mcp\Tools\ShowMessageTool;
-use JayI\Impex\Mcp\Tools\ShowRunTool;
-use JayI\Impex\Models\Artifact;
-use JayI\Impex\Models\Batch;
-use JayI\Impex\Models\BatchItem;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunOwner;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Models\Signal;
-use JayI\Impex\Models\Timer;
-use JayI\Impex\Policies\ArtifactPolicy;
-use JayI\Impex\Policies\BatchItemPolicy;
-use JayI\Impex\Policies\BatchPolicy;
-use JayI\Impex\Policies\FlowOverridePolicy;
-use JayI\Impex\Policies\MessagePolicy;
-use JayI\Impex\Policies\RunOwnerPolicy;
-use JayI\Impex\Policies\RunPolicy;
-use JayI\Impex\Policies\RunStepPolicy;
-use JayI\Impex\Policies\SignalPolicy;
-use JayI\Impex\Policies\TimerPolicy;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\Policies\KeepOwnersPolicy;
@@ -70,16 +70,16 @@ function useImpexPolicies(array $policies): void
 }
 
 it('registers the policies from the config', function (): void {
-    expect(Gate::getPolicyFor(Run::class))->toBeInstanceOf(RunPolicy::class)
-        ->and(Gate::getPolicyFor(RunStep::class))->toBeInstanceOf(RunStepPolicy::class)
-        ->and(Gate::getPolicyFor(RunOwner::class))->toBeInstanceOf(RunOwnerPolicy::class)
-        ->and(Gate::getPolicyFor(Signal::class))->toBeInstanceOf(SignalPolicy::class)
-        ->and(Gate::getPolicyFor(Timer::class))->toBeInstanceOf(TimerPolicy::class)
-        ->and(Gate::getPolicyFor(Batch::class))->toBeInstanceOf(BatchPolicy::class)
-        ->and(Gate::getPolicyFor(BatchItem::class))->toBeInstanceOf(BatchItemPolicy::class)
-        ->and(Gate::getPolicyFor(Message::class))->toBeInstanceOf(MessagePolicy::class)
-        ->and(Gate::getPolicyFor(Artifact::class))->toBeInstanceOf(ArtifactPolicy::class)
-        ->and(Gate::getPolicyFor(FlowOverride::class))->toBeInstanceOf(FlowOverridePolicy::class);
+    expect(Gate::getPolicyFor(RunModel::class))->toBeInstanceOf(RunPolicy::class)
+        ->and(Gate::getPolicyFor(RunStepModel::class))->toBeInstanceOf(RunStepPolicy::class)
+        ->and(Gate::getPolicyFor(RunOwnerModel::class))->toBeInstanceOf(RunOwnerPolicy::class)
+        ->and(Gate::getPolicyFor(SignalModel::class))->toBeInstanceOf(SignalPolicy::class)
+        ->and(Gate::getPolicyFor(TimerModel::class))->toBeInstanceOf(TimerPolicy::class)
+        ->and(Gate::getPolicyFor(BatchModel::class))->toBeInstanceOf(BatchPolicy::class)
+        ->and(Gate::getPolicyFor(BatchItemModel::class))->toBeInstanceOf(BatchItemPolicy::class)
+        ->and(Gate::getPolicyFor(MessageModel::class))->toBeInstanceOf(MessagePolicy::class)
+        ->and(Gate::getPolicyFor(ArtifactModel::class))->toBeInstanceOf(ArtifactPolicy::class)
+        ->and(Gate::getPolicyFor(FlowOverrideModel::class))->toBeInstanceOf(FlowOverridePolicy::class);
 });
 
 it('lets a run owner do anything with it, in any role', function (): void {
@@ -92,9 +92,9 @@ it('lets a run owner do anything with it, in any role', function (): void {
         ->and($this->ann->can('export', $run))->toBeTrue()
         ->and($this->bob->can('view', $run))->toBeFalse()
         ->and($this->bob->can('export', $run))->toBeFalse()
-        ->and($this->bob->can('viewAny', Run::class))->toBeTrue()
-        ->and($this->bob->can('create', [Run::class, 'linear']))->toBeTrue()
-        ->and($this->bob->can('viewAny', FlowOverride::class))->toBeTrue();
+        ->and($this->bob->can('viewAny', RunModel::class))->toBeTrue()
+        ->and($this->bob->can('create', [RunModel::class, 'linear']))->toBeTrue()
+        ->and($this->bob->can('viewAny', FlowOverrideModel::class))->toBeTrue();
 });
 
 it('checks steps, owners, signals, messages and artifacts against their run', function (): void {
@@ -103,20 +103,20 @@ it('checks steps, owners, signals, messages and artifacts against their run', fu
     $owner = $run->owners()->firstOrFail();
     $message = app(Impex::class)->record(channel: 'sftp-drop', endpoint: 'sftp://partner.test/a.csv', body: 'a', runId: $run->id);
     $orphan = app(Impex::class)->record(channel: 'sftp-drop', endpoint: 'sftp://partner.test/b.csv', body: 'b');
-    $artifact = Artifact::factory()->create(['run_id' => $run->id]);
+    $artifact = ArtifactModel::factory()->create(['run_id' => $run->id]);
 
-    expect($this->ann->can('viewAny', [RunStep::class, $run]))->toBeTrue()
+    expect($this->ann->can('viewAny', [RunStepModel::class, $run]))->toBeTrue()
         ->and($this->ann->can('view', $step))->toBeTrue()
         ->and($this->ann->can('update', $step))->toBeFalse()
-        ->and($this->ann->can('create', [RunOwner::class, $run]))->toBeTrue()
+        ->and($this->ann->can('create', [RunOwnerModel::class, $run]))->toBeTrue()
         ->and($this->ann->can('delete', $owner))->toBeTrue()
-        ->and($this->ann->can('create', [Signal::class, $run]))->toBeTrue()
+        ->and($this->ann->can('create', [SignalModel::class, $run]))->toBeTrue()
         ->and($this->ann->can('view', $message))->toBeTrue()
         ->and($this->ann->can('view', $orphan))->toBeFalse()
         ->and($this->ann->can('view', $artifact))->toBeTrue()
         ->and($this->bob->can('view', $step))->toBeFalse()
         ->and($this->bob->can('delete', $owner))->toBeFalse()
-        ->and($this->bob->can('create', [Signal::class, $run]))->toBeFalse()
+        ->and($this->bob->can('create', [SignalModel::class, $run]))->toBeFalse()
         ->and($this->bob->can('view', $message))->toBeFalse()
         ->and($this->bob->can('view', $artifact))->toBeFalse();
 });
@@ -161,7 +161,7 @@ it('makes the caller the owner of the runs they start, and lists only those', fu
     mcpTool(ListRunsTool::class)->assertOk()->assertStructuredContent(fn ($json) => $json->has('data', 1)->etc());
     mcpTool(ShowRunTool::class, ['run' => $id])->assertHasErrors(['Unauthorized.']);
 
-    expect(Run::query()->whereOwnedBy($this->bob, 'owner')->count())->toBe(1);
+    expect(RunModel::query()->whereOwnedBy($this->bob, 'owner')->count())->toBe(1);
 });
 
 it('refuses a reused idempotency key that names someone else\'s run', function (): void {
@@ -194,7 +194,7 @@ it('scopes the ledger to the messages of runs the caller owns', function (): voi
 });
 
 it('uses a run policy swapped in the config, for runs and their owners', function (): void {
-    useImpexPolicies([Run::class => ReadOnlyRunPolicy::class]);
+    useImpexPolicies([RunModel::class => ReadOnlyRunPolicy::class]);
 
     $run = app(Impex::class)->run('signal', [], owners: [$this->ann]);
 
@@ -219,7 +219,7 @@ it('uses a run policy swapped in the config, for runs and their owners', functio
 });
 
 it('checks a detached owner against an owner policy swapped in the config', function (): void {
-    useImpexPolicies([RunOwner::class => KeepOwnersPolicy::class]);
+    useImpexPolicies([RunOwnerModel::class => KeepOwnersPolicy::class]);
 
     $run = app(Impex::class)->run('linear', [1], owners: [$this->ann]);
     $owner = $run->owners()->firstOrFail();

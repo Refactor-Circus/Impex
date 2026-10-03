@@ -4,35 +4,17 @@ declare(strict_types=1);
 
 namespace JayI\Impex;
 
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use JayI\Atrium\Facades\Atrium;
 use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Channels\ChannelRegistry;
+use JayI\Impex\Atrium\ScreenAccess;
 use JayI\Impex\Console\Commands\PruneCommand;
-use JayI\Impex\Console\Commands\RunFlowCommand;
-use JayI\Impex\Console\Commands\SignalCommand;
-use JayI\Impex\Console\Commands\TickCommand;
-use JayI\Impex\Contracts\RollbackStrategy;
 use JayI\Impex\Cortex\CortexIntegration;
-use JayI\Impex\Flows\FlowRegistry;
-use JayI\Impex\Http\Ui\ScreenAccess;
+use JayI\Impex\Domains\DomainServiceProvider;
 use JayI\Impex\Mcp\ImpexServer;
-use JayI\Impex\Runtime\BatchRunner;
-use JayI\Impex\Runtime\Children;
-use JayI\Impex\Runtime\Engine;
-use JayI\Impex\Runtime\EngineOptions;
-use JayI\Impex\Runtime\JobRouter;
-use JayI\Impex\Runtime\Rollbacks;
-use JayI\Impex\Runtime\StepWriter;
-use JayI\Impex\Runtime\Sweeper;
-use JayI\Impex\Runtime\Waits;
 use JayI\Impex\Support\Locks;
-use JayI\Impex\Support\MessageRecorder;
-use JayI\Impex\Support\OutboundRecorder;
-use JayI\Impex\Support\PayloadStore;
 use Laravel\Mcp\Facades\Mcp;
 
 class ImpexServiceProvider extends ServiceProvider
@@ -44,38 +26,12 @@ class ImpexServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/impex.php', 'impex');
 
-        $this->app->singleton(FlowRegistry::class);
-
-        $this->app->singleton(PayloadStore::class);
+        // Each domain registers its own services: the engine and its
+        // collaborators (Run), flows, signals and timers, batches, the
+        // message ledger and channels, and the artifact store.
+        $this->app->register(DomainServiceProvider::class);
 
         $this->app->singleton(Locks::class);
-
-        // Each engine collaborator is resolved from the container, so an
-        // application can bind its own without forking the package.
-        $this->app->singleton(EngineOptions::class);
-
-        $this->app->singleton(JobRouter::class);
-
-        $this->app->singleton(StepWriter::class);
-
-        $this->app->singleton(Children::class);
-
-        $this->app->singleton(Waits::class);
-
-        $this->app->singleton(Sweeper::class);
-
-        // Bind your own to change what a failed run unwinds, and in what order.
-        $this->app->singleton(RollbackStrategy::class, Rollbacks::class);
-
-        $this->app->singleton(ChannelRegistry::class);
-
-        $this->app->singleton(MessageRecorder::class);
-
-        $this->app->singleton(OutboundRecorder::class);
-
-        $this->app->singleton(BatchRunner::class);
-
-        $this->app->singleton(Engine::class);
 
         $this->app->singleton(Impex::class);
     }
@@ -89,8 +45,6 @@ class ImpexServiceProvider extends ServiceProvider
         $this->app->make(CortexIntegration::class)->register();
 
         $this->registerPolicies();
-
-        $this->registerRoutes();
 
         $this->registerAtriumPlugin();
 
@@ -124,14 +78,7 @@ class ImpexServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ], ['impex', 'impex-migrations']);
 
-        $this->commands([
-            PruneCommand::class,
-            RunFlowCommand::class,
-            SignalCommand::class,
-            TickCommand::class,
-        ]);
-
-        $this->registerSchedule();
+        $this->commands([PruneCommand::class]);
     }
 
     /**
@@ -146,18 +93,6 @@ class ImpexServiceProvider extends ServiceProvider
         foreach ($policies as $model => $policy) {
             Gate::policy($model, $policy);
         }
-    }
-
-    /**
-     * Register the API routes when enabled in the config.
-     */
-    private function registerRoutes(): void
-    {
-        if ($this->app->make('config')->get('impex.routes.enabled') !== true) {
-            return;
-        }
-
-        $this->loadRoutesFrom(__DIR__.'/../routes/impex.php');
     }
 
     /**
@@ -197,38 +132,5 @@ class ImpexServiceProvider extends ServiceProvider
         if ($config->get('impex.mcp.local.enabled') === true) {
             Mcp::local((string) $config->get('impex.mcp.local.handle'), ImpexServer::class);
         }
-    }
-
-    /**
-     * Sweep due timers every minute, and register any scheduled flows.
-     *
-     * The sweep is what makes waits longer than the queue's delay ceiling
-     * possible, so it is not optional: without it, a run that sleeps for a day
-     * never wakes.
-     */
-    private function registerSchedule(): void
-    {
-        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
-            $config = $this->app->make('config');
-
-            if ($config->get('impex.timers.enabled', true) !== false) {
-                $schedule->command(TickCommand::class)
-                    ->everyMinute()
-                    ->withoutOverlapping()
-                    ->runInBackground();
-            }
-
-            $registry = $this->app->make(FlowRegistry::class);
-
-            foreach (array_keys($registry->all()) as $slug) {
-                $cron = $registry->schedule($slug);
-
-                if ($cron === null) {
-                    continue;
-                }
-
-                $schedule->command(RunFlowCommand::class, [$slug, '--trigger=schedule'])->cron($cron);
-            }
-        });
     }
 }

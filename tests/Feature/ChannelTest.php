@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\Message;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\PayloadFlow;
 
@@ -49,7 +49,7 @@ it('records an inbound webhook and starts the flow bound to the channel', functi
 
     $response->assertStatus(202);
 
-    $message = Message::query()->firstOrFail();
+    $message = MessageModel::query()->firstOrFail();
 
     expect($message->direction)->toBe(Direction::Inbound)
         ->and($message->channel)->toBe('supplier-feed')
@@ -74,7 +74,7 @@ it('records a rejected signature but starts no run', function (): void {
         content: $body,
     )->assertStatus(403);
 
-    $message = Message::query()->firstOrFail();
+    $message = MessageModel::query()->firstOrFail();
 
     // Still recorded: an invalid signature is evidence of what an upstream
     // sent, which is exactly what the ledger is for.
@@ -95,7 +95,7 @@ it('dedupes a redelivered webhook by its idempotency header', function (): void 
     $this->call('POST', '/impex/channels/supplier-feed', server: $server, content: $body)->assertStatus(202);
     $this->call('POST', '/impex/channels/supplier-feed', server: $server, content: $body)->assertStatus(202);
 
-    expect(Message::query()->count())->toBe(1)
+    expect(MessageModel::query()->count())->toBe(1)
         ->and(Calls::count('ingest'))->toBe(1);
 });
 
@@ -104,7 +104,7 @@ it('records outbound calls against the ledger', function (): void {
 
     app(Impex::class)->http('vendor-api')->post('https://vendor.test/quote', ['sku' => 'ABC-1']);
 
-    $message = Message::query()->where('direction', Direction::Outbound)->firstOrFail();
+    $message = MessageModel::query()->where('direction', Direction::Outbound)->firstOrFail();
 
     expect($message->channel)->toBe('vendor-api')
         ->and($message->method)->toBe('POST')
@@ -120,7 +120,7 @@ it('records non-HTTP egress the middleware cannot see', function (): void {
         body: "sku,price\nABC-1,10.00\n",
     );
 
-    $message = Message::query()->firstOrFail();
+    $message = MessageModel::query()->firstOrFail();
 
     expect($message->transport)->toBe('file')
         ->and($message->direction)->toBe(Direction::Outbound)
@@ -148,7 +148,7 @@ it('refuses a channel configured without a signing secret', function (): void {
         content: (string) json_encode(['sku' => 'ABC-1']),
     )->assertStatus(403);
 
-    $message = Message::query()->firstOrFail();
+    $message = MessageModel::query()->firstOrFail();
 
     // Recorded but not dispatched: the attempt is evidence, the flow is not run.
     expect($message->signature_valid)->toBeFalse()

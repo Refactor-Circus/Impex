@@ -1,5 +1,5 @@
 @use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Http\Ui\ScreenAccess)
+@use(JayI\Impex\Atrium\ScreenAccess)
 
 <x-atrium::layout :title="$message->channel">
     <x-atrium::page-header :title="$message->channel" :description="$message->endpoint">

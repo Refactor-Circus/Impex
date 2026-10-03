@@ -9,7 +9,7 @@
 namespace VendorName\Catalogue;
 
 use Illuminate\Support\ServiceProvider;
-use JayI\Impex\Flows\FlowRegistry;
+use JayI\Impex\Domains\Flow\Services\FlowRegistry;
 
 final class CatalogueServiceProvider extends ServiceProvider
 {
@@ -53,7 +53,7 @@ Impex::flows()->class('catalogue:sync');          // the app's class
 Two packages claiming the same slug is an **error**, not a silent shadowing:
 
 ```
-JayI\Impex\Exceptions\FlowCollisionException
+JayI\Impex\Domains\Flow\Exceptions\FlowCollisionException
 
   The flow slug [sync] is already registered to [VendorA\SyncFlow], and
   [VendorB\SyncFlow] tried to claim it. Prefix the slug with the package name,
@@ -86,7 +86,7 @@ final class UnwindToCheckpoint implements RollbackStrategy
 {
     public function __construct(private readonly Rollbacks $default) {}
 
-    public function next(Run $run): bool
+    public function next(RunModel $run): bool
     {
         if ($run->tags['checkpointed'] ?? false) {
             return false;   // nothing to undo past the checkpoint
@@ -95,7 +95,7 @@ final class UnwindToCheckpoint implements RollbackStrategy
         return $this->default->next($run);
     }
 
-    public function halts(RunStep $rollbackStep): bool
+    public function halts(RunStepModel $rollbackStep): bool
     {
         return $this->default->halts($rollbackStep);
     }
@@ -170,11 +170,11 @@ Every state transition emits one.
 
 ```php
 use Illuminate\Support\Facades\Event;
-use JayI\Impex\Events\RunFailed;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Run\Events\RunFailed;
+use JayI\Impex\Domains\Run\Models\RunModel;
 
 Event::listen(function (RunFailed $event): void {
-    $run = Run::query()->find($event->runId);
+    $run = RunModel::query()->find($event->runId);
 
     Log::error('Impex run failed', [
         'run' => $event->runId,
@@ -188,8 +188,8 @@ Events carry identifiers, not models, so a listener queued onto SQS stays well
 inside the message limit.
 
 Alongside these engine events, every model fires a class-based event per
-Eloquent hook (`JayI\Impex\Events\Model\RunCreatedEvent`, ...) and every
-action fires a start and a finish event (`JayI\Impex\Events\Action\FlowRanActionEvent`,
+Eloquent hook (`JayI\Impex\Domains\Run\Events\RunCreatedEvent`, ...) and every
+action fires a start and a finish event (`JayI\Impex\Domains\Flow\Events\FlowRanActionEvent`,
 ...). Listen to `ModelLifecycleEvent`, `ActionStartingEvent` or
 `ActionFinishedEvent` in `JayI\Impex\Contracts` to receive a whole family. See
 the [README](../README.md#events) for the full list.

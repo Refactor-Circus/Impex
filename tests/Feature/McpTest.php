@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Enums\RunStatus;
+use JayI\Impex\Domains\Flow\Mcp\Tools\ListFlowsTool;
+use JayI\Impex\Domains\Flow\Mcp\Tools\RunFlowTool;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Message\Mcp\Tools\ListChannelsTool;
+use JayI\Impex\Domains\Message\Mcp\Tools\ListMessagesTool;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Mcp\Tools\ListRunStepsTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
+use JayI\Impex\Domains\Run\Mcp\Tools\ShowRunTool;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Signal\Mcp\Tools\SignalRunTool;
 use JayI\Impex\Impex;
-use JayI\Impex\Mcp\Tools\ListChannelsTool;
-use JayI\Impex\Mcp\Tools\ListFlowsTool;
-use JayI\Impex\Mcp\Tools\ListMessagesTool;
-use JayI\Impex\Mcp\Tools\ListRunStepsTool;
-use JayI\Impex\Mcp\Tools\ListRunsTool;
-use JayI\Impex\Mcp\Tools\RunFlowTool;
-use JayI\Impex\Mcp\Tools\ShowRunTool;
-use JayI\Impex\Mcp\Tools\SignalRunTool;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Run;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\SignalFlow;
@@ -46,7 +46,7 @@ it('starts a run over MCP and records the trigger as mcp', function (): void {
     mcpTool(RunFlowTool::class, ['flow' => 'linear', 'arguments' => [1]])
         ->assertOk();
 
-    $run = Run::query()->firstOrFail();
+    $run = RunModel::query()->firstOrFail();
 
     // The trigger is what tells you an agent started this rather than a human.
     expect($run->trigger->value)->toBe('mcp')
@@ -64,7 +64,7 @@ it('shares one implementation with the HTTP API', function (): void {
     mcpTool(RunFlowTool::class, ['flow' => 'linear', 'arguments' => [1], 'idempotency_key' => 'shared-key'])
         ->assertOk();
 
-    expect(Run::query()->count())->toBe(1)
+    expect(RunModel::query()->count())->toBe(1)
         ->and(Calls::count('add-one'))->toBe(1);
 });
 
@@ -74,7 +74,7 @@ it('validates tool input with the same rules as the API', function (): void {
 });
 
 it('surfaces an Impex exception message so an agent can act on it', function (): void {
-    FlowOverride::query()->create(['slug' => 'linear', 'enabled' => false]);
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'enabled' => false]);
 
     mcpTool(RunFlowTool::class, ['flow' => 'linear', 'arguments' => [1]])
         ->assertHasErrors()

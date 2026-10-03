@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
+use JayI\Impex\Domains\Batch\Models\BatchItemModel;
+use JayI\Impex\Domains\Batch\Models\BatchModel;
+use JayI\Impex\Domains\Batch\Services\BatchRunner;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\Batch;
-use JayI\Impex\Models\BatchItem;
-use JayI\Impex\Runtime\BatchRunner;
 use JayI\Impex\Tests\Fixtures\BatchFlow;
 use JayI\Impex\Tests\Fixtures\Calls;
 
@@ -26,7 +26,7 @@ it('passes constructor arguments to the batch source', function (): void {
     $run = app(Impex::class)->run('batching', [5]);
 
     expect($run->refresh()->status)->toBe(RunStatus::Completed)
-        ->and(BatchItem::query()->count())->toBe(10);
+        ->and(BatchItemModel::query()->count())->toBe(10);
 });
 
 it('keeps the replay history at one step whatever the item count', function (): void {
@@ -36,7 +36,7 @@ it('keeps the replay history at one step whatever the item count', function (): 
 
     // Six items processed, and the run's history is a single step. This is the
     // whole point of batch(): drive cost is independent of item count.
-    expect(BatchItem::query()->count())->toBe(6)
+    expect(BatchItemModel::query()->count())->toBe(6)
         ->and($run->forwardSteps()->count())->toBe(1);
 
     $step = $run->forwardSteps()->first();
@@ -68,7 +68,7 @@ it('seeds across multiple invocations, resuming from the source cursor', functio
 it('gives each item an idempotency key so a redelivered seed is a no-op', function (): void {
     $run = app(Impex::class)->run('batching', [3]);
 
-    $batch = Batch::query()->where('run_id', $run->getKey())->firstOrFail();
+    $batch = BatchModel::query()->where('run_id', $run->getKey())->firstOrFail();
 
     expect(Calls::count('enrich'))->toBe(6);
 
@@ -76,7 +76,7 @@ it('gives each item an idempotency key so a redelivered seed is a no-op', functi
     // insert loses and nothing is dispatched a second time.
     app(BatchRunner::class)->seed((string) $batch->getKey(), null);
 
-    expect(BatchItem::query()->count())->toBe(6)
+    expect(BatchItemModel::query()->count())->toBe(6)
         ->and(Calls::count('enrich'))->toBe(6);
 });
 
@@ -92,10 +92,10 @@ it('fails the run when failures exceed the tolerated share', function (): void {
 it('records per-item failures without stopping the other items', function (): void {
     app(Impex::class)->run('batching', [3]);
 
-    $failed = BatchItem::query()->where('status', StepStatus::Failed)->get();
+    $failed = BatchItemModel::query()->where('status', StepStatus::Failed)->get();
 
     expect($failed)->toHaveCount(1)
         ->and($failed[0]->item_key)->toBe('P1-1')
         ->and($failed[0]->error['message'])->toBe('this one always fails')
-        ->and(BatchItem::query()->where('status', StepStatus::Completed)->count())->toBe(5);
+        ->and(BatchItemModel::query()->where('status', StepStatus::Completed)->count())->toBe(5);
 });

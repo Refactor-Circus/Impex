@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Flows;
 
-use JayI\Impex\Flows\Flow;
+use JayI\Impex\Domains\Flow\Support\Flow;
 use Workbench\App\Flows\Actions\DeliverExport;
 use Workbench\App\Flows\Actions\FetchOrders;
 use Workbench\App\Flows\Actions\RenderOrdersCsv;

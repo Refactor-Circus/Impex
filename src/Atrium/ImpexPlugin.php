@@ -8,24 +8,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use JayI\Atrium\Navigation\NavItem;
-use JayI\Atrium\Plugins\Plugin;
-use JayI\Atrium\Search\SearchResult;
-use JayI\Atrium\Search\SearchSource;
-use JayI\Atrium\Settings\SettingsPanel;
+use JayI\Atrium\Domains\Navigation\Data\NavItem;
+use JayI\Atrium\Domains\Plugins\Support\Plugin;
+use JayI\Atrium\Domains\Search\Data\SearchResult;
+use JayI\Atrium\Domains\Search\Data\SearchSource;
+use JayI\Atrium\Domains\Settings\Data\SettingsPanel;
+use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
 use JayI\Atrium\Support\Icons;
-use JayI\Atrium\Widgets\WidgetDefinition;
-use JayI\Impex\Access\Authorizer;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Http\Ui\ChannelUiController;
-use JayI\Impex\Http\Ui\FlowUiController;
-use JayI\Impex\Http\Ui\MessageUiController;
-use JayI\Impex\Http\Ui\RunUiController;
-use JayI\Impex\Http\Ui\ScreenAccess;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Atrium\Http\Controllers\ChannelUiController;
+use JayI\Impex\Atrium\Http\Controllers\FlowUiController;
+use JayI\Impex\Atrium\Http\Controllers\MessageUiController;
+use JayI\Impex\Atrium\Http\Controllers\RunUiController;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Support\Authorizer;
 use Throwable;
 
 /**
@@ -76,22 +75,22 @@ class ImpexPlugin extends Plugin
                 ->route('atrium.impex.runs.index')
                 ->group('Impex')
                 ->sort(10)
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Run::class))
-                ->badge(fn (): ?int => self::owned(Run::query())->active()->count() ?: null),
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', RunModel::class))
+                ->badge(fn (): ?int => self::owned(RunModel::query())->active()->count() ?: null),
 
             NavItem::make(__('impex::impex.messages'))
                 ->icon(Icons::svg('inbox-stack'))
                 ->route('atrium.impex.messages.index')
                 ->group('Impex')
                 ->sort(20)
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Message::class)),
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', MessageModel::class)),
 
             NavItem::make(__('impex::impex.flows'))
                 ->icon(Icons::svg('queue-list'))
                 ->route('atrium.impex.flows.index')
                 ->group('Impex')
                 ->sort(30)
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', FlowOverride::class)),
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', FlowOverrideModel::class)),
 
             // Channels have no policy: the API lets anyone signed in list them.
             NavItem::make(__('impex::impex.channels'))
@@ -136,11 +135,11 @@ class ImpexPlugin extends Plugin
                 ->description(__('impex::impex.widget_run_status_description'))
                 ->defaultSize(6, 2)
                 ->view('impex::ui.widgets.run-status')
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Run::class))
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', RunModel::class))
                 ->resolve(fn (): array => [
                     'counts' => collect(RunStatus::cases())
                         ->mapWithKeys(fn (RunStatus $status): array => [
-                            $status->value => self::owned(Run::query())->where('status', $status)->count(),
+                            $status->value => self::owned(RunModel::query())->where('status', $status)->count(),
                         ])
                         ->all(),
                 ]),
@@ -150,9 +149,9 @@ class ImpexPlugin extends Plugin
                 ->description(__('impex::impex.widget_recent_failures_description'))
                 ->defaultSize(6, 2)
                 ->view('impex::ui.widgets.recent-failures')
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Run::class))
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', RunModel::class))
                 ->resolve(fn (): array => [
-                    'runs' => self::owned(Run::query())
+                    'runs' => self::owned(RunModel::query())
                         ->where('status', RunStatus::Failed)
                         ->latest('finished_at')
                         ->limit(5)
@@ -164,7 +163,7 @@ class ImpexPlugin extends Plugin
                 ->description(__('impex::impex.widget_messages_description'))
                 ->defaultSize(3, 1)
                 ->view('impex::ui.widgets.message-volume')
-                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Message::class))
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', MessageModel::class))
                 ->resolve(fn (): array => [
                     'inbound' => self::ownedMessages()
                         ->where('direction', Direction::Inbound)
@@ -196,15 +195,15 @@ class ImpexPlugin extends Plugin
     {
         return SearchSource::make('impex')
             ->label(__('impex::impex.label'))
-            ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', Run::class))
-            ->using(fn (string $query): array => self::owned(Run::query())
+            ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', RunModel::class))
+            ->using(fn (string $query): array => self::owned(RunModel::query())
                 ->where(fn (Builder $builder): Builder => $builder
                     ->where('flow', 'like', '%'.$query.'%')
                     ->orWhere('id', 'like', $query.'%'))
                 ->latest('created_at')
                 ->limit(5)
                 ->get()
-                ->map(fn (Run $run): SearchResult => SearchResult::make(
+                ->map(fn (RunModel $run): SearchResult => SearchResult::make(
                     $run->flow,
                     route('atrium.impex.runs.show', $run),
                 )->subtitle($run->status->value)->group(__('impex::impex.runs')))
@@ -223,8 +222,8 @@ class ImpexPlugin extends Plugin
      * Limit runs to those the signed-in user owns, as the JSON API does,
      * while authorization is on and they are not an operator.
      *
-     * @param  Builder<Run>  $query
-     * @return Builder<Run>
+     * @param  Builder<RunModel>  $query
+     * @return Builder<RunModel>
      */
     private static function owned(Builder $query): Builder
     {
@@ -236,11 +235,11 @@ class ImpexPlugin extends Plugin
     /**
      * Messages of the runs the signed-in user owns, scoped as runs are.
      *
-     * @return Builder<Message>
+     * @return Builder<MessageModel>
      */
     private static function ownedMessages(): Builder
     {
-        $query = Message::query();
+        $query = MessageModel::query();
         $viewer = ScreenAccess::viewer();
 
         if ($viewer !== null) {

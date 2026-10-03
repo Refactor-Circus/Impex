@@ -27,7 +27,7 @@
 ## The shape of it in one page
 
 ```php
-use JayI\Impex\Flows\Flow;
+use JayI\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {

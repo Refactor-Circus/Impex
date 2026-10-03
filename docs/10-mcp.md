@@ -77,7 +77,7 @@ When Cortex is installed and publishes an instructions override for the
 
 ## Parity
 
-An arch test compares `src/Actions/` against `src/Mcp/Requests/` and fails when
+An arch test compares each domain's `Actions/` against its `Mcp/Requests/` and fails when
 an Action has no tool:
 
 ```php

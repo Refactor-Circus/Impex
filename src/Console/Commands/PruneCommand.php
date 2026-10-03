@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace JayI\Impex\Console\Commands;
 
 use Illuminate\Console\Command;
-use JayI\Impex\Models\Artifact;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Models\RunModel;
 
 /**
  * Prunes Impex history in dependency order.
@@ -24,9 +24,9 @@ final class PruneCommand extends Command
 
     public function handle(): int
     {
-        $runs = (new Run)->pruneAll();
-        $messages = (new Message)->pruneAll();
-        $artifacts = (new Artifact)->pruneAll();
+        $runs = (new RunModel)->pruneAll();
+        $messages = (new MessageModel)->pruneAll();
+        $artifacts = (new ArtifactModel)->pruneAll();
 
         $this->components->info(sprintf(
             'Pruned %d run(s), %d message(s), and %d artifact(s).',

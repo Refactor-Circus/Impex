@@ -109,7 +109,7 @@ php artisan impex:signal 01JQ7X… approval --idempotency-key=evt_9f2
 ### Finding the run to signal
 
 ```php
-Run::query()
+RunModel::query()
     ->signalable()                       // NOT running()
     ->where('flow', 'purchase-order')
     ->where('tags->order', $orderId)
@@ -179,9 +179,9 @@ timer forever if the sweep died between claiming and dispatching.
 ## Inspecting waits
 
 ```php
-Run::query()->where('status', RunStatus::Waiting)->get();
+RunModel::query()->where('status', RunStatus::Waiting)->get();
 
-Timer::query()->whereNull('fired_at')->orderBy('wake_at')->get();
+TimerModel::query()->whereNull('fired_at')->orderBy('wake_at')->get();
 
 // Which signal is this run waiting for?
 $run->forwardSteps()->where('type', StepType::Signal)->where('status', StepStatus::Pending)->first();

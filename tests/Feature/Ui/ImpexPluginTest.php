@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Atrium\Navigation\NavItem;
-use JayI\Atrium\Plugins\PluginRegistry;
-use JayI\Atrium\Widgets\WidgetDefinition;
-use JayI\Atrium\Widgets\WidgetRegistry;
+use JayI\Atrium\Domains\Navigation\Data\NavItem;
+use JayI\Atrium\Domains\Plugins\Services\PluginRegistry;
+use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
+use JayI\Atrium\Domains\Widgets\Services\WidgetRegistry;
 use JayI\Impex\Atrium\Badges;
+use JayI\Impex\Atrium\Features\ImpexSupportFeature;
 use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Features\ImpexSupportFeature;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
 use JayI\Impex\Tests\Fixtures\Features\OrphanedSupportFeature;
 
 it('registers itself with atrium', function (): void {

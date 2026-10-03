@@ -9,22 +9,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\LazyCollection;
-use JayI\Impex\Enums\ArtifactKind;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Exceptions\CannotSignalTerminalRunException;
-use JayI\Impex\Flows\FlowRegistry;
-use JayI\Impex\Models\BatchItem;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\Signal;
-use JayI\Impex\Runtime\Engine;
-use JayI\Impex\Runtime\RunHandle;
-use JayI\Impex\Runtime\RunQuery;
-use JayI\Impex\Support\MessageRecorder;
-use JayI\Impex\Support\OutboundRecorder;
-use JayI\Impex\Support\PayloadStore;
+use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
+use JayI\Impex\Domains\Artifact\Services\PayloadStore;
+use JayI\Impex\Domains\Batch\Models\BatchItemModel;
+use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use JayI\Impex\Domains\Message\Services\OutboundRecorder;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Services\Engine;
+use JayI\Impex\Domains\Run\Support\RunHandle;
+use JayI\Impex\Domains\Run\Support\RunQuery;
+use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
+use JayI\Impex\Domains\Signal\Models\SignalModel;
 
 /**
  * The package's public entry point.
@@ -69,11 +69,11 @@ class Impex
         iterable $owners = [],
         ?string $version = null,
         DateTimeInterface|int|null $expiresAt = null,
-    ): Run {
+    ): RunModel {
         if ($idempotencyKey !== null) {
-            $existing = Run::query()->where('idempotency_key', $idempotencyKey)->first();
+            $existing = RunModel::query()->where('idempotency_key', $idempotencyKey)->first();
 
-            if ($existing instanceof Run) {
+            if ($existing instanceof RunModel) {
                 return $existing;
             }
         }
@@ -85,7 +85,7 @@ class Impex
         // positional list has no string keys and is unaffected.
         $stored = $this->payloads->put($arguments, ArtifactKind::Payload);
 
-        $run = Run::query()->create([
+        $run = RunModel::query()->create([
             'flow' => $slug,
             'flow_class' => $class,
             'status' => RunStatus::Pending,
@@ -129,7 +129,7 @@ class Impex
         iterable $owners = [],
         ?string $version = null,
         ?int $seconds = null,
-    ): Run {
+    ): RunModel {
         $run = $this->run($slug, $arguments, $trigger, $idempotencyKey, $tags, $owners, $version);
 
         /** @var int $budget */
@@ -149,9 +149,9 @@ class Impex
     /**
      * A run you can act on directly.
      */
-    public function handle(Run|string $run): RunHandle
+    public function handle(RunModel|string $run): RunHandle
     {
-        return new RunHandle($run instanceof Run ? $run : Run::query()->findOrFail($run));
+        return new RunHandle($run instanceof RunModel ? $run : RunModel::query()->findOrFail($run));
     }
 
     /**
@@ -160,7 +160,7 @@ class Impex
      * No user, team or customer tables ship with this package: the host app
      * decides what those are, and the hierarchy between them lives there.
      */
-    public function addOwner(Run $run, Model $owner, string $role = 'owner'): void
+    public function addOwner(RunModel $run, Model $owner, string $role = 'owner'): void
     {
         $run->owners()->firstOrCreate([
             'owner_type' => $owner->getMorphClass(),
@@ -177,7 +177,7 @@ class Impex
      *
      * @throws CannotSignalTerminalRunException if the run has finished
      */
-    public function signal(Run $run, string $name, mixed $payload = null, ?string $idempotencyKey = null): Signal
+    public function signal(RunModel $run, string $name, mixed $payload = null, ?string $idempotencyKey = null): SignalModel
     {
         return $this->engine->deliverSignal($run, $name, $payload, $idempotencyKey);
     }
@@ -188,7 +188,7 @@ class Impex
      * Use this when losing a race with the run's own completion is expected
      * rather than exceptional.
      */
-    public function signalIfRunning(Run $run, string $name, mixed $payload = null, ?string $idempotencyKey = null): bool
+    public function signalIfRunning(RunModel $run, string $name, mixed $payload = null, ?string $idempotencyKey = null): bool
     {
         if ($run->status->isFinished()) {
             return false;
@@ -207,7 +207,7 @@ class Impex
     /**
      * Cancel a run that has not finished.
      */
-    public function cancel(Run $run, ?string $reason = null): Run
+    public function cancel(RunModel $run, ?string $reason = null): RunModel
     {
         if ($run->status->isFinished()) {
             return $run;
@@ -225,7 +225,7 @@ class Impex
     /**
      * Re-queue a drive for a run that stalled.
      */
-    public function retry(Run $run): Run
+    public function retry(RunModel $run): RunModel
     {
         if ($run->status === RunStatus::Failed) {
             $run->update(['status' => RunStatus::Running, 'finished_at' => null]);
@@ -260,7 +260,7 @@ class Impex
         Direction $direction = Direction::Outbound,
         ?string $runId = null,
         ?array $headers = null,
-    ): Message {
+    ): MessageModel {
         return $this->messages->record(
             direction: $direction,
             channel: $channel,
@@ -275,7 +275,7 @@ class Impex
     /**
      * Read a recorded message body back from the ledger.
      */
-    public function body(Message $message): ?string
+    public function body(MessageModel $message): ?string
     {
         return $this->messages->body($message);
     }
@@ -283,11 +283,11 @@ class Impex
     /**
      * Stream a finished batch's items without holding them in memory.
      *
-     * @return LazyCollection<int, BatchItem>
+     * @return LazyCollection<int, BatchItemModel>
      */
     public function batchItems(string $batchId): LazyCollection
     {
-        return BatchItem::query()
+        return BatchItemModel::query()
             ->where('batch_id', $batchId)
             ->orderBy('id')
             ->lazyById(1000);
@@ -296,7 +296,7 @@ class Impex
     /**
      * Read a run's result, from the inline column or the artifact disk.
      */
-    public function result(Run $run): mixed
+    public function result(RunModel $run): mixed
     {
         return $this->payloads->get($run->result, $run->result_artifact_id);
     }

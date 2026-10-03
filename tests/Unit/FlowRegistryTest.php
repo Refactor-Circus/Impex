@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Exceptions\FlowCollisionException;
-use JayI\Impex\Exceptions\UnknownFlowException;
-use JayI\Impex\Flows\FlowRegistry;
+use JayI\Impex\Domains\Flow\Exceptions\FlowCollisionException;
+use JayI\Impex\Domains\Flow\Exceptions\UnknownFlowException;
+use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Impex;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\ParallelFlow;

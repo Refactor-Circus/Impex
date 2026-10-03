@@ -172,7 +172,7 @@ $this->call('POST', '/impex/channels/supplier-feed',
     content: $body,
 )->assertStatus(202);
 
-expect(Message::query()->first()->signature_valid)->toBeTrue();
+expect(MessageModel::query()->first()->signature_valid)->toBeTrue();
 ```
 
 ## Testing determinism

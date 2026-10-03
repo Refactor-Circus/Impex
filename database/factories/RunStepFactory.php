@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace JayI\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use JayI\Impex\Enums\StepPhase;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunStep;
+use JayI\Impex\Domains\Run\Enums\StepPhase;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
 
 /**
- * @extends Factory<RunStep>
+ * @extends Factory<RunStepModel>
  */
 final class RunStepFactory extends Factory
 {
-    protected $model = RunStep::class;
+    protected $model = RunStepModel::class;
 
     /**
      * @return array<string, mixed>
@@ -24,7 +24,7 @@ final class RunStepFactory extends Factory
     public function definition(): array
     {
         return [
-            'run_id' => Run::factory(),
+            'run_id' => RunModel::factory(),
             'phase' => StepPhase::Forward,
             'sequence' => 0,
             'type' => StepType::Action,

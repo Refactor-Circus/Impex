@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Enums\StepPhase;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Enums\StepPhase;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\SignalFlow;
 
@@ -26,9 +26,9 @@ beforeEach(function (): void {
     ]);
 });
 
-function makeRun(RunStatus $status = RunStatus::Completed): Run
+function makeRun(RunStatus $status = RunStatus::Completed): RunModel
 {
-    return Run::query()->create([
+    return RunModel::query()->create([
         'flow' => 'linear',
         'flow_class' => LinearFlow::class,
         'status' => $status,
@@ -121,7 +121,7 @@ it('cancels a running run', function (): void {
 });
 
 it('lists messages', function (): void {
-    Message::query()->create([
+    MessageModel::query()->create([
         'direction' => Direction::Inbound,
         'channel' => 'webhook',
         'endpoint' => '/hooks/example',
@@ -137,7 +137,7 @@ it('lists messages', function (): void {
 });
 
 it('shows a message with its body', function (): void {
-    $message = Message::query()->create([
+    $message = MessageModel::query()->create([
         'direction' => Direction::Outbound,
         'channel' => 'api',
         'endpoint' => 'https://example.test/hook',
@@ -158,7 +158,7 @@ it('lists flows and starts one', function (): void {
     $this->post(route('atrium.impex.flows.run', 'linear'), ['arguments' => '[1]'])
         ->assertRedirect();
 
-    expect(Run::query()->where('flow', 'linear')->exists())->toBeTrue();
+    expect(RunModel::query()->where('flow', 'linear')->exists())->toBeTrue();
 });
 
 it('rejects arguments that are not a json array', function (): void {

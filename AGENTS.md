@@ -10,6 +10,10 @@ This repository is a Laravel package. Keep the package focused, idiomatic, and e
 - Prefer explicit Laravel package code over helper abstractions unless the extension point is real.
 - Keep tests focused on observable package behavior through public APIs, service provider wiring, commands, routes, published resources, and documentation promises.
 
+## Layout
+
+The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/agent-os/standards/architecture/domain-modules.md`). Code lives in `src/Domains/{Run,Flow,Signal,Batch,Message,Artifact}` (namespace `JayI\Impex\Domains\{Domain}`), each with its own `{Domain}ServiceProvider` registered by `Domains\DomainServiceProvider`; the domain providers extend `Support\ServiceProvider`, which loads their routes into the shared `impex.` API group. Models are named `{Entity}Model` and keep their old class names as morph aliases. The engine and its collaborators live in `Domains\Run\Services`; the flow base classes and DSL builders in `Domains\Flow\Support`. The Atrium screens span every domain and live in `src/Atrium`; package-wide pieces (`Impex`, the facade, the event contracts, base requests, `Mcp\ImpexServer`, `Support\`, `Testing\Flows`, the Cortex bridge, `impex:prune`) stay at the top level. The queued jobs stay in `src/Jobs` because their class names are inside queued payloads. `config/impex.php` stays one file.
+
 ## Quick Commands
 
 - Full validation: `composer test`

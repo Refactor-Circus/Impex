@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Runtime\Engine;
+use JayI\Impex\Domains\Run\Services\Engine;
 
 /**
  * Replays a run and schedules whatever it reaches that is not yet recorded.

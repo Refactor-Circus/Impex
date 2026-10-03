@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Features\ImpexSupportFeature;
-use JayI\Impex\Models\Artifact;
-use JayI\Impex\Models\Batch;
-use JayI\Impex\Models\BatchItem;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunOwner;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Models\Signal;
-use JayI\Impex\Models\Timer;
-use JayI\Impex\Policies\ArtifactPolicy;
-use JayI\Impex\Policies\BatchItemPolicy;
-use JayI\Impex\Policies\BatchPolicy;
-use JayI\Impex\Policies\FlowOverridePolicy;
-use JayI\Impex\Policies\MessagePolicy;
-use JayI\Impex\Policies\RunOwnerPolicy;
-use JayI\Impex\Policies\RunPolicy;
-use JayI\Impex\Policies\RunStepPolicy;
-use JayI\Impex\Policies\SignalPolicy;
-use JayI\Impex\Policies\TimerPolicy;
+use JayI\Impex\Atrium\Features\ImpexSupportFeature;
+use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
+use JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy;
+use JayI\Impex\Domains\Batch\Models\BatchItemModel;
+use JayI\Impex\Domains\Batch\Models\BatchModel;
+use JayI\Impex\Domains\Batch\Policies\BatchItemPolicy;
+use JayI\Impex\Domains\Batch\Policies\BatchPolicy;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Message\Policies\MessagePolicy;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Policies\RunOwnerPolicy;
+use JayI\Impex\Domains\Run\Policies\RunPolicy;
+use JayI\Impex\Domains\Run\Policies\RunStepPolicy;
+use JayI\Impex\Domains\Signal\Models\SignalModel;
+use JayI\Impex\Domains\Signal\Models\TimerModel;
+use JayI\Impex\Domains\Signal\Policies\SignalPolicy;
+use JayI\Impex\Domains\Signal\Policies\TimerPolicy;
 
 return [
 
@@ -238,16 +238,16 @@ return [
     */
 
     'policies' => [
-        Run::class => RunPolicy::class,
-        RunStep::class => RunStepPolicy::class,
-        RunOwner::class => RunOwnerPolicy::class,
-        Signal::class => SignalPolicy::class,
-        Timer::class => TimerPolicy::class,
-        Batch::class => BatchPolicy::class,
-        BatchItem::class => BatchItemPolicy::class,
-        Message::class => MessagePolicy::class,
-        Artifact::class => ArtifactPolicy::class,
-        FlowOverride::class => FlowOverridePolicy::class,
+        RunModel::class => RunPolicy::class,
+        RunStepModel::class => RunStepPolicy::class,
+        RunOwnerModel::class => RunOwnerPolicy::class,
+        SignalModel::class => SignalPolicy::class,
+        TimerModel::class => TimerPolicy::class,
+        BatchModel::class => BatchPolicy::class,
+        BatchItemModel::class => BatchItemPolicy::class,
+        MessageModel::class => MessagePolicy::class,
+        ArtifactModel::class => ArtifactPolicy::class,
+        FlowOverrideModel::class => FlowOverridePolicy::class,
     ],
 
     /*

@@ -6,15 +6,15 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use JayI\Atrium\Navigation\NavigationRegistry;
-use JayI\Atrium\Navigation\NavItem;
-use JayI\Atrium\Widgets\WidgetDefinition;
+use JayI\Atrium\Domains\Navigation\Data\NavItem;
+use JayI\Atrium\Domains\Navigation\Services\NavigationRegistry;
+use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
 use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\RunTrigger;
-use JayI\Impex\Models\Message;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\RunTrigger;
+use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\SignalFlow;
 use Workbench\App\Models\User;
@@ -41,11 +41,11 @@ beforeEach(function (): void {
         $subject = $arguments[0] ?? null;
         $class = is_object($subject) ? $subject::class : $subject;
 
-        if (! is_string($class) || ! str_starts_with($class, 'JayI\\Impex\\Models\\')) {
+        if (! is_string($class) || ! preg_match('/^JayI\\\\Impex\\\\Domains\\\\\\w+\\\\Models\\\\(\\w+)Model$/', $class, $model)) {
             return null;
         }
 
-        return in_array($ability.' '.class_basename($class), $this->granted, true);
+        return in_array($ability.' '.$model[1], $this->granted, true);
     });
 
     $this->user = User::forceCreate(['name' => 'Ann', 'email' => 'ann@example.test', 'password' => 'x']);
@@ -59,9 +59,9 @@ function grant(array $abilities): void
     test()->granted = $abilities;
 }
 
-function ownedRun(User $owner, RunStatus $status = RunStatus::Running, string $flow = 'linear'): Run
+function ownedRun(User $owner, RunStatus $status = RunStatus::Running, string $flow = 'linear'): RunModel
 {
-    $run = Run::query()->create([
+    $run = RunModel::query()->create([
         'flow' => $flow,
         'flow_class' => LinearFlow::class,
         'status' => $status,
@@ -130,7 +130,7 @@ it('offers widgets only with the ability they show', function (): void {
 it('refuses each page without its ability', function (string $route, string $method): void {
     $run = ownedRun($this->user);
 
-    $message = Message::query()->create([
+    $message = MessageModel::query()->create([
         'direction' => Direction::Inbound, 'channel' => 'webhook', 'endpoint' => '/hook',
         'transport' => 'http', 'bytes' => 1, 'occurred_at' => now(), 'run_id' => $run->getKey(),
     ]);
@@ -164,7 +164,7 @@ it('leaves a run untouched when the action is refused', function (): void {
     $this->actingAs($this->user)->post(route('atrium.impex.flows.run', 'linear'))->assertForbidden();
 
     expect($run->fresh()->status)->toBe(RunStatus::Running)
-        ->and(Run::query()->count())->toBe(1);
+        ->and(RunModel::query()->count())->toBe(1);
 });
 
 it('shows a run without the controls the viewer may not use', function (): void {
@@ -229,7 +229,7 @@ it('offers to start a flow only with create on runs, and the starter owns the ru
 
     $this->actingAs($this->user)->post(route('atrium.impex.flows.run', 'linear'))->assertRedirect();
 
-    $run = Run::query()->sole();
+    $run = RunModel::query()->sole();
 
     expect($run->owners()->where('owner_id', (string) $this->user->getKey())->exists())->toBeTrue();
 });
@@ -242,7 +242,7 @@ it('lists only the runs and messages the viewer owns, as the API does', function
     $mine = ownedRun($this->user, flow: 'mine-flow');
     ownedRun($other, flow: 'theirs-flow');
 
-    Message::query()->create([
+    MessageModel::query()->create([
         'direction' => Direction::Inbound, 'channel' => 'theirs-channel', 'endpoint' => '/hook',
         'transport' => 'http', 'bytes' => 1, 'occurred_at' => now(),
     ]);

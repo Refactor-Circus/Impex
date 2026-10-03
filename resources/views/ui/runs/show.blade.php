@@ -1,11 +1,11 @@
 @use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Enums\RunStatus)
-@use(JayI\Impex\Enums\StepPhase)
-@use(JayI\Impex\Enums\StepStatus)
-@use(JayI\Impex\Models\Message)
-@use(JayI\Impex\Models\RunOwner)
-@use(JayI\Impex\Models\RunStep)
-@use(JayI\Impex\Models\Signal)
+@use(JayI\Impex\Domains\Run\Enums\RunStatus)
+@use(JayI\Impex\Domains\Run\Enums\StepPhase)
+@use(JayI\Impex\Domains\Run\Enums\StepStatus)
+@use(JayI\Impex\Domains\Message\Models\MessageModel)
+@use(JayI\Impex\Domains\Run\Models\RunOwnerModel)
+@use(JayI\Impex\Domains\Run\Models\RunStepModel)
+@use(JayI\Impex\Domains\Signal\Models\SignalModel)
 
 <x-atrium::layout :title="$run->flow">
     <x-atrium::page-header :title="$run->flow">
@@ -79,7 +79,7 @@
         @endif
 
         @if ($run->status === RunStatus::Waiting)
-            @impexCan('create', Signal::class, [$run])
+            @impexCan('create', SignalModel::class, [$run])
                 <x-atrium::card :title="__('impex::impex.send_signal')" data-testid="signal-card">
                     <form method="POST" action="{{ route('atrium.impex.runs.signal', $run) }}" class="flex flex-wrap items-end gap-3">
                         @csrf
@@ -91,7 +91,7 @@
             @endimpexCan
         @endif
 
-        @impexCan('viewAny', RunStep::class, [$run])
+        @impexCan('viewAny', RunStepModel::class, [$run])
             <x-atrium::card :title="__('impex::impex.steps')" data-testid="steps-card">
                 @if ($steps->isEmpty())
                     <x-atrium::empty-state :title="__('impex::impex.no_steps')" />
@@ -142,7 +142,7 @@
             </x-atrium::card>
         @endimpexCan
 
-        @impexCan('viewAny', RunOwner::class, [$run])
+        @impexCan('viewAny', RunOwnerModel::class, [$run])
             <x-atrium::card :title="__('impex::impex.owners')" data-testid="owners-card">
                 @if ($run->owners->isEmpty())
                     <x-atrium::empty-state :title="__('impex::impex.no_owners')" />
@@ -168,7 +168,7 @@
             </x-atrium::card>
         @endimpexCan
 
-        @impexCan('viewAny', Message::class)
+        @impexCan('viewAny', MessageModel::class)
             <x-atrium::card :title="__('impex::impex.messages')" data-testid="messages-card">
                 @if ($messages->isEmpty())
                     <x-atrium::empty-state :title="__('impex::impex.no_messages')" />

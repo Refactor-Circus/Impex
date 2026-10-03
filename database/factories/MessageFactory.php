@@ -6,15 +6,15 @@ namespace JayI\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Enums\Direction;
-use JayI\Impex\Models\Message;
+use JayI\Impex\Domains\Message\Enums\Direction;
+use JayI\Impex\Domains\Message\Models\MessageModel;
 
 /**
- * @extends Factory<Message>
+ * @extends Factory<MessageModel>
  */
 final class MessageFactory extends Factory
 {
-    protected $model = Message::class;
+    protected $model = MessageModel::class;
 
     /**
      * @return array<string, mixed>

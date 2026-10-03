@@ -14,10 +14,18 @@ arch('the package source declares strict types')
     ->expect('JayI\Impex')
     ->toUseStrictTypes();
 
-arch('models are final')
-    ->expect('JayI\Impex\Models')
+arch('models are final and named for their entity')
+    ->expect([
+        'JayI\Impex\Domains\Artifact\Models',
+        'JayI\Impex\Domains\Batch\Models',
+        'JayI\Impex\Domains\Flow\Models',
+        'JayI\Impex\Domains\Message\Models',
+        'JayI\Impex\Domains\Run\Models',
+        'JayI\Impex\Domains\Signal\Models',
+    ])
     ->classes()
-    ->toBeFinal();
+    ->toBeFinal()
+    ->toHaveSuffix('Model');
 
 arch('jobs carry identifiers only, never payloads')
     ->expect('JayI\Impex\Jobs')
@@ -27,8 +35,8 @@ arch('jobs carry identifiers only, never payloads')
         'Illuminate\Foundation\Bus\Dispatchable',
         'Illuminate\Queue\InteractsWithQueue',
         'Illuminate\Queue\SerializesModels',
-        'JayI\Impex\Runtime\BatchRunner',
-        'JayI\Impex\Runtime\Engine',
+        'JayI\Impex\Domains\Batch\Services\BatchRunner',
+        'JayI\Impex\Domains\Run\Services\Engine',
     ]);
 
 // Parity is the default, with declared exceptions. An Action reachable over

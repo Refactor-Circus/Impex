@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Storage;
-use JayI\Impex\Enums\RunStatus;
-use JayI\Impex\Enums\StepPhase;
-use JayI\Impex\Enums\StepStatus;
-use JayI\Impex\Enums\StepType;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Enums\StepPhase;
+use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Run\Enums\StepType;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Services\Engine;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Runtime\Engine;
 use JayI\Impex\Tests\Fixtures\AddOne;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LargePayloadFlow;
@@ -87,13 +87,13 @@ it('is idempotent when a step job is redelivered', function (): void {
 });
 
 it('will not execute a step whose lease is held by another invocation', function (): void {
-    $run = Run::factory()->create([
+    $run = RunModel::factory()->create([
         'flow' => 'linear',
         'flow_class' => LinearFlow::class,
         'status' => RunStatus::Running,
     ]);
 
-    RunStep::factory()->create([
+    RunStepModel::factory()->create([
         'run_id' => $run->getKey(),
         'sequence' => 0,
         'name' => AddOne::class,
@@ -109,13 +109,13 @@ it('will not execute a step whose lease is held by another invocation', function
 });
 
 it('reclaims a step whose lease has lapsed', function (): void {
-    $run = Run::factory()->create([
+    $run = RunModel::factory()->create([
         'flow' => 'linear',
         'flow_class' => LinearFlow::class,
         'status' => RunStatus::Running,
     ]);
 
-    RunStep::factory()->create([
+    RunStepModel::factory()->create([
         'run_id' => $run->getKey(),
         'sequence' => 0,
         'name' => AddOne::class,

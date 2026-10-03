@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use JayI\Impex\Actions\ListFlowsAction;
-use JayI\Impex\Actions\RunFlowAction;
-use JayI\Impex\Actions\ShowRunAction;
 use JayI\Impex\Contracts\ActionFinishedEvent;
 use JayI\Impex\Contracts\ActionStartingEvent;
 use JayI\Impex\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Events\Action\FlowRanActionEvent;
-use JayI\Impex\Events\Action\FlowRunningActionEvent;
-use JayI\Impex\Events\Action\RunShownActionEvent;
-use JayI\Impex\Events\Model\RunCreatingEvent;
-use JayI\Impex\Exceptions\UnknownFlowException;
-use JayI\Impex\Models\Run;
+use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
+use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
+use JayI\Impex\Domains\Flow\Events\FlowRanActionEvent;
+use JayI\Impex\Domains\Flow\Events\FlowRunningActionEvent;
+use JayI\Impex\Domains\Flow\Exceptions\UnknownFlowException;
+use JayI\Impex\Domains\Run\Actions\ShowRunAction;
+use JayI\Impex\Domains\Run\Events\RunCreatingEvent;
+use JayI\Impex\Domains\Run\Events\RunShownActionEvent;
+use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 
@@ -47,8 +47,8 @@ it('maps every Eloquent hook of every model to its own event', function (): void
     $hooks = ['retrieved', 'creating', 'created', 'updating', 'updated', 'saving', 'saved', 'deleting', 'deleted', 'replicating'];
 
     $models = array_map(
-        fn (string $path): string => 'JayI\\Impex\\Models\\'.basename($path, '.php'),
-        glob(dirname(__DIR__, 2).'/src/Models/*.php') ?: [],
+        fn (string $path): string => 'JayI\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Models\\'.basename($path, '.php'),
+        glob(dirname(__DIR__, 2).'/src/Domains/*/Models/*.php') ?: [],
     );
 
     foreach ($models as $class) {
@@ -66,7 +66,7 @@ it('fires model events as a run executes', function (): void {
     $seen = recordImpexEvents(ModelLifecycleEvent::class);
 
     $run = app(RunFlowAction::class)->execute('linear', ['arguments' => [1]]);
-    Run::query()->find($run->getKey());
+    RunModel::query()->find($run->getKey());
 
     $fired = collect($seen)
         ->map(fn (ModelLifecycleEvent $event): string => class_basename($event->model()).'.'.$event->hook())
@@ -74,25 +74,28 @@ it('fires model events as a run executes', function (): void {
 
     // Steps are claimed and completed with atomic query-builder updates, which
     // Eloquent does not turn into model events; their creation still is one.
-    expect($fired)->toContain('Run.creating', 'Run.created', 'Run.updated', 'Run.retrieved', 'RunStep.creating', 'RunStep.created', 'RunStep.retrieved');
+    expect($fired)->toContain('RunModel.creating', 'RunModel.created', 'RunModel.updated', 'RunModel.retrieved', 'RunStepModel.creating', 'RunStepModel.created', 'RunStepModel.retrieved');
 });
 
 it('lets a creating listener stop a run being recorded', function (): void {
     Event::listen(RunCreatingEvent::class, fn (): bool => false);
 
-    expect(Run::query()->create(['flow' => 'linear', 'flow_class' => LinearFlow::class])->exists)->toBeFalse()
-        ->and(Run::query()->count())->toBe(0);
+    expect(RunModel::query()->create(['flow' => 'linear', 'flow_class' => LinearFlow::class])->exists)->toBeFalse()
+        ->and(RunModel::query()->count())->toBe(0);
 });
 
 it('gives every action exactly one start and one finish event', function (): void {
-    $actions = glob(dirname(__DIR__, 2).'/src/Actions/*Action.php') ?: [];
+    $actions = glob(dirname(__DIR__, 2).'/src/Domains/*/Actions/*Action.php') ?: [];
     $unpaired = [];
 
     foreach ($actions as $path) {
-        preg_match_all('/([A-Za-z]+ActionEvent)::dispatch/', (string) file_get_contents($path), $matches);
+        $source = (string) file_get_contents($path);
+
+        preg_match_all('/([A-Za-z]+ActionEvent)::dispatch/', $source, $matches);
 
         $kinds = array_map(
-            fn (string $event): string => is_subclass_of('JayI\\Impex\\Events\\Action\\'.$event, ActionStartingEvent::class) ? 'start' : 'finish',
+            // Each action's events live in its domain's Events namespace.
+            fn (string $event): string => is_subclass_of('JayI\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Events\\'.$event, ActionStartingEvent::class) ? 'start' : 'finish',
             $matches[1],
         );
 
@@ -131,7 +134,7 @@ it('starts a refused action but never finishes it', function (): void {
     $starts = recordImpexEvents(FlowRunningActionEvent::class);
     $finishes = recordImpexEvents(FlowRanActionEvent::class);
 
-    expect(fn (): Run => app(RunFlowAction::class)->execute('missing'))->toThrow(UnknownFlowException::class);
+    expect(fn (): RunModel => app(RunFlowAction::class)->execute('missing'))->toThrow(UnknownFlowException::class);
 
     expect($starts)->toHaveCount(1)
         ->and($finishes)->toHaveCount(0);

@@ -108,7 +108,7 @@ can *detect* this, but they cannot pin the old code.
 Before changing a flow's shape, drain its active runs:
 
 ```php
-Run::query()->where('flow', 'extract-products')->active()->count();
+RunModel::query()->where('flow', 'extract-products')->active()->count();
 ```
 
 Adding steps to the **end** of `handle()` is safe. Inserting, removing, or

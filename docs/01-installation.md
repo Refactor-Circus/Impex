@@ -88,7 +88,7 @@ A first flow, end to end:
 
 ```php
 // app/Flows/PingFlow.php
-final class PingFlow extends \JayI\Impex\Flows\Flow
+final class PingFlow extends \JayI\Impex\Domains\Flow\Support\Flow
 {
     public function handle(string $message): array
     {

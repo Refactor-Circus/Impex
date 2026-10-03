@@ -1,5 +1,5 @@
 @use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Models\Run)
+@use(JayI\Impex\Domains\Run\Models\RunModel)
 
 <x-atrium::layout :title="__('impex::impex.flows')">
     <x-atrium::page-header :title="__('impex::impex.flows')" />
@@ -31,7 +31,7 @@
                                              :data-status="$enabled ? 'enabled' : 'disabled'" />
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
-                            @impexCan('create', Run::class, [$flow['slug']])
+                            @impexCan('create', RunModel::class, [$flow['slug']])
                                 <form method="POST" action="{{ route('atrium.impex.flows.run', $flow['slug']) }}"
                                       class="flex items-end gap-2">
                                     @csrf

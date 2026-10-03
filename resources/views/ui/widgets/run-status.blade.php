@@ -1,4 +1,4 @@
-@use(JayI\Impex\Enums\RunStatus)
+@use(JayI\Impex\Domains\Run\Enums\RunStatus)
 
 <x-atrium::card :title="__('impex::impex.widget_run_status')">
     <div class="flex flex-wrap gap-2">

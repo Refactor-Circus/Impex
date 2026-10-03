@@ -6,7 +6,7 @@ namespace JayI\Impex\Http;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
-use JayI\Impex\Access\Authorizer;
+use JayI\Impex\Support\Authorizer;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

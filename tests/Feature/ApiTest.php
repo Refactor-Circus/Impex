@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Routing\RouteCollection;
-use JayI\Impex\Enums\RunStatus;
+use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use JayI\Impex\Domains\Message\MessageServiceProvider;
+use JayI\Impex\Domains\Run\Enums\RunStatus;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use JayI\Impex\Domains\Run\RunServiceProvider;
 use JayI\Impex\Impex;
-use JayI\Impex\Models\FlowOverride;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunOwner;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
 use JayI\Impex\Tests\Fixtures\SignalFlow;
@@ -46,7 +48,7 @@ it('accepts a run and answers immediately rather than executing inline', functio
         ->assertJsonPath('data.flow', 'linear')
         ->assertJsonPath('data.status', 'completed');
 
-    expect(Run::query()->count())->toBe(1);
+    expect(RunModel::query()->count())->toBe(1);
 });
 
 it('returns the original run when an idempotency key is reused', function (): void {
@@ -60,11 +62,11 @@ it('returns the original run when an idempotency key is reused', function (): vo
 });
 
 it('refuses to run a flow disabled by a database override', function (): void {
-    FlowOverride::query()->create(['slug' => 'linear', 'enabled' => false]);
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'enabled' => false]);
 
     $this->postJson('/impex/flows/linear/runs', ['arguments' => [1]])->assertStatus(500);
 
-    expect(Run::query()->count())->toBe(0);
+    expect(RunModel::query()->count())->toBe(0);
 });
 
 it('validates run filters', function (): void {
@@ -159,7 +161,7 @@ it('attaches and detaches run owners', function (): void {
     $this->deleteJson('/impex/runs/'.$run->getKey().'/owners/'.$created->json('data.id'))
         ->assertStatus(204);
 
-    expect(RunOwner::query()->count())->toBe(0);
+    expect(RunOwnerModel::query()->count())->toBe(0);
 });
 
 it('filters runs by owner', function (): void {
@@ -228,7 +230,9 @@ it('keeps the channel receive routes off the operator middleware stack', functio
     $router = app('router');
     $router->setRoutes(new RouteCollection);
 
-    require dirname(__DIR__, 2).'/routes/impex.php';
+    // Each domain loads its own routes when it boots.
+    (new MessageServiceProvider(app()))->boot();
+    (new RunServiceProvider(app()))->boot();
 
     $router->getRoutes()->refreshNameLookups();
     $routes = $router->getRoutes();

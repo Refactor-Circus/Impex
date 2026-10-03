@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Queue;
-use JayI\Impex\Contracts\RollbackStrategy;
+use JayI\Impex\Domains\Run\Contracts\RollbackStrategy;
+use JayI\Impex\Domains\Run\Data\SweepReport;
+use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Run\Models\RunStepModel;
+use JayI\Impex\Domains\Run\Services\EngineOptions;
+use JayI\Impex\Domains\Run\Services\JobRouter;
+use JayI\Impex\Domains\Run\Services\Rollbacks;
+use JayI\Impex\Domains\Run\Services\Sweeper;
 use JayI\Impex\Impex;
 use JayI\Impex\Jobs\DriveRun;
-use JayI\Impex\Models\Run;
-use JayI\Impex\Models\RunStep;
-use JayI\Impex\Runtime\EngineOptions;
-use JayI\Impex\Runtime\JobRouter;
-use JayI\Impex\Runtime\Rollbacks;
-use JayI\Impex\Runtime\Sweeper;
-use JayI\Impex\Runtime\SweepReport;
 use JayI\Impex\Testing\Flows;
 use JayI\Impex\Tests\Fixtures\Calls;
 use JayI\Impex\Tests\Fixtures\LinearFlow;
@@ -32,12 +32,12 @@ it('lets an application swap the rollback strategy without forking', function ()
     // A strategy that refuses to unwind anything.
     app()->bind(RollbackStrategy::class, fn (): RollbackStrategy => new class implements RollbackStrategy
     {
-        public function next(Run $run): bool
+        public function next(RunModel $run): bool
         {
             return false;
         }
 
-        public function halts(RunStep $rollbackStep): bool
+        public function halts(RunStepModel $rollbackStep): bool
         {
             return true;
         }

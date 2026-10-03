@@ -36,7 +36,7 @@ serverless timeout, or tracking data crossing the application boundary.
 
 ### 2. Write the flow
 
-A flow is a class extending `JayI\Impex\Flows\Flow` with a public `handle()`.
+A flow is a class extending `JayI\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
 Register it in `config/impex.php` under `flows`, keyed by slug.
 
 ```php
@@ -209,7 +209,7 @@ every config key (`13-configuration.md`).
 - **do not** call `now()`, `rand()`, `Str::ulid()`, or an unrecorded query
   directly in `handle()` — wrap them in `sideEffect()` or the run will diverge
   on resume
-- **do not** catch `JayI\Impex\Runtime\Suspended` in flow code; it is the
+- **do not** catch `JayI\Impex\Domains\Run\Support\Suspended` in flow code; it is the
   engine's control flow, and catching it corrupts the run
 - **do not** put business logic in `handle()` — it belongs in an action, because
   `handle()` re-runs on every drive while an action runs once
