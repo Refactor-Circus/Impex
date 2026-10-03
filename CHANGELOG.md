@@ -8,6 +8,9 @@
 - The dashboard asks the same policies as the JSON API and MCP tools: nav items, widgets, search, cards and buttons are shown only when their action would be allowed, through `JayI\Impex\Http\Ui\ScreenAccess` and the `@impexCan` Blade conditional.
 - `ImpexSupportFeature` (needs `jayi/pennantplus`) and `impex.atrium.features`: turning the feature off globally hides Impex in Atrium and 404s its pages. Classes that are not installed are skipped.
 
+- `impex.atrium.show_all` (default `false`): dashboard operators. `true` makes everyone past Atrium's gate an operator, a string names a Gate ability that does. On the Atrium screens only, an operator's lists, nav badge, widgets and search cover every run and message (including unowned scheduled and channel runs) and every Impex control is allowed to them; the JSON API and MCP tools are unaffected. `ScreenAccess::viewer()`, `operator()` and `allowsFor()` expose the decision.
+- Impex's Atrium views ship the Tailwind utilities Atrium's precompiled stylesheet lacks, as `resources/css/atrium.css`, registered with `Atrium::css()` (needs Atrium 7d582e4 or later).
+
 ### Changed
 
 - With `impex.authorization` on, the Atrium screens now authorize every page and action against `impex.policies` (403 when refused), list and count only the runs the user owns (and their messages) as the API does, and make the user who starts a flow from the dashboard its owner. Previously every Atrium user could see and act on every run. Turn `impex.authorization` off, or register your own policies, for an operator dashboard.

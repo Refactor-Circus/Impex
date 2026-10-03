@@ -354,7 +354,20 @@ With `impex.authorization` on, the dashboard asks exactly what the JSON API and 
 | `view` the message | message page |
 | `create` a `Run` for the flow | a flow's Run form |
 
-Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; give operators a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Http\Ui\ScreenAccess`.
+Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Http\Ui\ScreenAccess`.
+
+To let some dashboard users see and handle every run — scheduled and channel runs included — make them operators with `impex.atrium.show_all`:
+
+```php
+// config/impex.php
+'atrium' => [
+    'show_all' => false,            // nobody (the default)
+    // 'show_all' => true,          // everyone past Atrium's gate
+    // 'show_all' => 'impex-operator', // those Gate::allows('impex-operator')
+],
+```
+
+An operator's lists, nav badge, widgets and search cover every run and message, and every Impex control is shown and allowed to them (view, cancel, retry, signal, start a flow, steps, owners and messages cards). This applies to the Atrium screens only: the JSON API and MCP tools still ask the policies, so an operator calling the API sees only their own runs. With `impex.authorization` off nothing is scoped or refused, so the setting has no effect.
 
 ### Switching it off
 

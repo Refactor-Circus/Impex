@@ -25,7 +25,7 @@ final class MessageUiController
         $view = 'impex::ui.messages.index';
 
         return view($view, [
-            'messages' => app(ListMessagesAction::class)->execute($filters, ScreenAccess::actor()),
+            'messages' => app(ListMessagesAction::class)->execute($filters, ScreenAccess::viewer()),
             'filters' => $filters,
             'directions' => Direction::cases(),
         ]);

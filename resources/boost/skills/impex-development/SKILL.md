@@ -168,7 +168,10 @@ out). Atrium's gate decides who may load the dashboard, `impex.routes.middleware
 decides who may call the API. With `impex.authorization` on, the dashboard asks
 the same policies as the API: a nav item, card or button shows only when its
 action would be allowed (`@impexCan('cancel', $run)` in Blade, `ScreenAccess`
-in PHP), and lists cover only the user's own runs. With `jayi/pennantplus`,
+in PHP), and lists cover only the user's own runs. `impex.atrium.show_all`
+(`true`, or a Gate ability name) makes users dashboard operators, who see every
+run (unowned ones included) and may use every Impex control — on the Atrium
+screens only, never the API or MCP. With `jayi/pennantplus`,
 `Feature::for(null)->deactivate(ImpexSupportFeature::class)` hides Impex in
 Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
 `JayI\Impex\Atrium\Badges` (`info` only for pending/waiting); actions are

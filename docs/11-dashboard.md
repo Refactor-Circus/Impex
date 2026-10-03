@@ -45,6 +45,31 @@ crossed your application boundary.
 Status filters are driven from `RunStatus::cases()`, so the dashboard can never
 offer a status the API would reject.
 
+## Who sees what
+
+With `impex.authorization` on, the screens ask the same policies as the JSON
+API: a nav item, widget, card or button is shown only when its action would be
+allowed, the action is refused (403) otherwise, and lists, counts, widgets and
+search cover only the runs the user owns. Use `@impexCan('cancel', $run)` in
+your own views for the same check.
+
+Runs with no owner, such as scheduled and channel runs, are therefore hidden
+from everyone. Make some users **operators** to see and handle them:
+
+```php
+// config/impex.php
+'atrium' => [
+    'show_all' => 'impex-operator', // false (default), true, or a Gate ability
+],
+
+Gate::define('impex-operator', fn ($user) => $user->is_admin);
+```
+
+`true` makes everyone past Atrium's gate an operator; a string makes those the
+Gate ability allows operators. An operator sees every run and message and may
+use every Impex control on them — on the dashboard only. The JSON API and MCP
+tools never consult `show_all`.
+
 ## Widgets
 
 Impex contributes three widgets to Atrium's picker:

@@ -158,7 +158,9 @@ channels/{channel}` authenticates each request with the channel's signing
 secret: an upstream has no user, so a policy there would lock out the senders
 the endpoint exists to receive.
 
-The dashboard is not covered either: Atrium owns its middleware and gate.
+The dashboard asks the same policies, past Atrium's own middleware and gate,
+except for operators named by `impex.atrium.show_all`, who see and may act on
+every run there — and only there. See [Dashboard](11-dashboard.md#who-sees-what).
 
 ### Replacing a policy
 

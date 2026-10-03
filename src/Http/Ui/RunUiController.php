@@ -41,7 +41,7 @@ final class RunUiController
         $view = 'impex::ui.runs.index';
 
         return view($view, [
-            'runs' => app(ListRunsAction::class)->execute($filters, ScreenAccess::actor()),
+            'runs' => app(ListRunsAction::class)->execute($filters, ScreenAccess::viewer()),
             'filters' => $filters,
             'statuses' => RunStatus::cases(),
             'triggers' => RunTrigger::cases(),
@@ -61,7 +61,7 @@ final class RunUiController
                 ? app(ListRunStepsAction::class)->execute($run)
                 : collect(),
             'messages' => ScreenAccess::allows('viewAny', Message::class)
-                ? app(ListMessagesAction::class)->execute(['run' => $run->getKey()], ScreenAccess::actor())
+                ? app(ListMessagesAction::class)->execute(['run' => $run->getKey()], ScreenAccess::viewer())
                 : collect(),
         ]);
     }

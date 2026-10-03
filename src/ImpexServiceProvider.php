@@ -164,15 +164,18 @@ class ImpexServiceProvider extends ServiceProvider
      * Register Impex with the Atrium dashboard.
      *
      * Atrium discovers the plugin from composer.json, so this only honours the
-     * config switch that turns the dashboard surface off.
+     * config switch that turns the dashboard surface off, and adds the
+     * utilities Impex's screens use that Atrium's stylesheet lacks.
      */
     private function registerAtriumPlugin(): void
     {
-        if ($this->app->make('config')->get('impex.ui.enabled') !== true) {
+        if (! class_exists(Atrium::class) || $this->app->make('config')->get('impex.ui.enabled') !== true) {
             return;
         }
 
         Atrium::plugin(ImpexPlugin::class);
+
+        Atrium::css((string) file_get_contents(__DIR__.'/../resources/css/atrium.css'), 'impex');
     }
 
     private function registerMcpServer(): void

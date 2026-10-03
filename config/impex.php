@@ -359,6 +359,19 @@ return [
         'features' => [
             ImpexSupportFeature::class,
         ],
+
+        /*
+        | Operators on the dashboard. With authorization on, the screens show
+        | each user only the runs they own, so runs with no owner — scheduled
+        | and channel runs — appear to nobody. An operator sees every run,
+        | message, count, widget and search result, and may use every Impex
+        | control on them, on the Atrium screens only: the JSON API and MCP
+        | tools still apply the policies. false: nobody is an operator. true:
+        | everyone past Atrium's gate is. A string: the name of a Gate
+        | ability, and those it allows are, e.g. 'impex-operator'.
+        */
+
+        'show_all' => false,
     ],
 
     /*

@@ -166,6 +166,20 @@ the only setting. Turning it off keeps the JSON API serving.
 
 See [Dashboard](11-dashboard.md).
 
+## `atrium`
+
+```php
+'atrium' => [
+    'features' => [ImpexSupportFeature::class],
+    'show_all' => false,
+],
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `features` | `[ImpexSupportFeature::class]` | Features that switch Impex in Atrium on and off as a whole. Classes that are not installed are skipped. |
+| `show_all` | `false` | Dashboard operators. `true`: everyone past Atrium's gate; a string: those the named Gate ability allows. An operator sees every run, message, count, widget and search result and may use every Impex control, on the Atrium screens only. Ignored with `authorization` off. |
+
 ## `channels`
 
 ```php

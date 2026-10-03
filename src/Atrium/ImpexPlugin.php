@@ -36,7 +36,8 @@ use Throwable;
  *
  * Every item, widget and search source is shown only when the signed-in
  * user may do what it leads to, asked as the JSON API asks, and with
- * `impex.authorization` on, lists and counts cover only the runs they own.
+ * `impex.authorization` on, lists and counts cover only the runs they own —
+ * unless `impex.atrium.show_all` makes them an operator (see ScreenAccess).
  */
 class ImpexPlugin extends Plugin
 {
@@ -215,34 +216,35 @@ class ImpexPlugin extends Plugin
      */
     private static function may(Request $request, string $ability, string $subject): bool
     {
-        return app(Authorizer::class)->can($request->user(), $ability, $subject);
+        return ScreenAccess::allowsFor($request->user(), $ability, $subject);
     }
 
     /**
      * Limit runs to those the signed-in user owns, as the JSON API does,
-     * while authorization is on.
+     * while authorization is on and they are not an operator.
      *
      * @param  Builder<Run>  $query
      * @return Builder<Run>
      */
     private static function owned(Builder $query): Builder
     {
-        $actor = ScreenAccess::actor();
+        $viewer = ScreenAccess::viewer();
 
-        return $actor === null ? $query : $query->whereOwnedBy($actor);
+        return $viewer === null ? $query : $query->whereOwnedBy($viewer);
     }
 
     /**
-     * Messages of the runs the signed-in user owns, while authorization is on.
+     * Messages of the runs the signed-in user owns, scoped as runs are.
      *
      * @return Builder<Message>
      */
     private static function ownedMessages(): Builder
     {
         $query = Message::query();
+        $viewer = ScreenAccess::viewer();
 
-        if (ScreenAccess::actor() !== null) {
-            $query->whereHas('run', fn (Builder $runs): Builder => self::owned($runs));
+        if ($viewer !== null) {
+            $query->whereHas('run', fn (Builder $runs): Builder => $runs->whereOwnedBy($viewer));
         }
 
         return $query;
