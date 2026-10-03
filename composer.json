@@ -67,6 +67,7 @@
             "@php vendor/bin/testbench package:discover --ansi"
         ],
         "build": [
+            "@php vendor/bin/testbench workbench:create-sqlite-db --ansi",
             "@php vendor/bin/testbench workbench:build --ansi"
         ],
         "serve": [
