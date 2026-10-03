@@ -2,6 +2,8 @@
 
 namespace Workbench\App\Providers;
 
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
@@ -10,6 +12,7 @@ use Workbench\App\Flows\ExportOrdersFlow;
 use Workbench\App\Flows\ImportCustomersFlow;
 use Workbench\App\Flows\PurchaseApprovalFlow;
 use Workbench\App\Flows\SupplierStockSyncFlow;
+use Workbench\App\Http\Middleware\SignInWorkbenchUser;
 
 class WorkbenchServiceProvider extends ServiceProvider
 {
@@ -68,6 +71,13 @@ class WorkbenchServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Keep the workbench user signed in whatever URL is opened first.
+        $this->callAfterResolving(HttpKernel::class, function (HttpKernel $kernel): void {
+            if ($kernel instanceof Kernel) {
+                $kernel->appendMiddlewareToGroup('web', SignInWorkbenchUser::class);
+            }
+        });
+
         // The workbench dashboard is open so `composer serve` is usable
         // without logging in. A real application defines a real gate.
         Gate::define('viewAtrium', fn ($user = null): bool => true);
