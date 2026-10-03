@@ -11,6 +11,9 @@ migrations:
   # jayi/pennantplus (dev dependency, auto-discovered) decides ImpexSupportFeature
   # through Pennant, whose features table lives here.
   - vendor/laravel/pennant/database/migrations
+  # jayi/cortex (dev dependency, auto-discovered) adds its own dashboard
+  # screens, whose tables live here.
+  - vendor/jayi/cortex/database/migrations
 
 seeders:
   - Workbench\Database\Seeders\DatabaseSeeder
