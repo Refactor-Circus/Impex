@@ -24,9 +24,11 @@
                         <x-atrium::table.cell>{{ $channel['flow'] ?? __('impex::impex.none') }}</x-atrium::table.cell>
                         <x-atrium::table.cell>
                             @php($signed = (bool) ($channel['verifies_signatures'] ?? false))
-                            <x-impex::status :variant="Badges::forSignature($signed ?: null)"
-                                             :label="$signed ? __('impex::impex.verified') : __('impex::impex.unsigned')"
-                                             :data-status="$signed ? 'verified' : 'unsigned'" />
+                            @include('impex::ui.partials.status-dot', [
+                                'variant' => Badges::forSignature($signed ?: null),
+                                'label' => $signed ? __('impex::impex.verified') : __('impex::impex.unsigned'),
+                                'state' => $signed ? 'verified' : 'unsigned',
+                            ])
                         </x-atrium::table.cell>
                     </x-atrium::table.row>
                 @endforeach

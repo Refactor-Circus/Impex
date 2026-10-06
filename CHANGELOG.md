@@ -4,6 +4,8 @@
 
 ### Breaking
 
+- Impex ships no stylesheet and no Blade components; Atrium owns them all. `resources/css/atrium.css` and its `Atrium::css()` registration are gone (every utility the screens use is in Atrium's stylesheet), the `<x-impex::status>` component is now the `impex::ui.partials.status-dot` partial (`@include('impex::ui.partials.status-dot', ['status' => $run->status])`), and the `impex::ui.partials.status` partial is replaced by `<x-atrium::flash />`. Republish `impex-views` if you customised them.
+- `JayI\Impex\Atrium\ScreenAccess::allowsFor()` is gone: `allows($ability, $subject, $arguments = [], ?Request $request = null)` takes the request instead, and delegates to Atrium's shared `ScreenAccess::allows('impex', ...)` once operators are let through.
 - Impex now stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), the shared runtime of the jayi suite, and its local copies are gone. `ImpexServiceProvider` extends `PackageServiceProvider` and registers Impex with the suite's `PackageRegistry` (key `impex`); policies, the MCP server, Cortex and the Atrium plugin are wired through its helpers, reading the same `impex.*` config keys as before. Old → new:
   - `JayI\Impex\Contracts\ActionStartingEvent`, `ActionFinishedEvent`, `ModelLifecycleEvent` → `JayI\Foundation\Contracts\...` (listen to these to hear every package of the suite)
   - `JayI\Impex\Support\Models\Concerns\DispatchesModelEvents` → `JayI\Foundation\Models\Concerns\DispatchesModelEvents`
@@ -327,17 +329,20 @@
 
 ### Added
 
+- With an audit log (jayi/keen) installed, the run and message pages show that record's history and the runs page the whole of Impex's, through `<x-atrium::audit-trail source="impex" />`. Nothing renders without one; run steps stay out of it.
+- The run, message and settings details use `x-atrium::description-list`.
+- A test asserts `AtriumStyles::missingClasses()` and `inlineStyles()` are empty for Impex's views.
 - `GET impex/history` (`impex.history.index`) and the `list-impex-history-tool` MCP tool list Impex's audit entries, newest first, once an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) is installed. Until then the route answers `404` and the tool explains that none is installed.
 
-- Atrium screens follow Atrium's screen conventions (needs Atrium f5eb488 or later): every action is an icon button (`<x-atrium::icon-button>`), run, step, flow and channel/message signature states are status dots (`<x-impex::status>`, with `data-status`), and every Impex nav item has a Heroicons icon. `Badges::forStatus()`, `forFlow()` and `forSignature()` decide every colour; `info` is kept for pending (`pending`, and a run `waiting` on a signal).
+- Atrium screens follow Atrium's screen conventions (needs Atrium f5eb488 or later): every action is an icon button (`<x-atrium::icon-button>`), run, step, flow and channel/message signature states are status dots (the `impex::ui.partials.status-dot` partial, with `data-status`), and every Impex nav item has a Heroicons icon. `Badges::forStatus()`, `forFlow()` and `forSignature()` decide every colour; `info` is kept for pending (`pending`, and a run `waiting` on a signal).
 - The dashboard asks the same policies as the JSON API and MCP tools: nav items, widgets, search, cards and buttons are shown only when their action would be allowed, through `JayI\Impex\Http\Ui\ScreenAccess` and the `@impexCan` Blade conditional.
 - `ImpexSupportFeature` (needs `jayi/pennantplus`) and `impex.atrium.features`: turning the feature off globally hides Impex in Atrium and 404s its pages. Classes that are not installed are skipped.
 
 - `impex.atrium.show_all` (default `false`): dashboard operators. `true` makes everyone past Atrium's gate an operator, a string names a Gate ability that does. On the Atrium screens only, an operator's lists, nav badge, widgets and search cover every run and message (including unowned scheduled and channel runs) and every Impex control is allowed to them; the JSON API and MCP tools are unaffected. `ScreenAccess::viewer()`, `operator()` and `allowsFor()` expose the decision.
-- Impex's Atrium views ship the Tailwind utilities Atrium's precompiled stylesheet lacks, as `resources/css/atrium.css`, registered with `Atrium::css()` (needs Atrium 7d582e4 or later).
 
 ### Changed
 
+- `ImpexPlugin::features()` uses Atrium's `featuresFromConfig('impex.atrium.features')`, and the plugin's `key()` and `label()` come from Atrium's base derivation (`impex`, `Impex`).
 - With `impex.authorization` on, the Atrium screens now authorize every page and action against `impex.policies` (403 when refused), list and count only the runs the user owns (and their messages) as the API does, and make the user who starts a flow from the dashboard its owner. Previously every Atrium user could see and act on every run. Turn `impex.authorization` off, or register your own policies, for an operator dashboard.
 - Status colours: running is now `primary` and pending/waiting `info`; inbound messages are `neutral` rather than `info`.
 

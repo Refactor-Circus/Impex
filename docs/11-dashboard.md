@@ -45,13 +45,35 @@ crossed your application boundary.
 Status filters are driven from `RunStatus::cases()`, so the dashboard can never
 offer a status the API would reject.
 
+The screens are built from Atrium's components only (`x-atrium::description-list`
+for details, `x-atrium::flash` for the status and first error after an action,
+`x-atrium::status-dot` for states) and the utilities Atrium's stylesheet
+contains. Impex ships no stylesheet and no Blade components; to restyle the
+pages, publish `impex-views` or retheme Atrium.
+
+## History
+
+With an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed,
+the run and message pages end with that record's history, and the runs page
+with the whole of Impex's, through Atrium's audit trail:
+
+```blade
+<x-atrium::audit-trail source="impex" :subject="$run" />
+<x-atrium::audit-trail source="impex" />
+```
+
+Without one, nothing renders. Run steps are not part of it: the step timeline
+records execution, not changes.
+
 ## Who sees what
 
 With `impex.authorization` on, the screens ask the same policies as the JSON
 API: a nav item, widget, card or button is shown only when its action would be
 allowed, the action is refused (403) otherwise, and lists, counts, widgets and
 search cover only the runs the user owns. Use `@impexCan('cancel', $run)` in
-your own views for the same check.
+your own views for the same check; `JayI\Impex\Atrium\ScreenAccess::allows()`
+lets operators through and otherwise asks Atrium's shared
+`ScreenAccess::allows('impex', ...)`.
 
 Runs with no owner, such as scheduled and channel runs, are therefore hidden
 from everyone. Make some users **operators** to see and handle them:

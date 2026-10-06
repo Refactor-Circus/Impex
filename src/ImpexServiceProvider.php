@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JayI\Impex;
 
 use Illuminate\Support\Facades\Blade;
-use JayI\Atrium\Facades\Atrium;
 use JayI\Foundation\Packages\Package;
 use JayI\Foundation\Support\PackageServiceProvider;
 use JayI\Impex\Atrium\ImpexPlugin;
@@ -60,8 +59,6 @@ class ImpexServiceProvider extends PackageServiceProvider
 
         $this->registerAtriumPlugin(ImpexPlugin::class);
 
-        $this->registerAtriumStyles();
-
         $this->registerMcpServer();
 
         // GET impex/history: Impex's audit entries, once jayi/keen is installed.
@@ -96,19 +93,5 @@ class ImpexServiceProvider extends PackageServiceProvider
         ], ['impex', 'impex-migrations']);
 
         $this->commands([PruneCommand::class]);
-    }
-
-    /**
-     * Add the utilities Impex's Atrium screens use that Atrium's stylesheet
-     * lacks, under the same switch as the plugin itself. Atrium discovers the
-     * plugin from composer.json, so the switch is what turns the screens off.
-     */
-    private function registerAtriumStyles(): void
-    {
-        if (! class_exists(Atrium::class) || $this->config()->get('impex.ui.enabled') !== true) {
-            return;
-        }
-
-        Atrium::css((string) file_get_contents(__DIR__.'/../resources/css/atrium.css'), 'impex');
     }
 }

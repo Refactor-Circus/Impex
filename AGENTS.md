@@ -19,6 +19,13 @@ The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/age
 Impex stands on `jayi/foundation`, the suite's shared runtime. Use its classes rather than adding local copies:
 
 - `ImpexServiceProvider` extends `JayI\Foundation\Support\PackageServiceProvider`: `definition()` describes the package (`impex`, `JayI\Impex`, `ImpexServer`, Gate authorization by default), `registerPackage()` runs right after `mergeConfigFrom()` and before the domain providers, and `boot()` uses `registerCortex()`, `registerPolicies()`, `registerAtriumPlugin()`, `registerMcpServer()` and `loadHistoryRoutes()` (`GET impex/history`, `impex.history.index`).
+
+## Atrium screens
+
+- Atrium owns every component and style. Impex ships no `resources/css`, no `Atrium::css()` call and no Blade components: views use `x-atrium::*` components and Atrium's safelisted utilities only, never `<style>` or `style=`. `tests/Feature/Ui/StylesTest.php` asserts `AtriumStyles::missingClasses()` and `inlineStyles()` are empty; when a class is missing, use the closest safelisted one and ask for it in Atrium.
+- Details are `x-atrium::description-list`, the post-action status and error `x-atrium::flash`, states the `impex::ui.partials.status-dot` partial (colours from `Atrium\Badges`).
+- Show screens end with `<x-atrium::audit-trail source="impex" :subject="$model" />`, the runs index with the package-wide trail. Run steps are execution, not changes, and stay out of it.
+- `ImpexPlugin::features()` is `featuresFromConfig('impex.atrium.features')`; `key()`/`label()` come from the base. `Atrium\ScreenAccess::allows()` lets operators (`impex.atrium.show_all`) through and otherwise delegates to `JayI\Atrium\Support\ScreenAccess::allows('impex', ...)`; calls with policy arguments go to the authorizer directly. Impex keeps its own `AuthorizesScreens` because it passes those arguments and honours operators.
 - Events implement `JayI\Foundation\Contracts\{ActionStartingEvent,ActionFinishedEvent,ModelLifecycleEvent}`; models use `JayI\Foundation\Models\Concerns\DispatchesModelEvents`.
 - HTTP requests extend `JayI\Foundation\Http\Requests\Request`, MCP requests `JayI\Foundation\Mcp\Requests\Request`, tools `JayI\Foundation\Mcp\Tool`; `ImpexServer` extends `JayI\Foundation\Mcp\Server` and lists `ListImpexHistoryTool`.
 - Outside a request, get the authorizer with `Authorizer::for(app(PackageRegistry::class)->get('impex'))`, and the Cortex bridge with `CortexIntegration::for(...)`.

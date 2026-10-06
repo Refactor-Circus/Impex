@@ -5,7 +5,7 @@
     <x-atrium::page-header :title="__('impex::impex.flows')" />
 
     <div class="mt-5 flex flex-col gap-4">
-        @include('impex::ui.partials.status')
+        <x-atrium::flash />
 
         @if ($flows === [])
             <x-atrium::empty-state :title="__('impex::impex.no_flows')" />
@@ -26,9 +26,11 @@
                         <x-atrium::table.cell>{{ $flow['schedule'] ?? __('impex::impex.none') }}</x-atrium::table.cell>
                         <x-atrium::table.cell>
                             @php($enabled = (bool) ($flow['enabled'] ?? true))
-                            <x-impex::status :variant="Badges::forFlow($enabled)"
-                                             :label="$enabled ? __('impex::impex.enabled') : __('impex::impex.disabled')"
-                                             :data-status="$enabled ? 'enabled' : 'disabled'" />
+                            @include('impex::ui.partials.status-dot', [
+                                'variant' => Badges::forFlow($enabled),
+                                'label' => $enabled ? __('impex::impex.enabled') : __('impex::impex.disabled'),
+                                'state' => $enabled ? 'enabled' : 'disabled',
+                            ])
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
                             @impexCan('create', RunModel::class, [$flow['slug']])

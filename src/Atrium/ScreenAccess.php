@@ -7,6 +7,8 @@ namespace JayI\Impex\Atrium;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use JayI\Atrium\Support\ScreenAccess as AtriumScreenAccess;
 use JayI\Foundation\Auth\Authorizer;
 use JayI\Foundation\Packages\PackageRegistry;
 
@@ -23,28 +25,28 @@ use JayI\Foundation\Packages\PackageRegistry;
 final class ScreenAccess
 {
     /**
-     * @param  Model|class-string<Model>  $subject
-     * @param  array<int, mixed>  $arguments
-     */
-    public static function allows(string $ability, Model|string $subject, array $arguments = []): bool
-    {
-        return self::allowsFor(request()->user(), $ability, $subject, $arguments);
-    }
-
-    /**
-     * The same question for a given user, for callers such as navigation
-     * and widgets that are handed the request.
+     * Asked through Atrium's shared `ScreenAccess::allows('impex', ...)`,
+     * after letting an operator through on Impex's own models. A check that
+     * needs extra policy arguments (such as the run a step belongs to) goes
+     * to the authorizer directly, which Atrium's helper does not take.
      *
      * @param  Model|class-string<Model>  $subject
      * @param  array<int, mixed>  $arguments
      */
-    public static function allowsFor(?Authenticatable $user, string $ability, Model|string $subject, array $arguments = []): bool
+    public static function allows(string $ability, Model|string $subject, array $arguments = [], ?Request $request = null): bool
     {
-        if (self::isOperator($user) && self::impexModel($subject)) {
+        $request ??= request();
+        $user = $request->user();
+
+        if (self::isOperator($user instanceof Authenticatable ? $user : null) && self::impexModel($subject)) {
             return true;
         }
 
-        return self::authorizer()->can($user, $ability, $subject, $arguments);
+        if ($arguments === []) {
+            return AtriumScreenAccess::allows('impex', $ability, $subject, $request);
+        }
+
+        return self::authorizer()->can($user instanceof Authenticatable ? $user : null, $ability, $subject, $arguments);
     }
 
     /**

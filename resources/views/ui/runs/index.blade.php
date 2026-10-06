@@ -2,7 +2,7 @@
     <x-atrium::page-header :title="__('impex::impex.runs')" />
 
     <div class="mt-5 flex flex-col gap-4">
-        @include('impex::ui.partials.status')
+        <x-atrium::flash />
 
         {{-- Status and trigger options come from the enums themselves, so a new
              case can never drift out of the filter list. --}}
@@ -53,7 +53,7 @@
                                href="{{ route('atrium.impex.runs.show', $run) }}">{{ $run->flow }}</a>
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
-                            <x-impex::status :status="$run->status" />
+                            @include('impex::ui.partials.status-dot', ['status' => $run->status])
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>{{ $run->trigger->value }}</x-atrium::table.cell>
                         <x-atrium::table.cell>
@@ -71,5 +71,7 @@
 
             <x-atrium::pagination :paginator="$runs" />
         @endif
+
+        <x-atrium::audit-trail source="impex" />
     </div>
 </x-atrium::layout>

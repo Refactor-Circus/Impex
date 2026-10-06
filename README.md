@@ -341,7 +341,9 @@ Screens: runs filterable by status, flow, trigger, owner and tag; run detail wit
 
 Impex also contributes three dashboard widgets — run status counts, recent failures and message volume. They are **offered** in Atrium's widget picker; none is placed on anyone's dashboard automatically.
 
-The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `JayI\Impex\Atrium\Badges` is the one place that maps states to colours.
+The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `JayI\Impex\Atrium\Badges` is the one place that maps states to colours. Impex ships no stylesheet and no Blade components: its screens use Atrium's components (`x-atrium::description-list`, `x-atrium::flash`, `x-atrium::status-dot` and so on) and the utilities Atrium's stylesheet already contains, which a test checks with `JayI\Atrium\Testing\AtriumStyles`.
+
+With an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed, the run and message pages end with that record's history and the runs page with the whole of Impex's (`<x-atrium::audit-trail source="impex" />`); without one nothing renders. Run steps stay in the step timeline: they record execution, not changes.
 
 ### Who sees what
 
@@ -360,7 +362,7 @@ With `impex.authorization` on, the dashboard asks exactly what the JSON API and 
 | `view` the message | message page |
 | `create` a `RunModel` for the flow | a flow's Run form |
 
-Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Atrium\ScreenAccess`.
+Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Atrium\ScreenAccess`, which asks Atrium's shared `JayI\Atrium\Support\ScreenAccess::allows('impex', ...)` once operators (below) are let through.
 
 To let some dashboard users see and handle every run — scheduled and channel runs included — make them operators with `impex.atrium.show_all`:
 

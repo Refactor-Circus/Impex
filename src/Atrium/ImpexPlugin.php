@@ -26,7 +26,6 @@ use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Domains\Run\Models\RunModel;
-use Throwable;
 
 /**
  * Registers Impex inside the Atrium dashboard.
@@ -41,16 +40,6 @@ use Throwable;
  */
 class ImpexPlugin extends Plugin
 {
-    public function key(): string
-    {
-        return 'impex';
-    }
-
-    public function label(): string
-    {
-        return 'Impex';
-    }
-
     /**
      * Features from `impex.atrium.features` that switch Impex in Atrium on
      * and off as a whole. A feature class that is not installed, such as
@@ -60,12 +49,7 @@ class ImpexPlugin extends Plugin
      */
     public function features(): array
     {
-        $features = config('impex.atrium.features', []);
-
-        return array_values(array_filter(
-            is_array($features) ? $features : [],
-            fn (mixed $feature): bool => is_string($feature) && (! str_contains($feature, '\\') || self::installed($feature)),
-        ));
+        return $this->featuresFromConfig('impex.atrium.features');
     }
 
     public function navigation(): array
@@ -216,7 +200,7 @@ class ImpexPlugin extends Plugin
      */
     private static function may(Request $request, string $ability, string $subject): bool
     {
-        return ScreenAccess::allowsFor($request->user(), $ability, $subject);
+        return ScreenAccess::allows($ability, $subject, request: $request);
     }
 
     /**
@@ -248,18 +232,5 @@ class ImpexPlugin extends Plugin
         }
 
         return $query;
-    }
-
-    /**
-     * Whether a class can be loaded. A feature whose parent belongs to a
-     * package that is not installed throws rather than answering false.
-     */
-    private static function installed(string $class): bool
-    {
-        try {
-            return class_exists($class);
-        } catch (Throwable) {
-            return false;
-        }
     }
 }

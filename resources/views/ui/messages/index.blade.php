@@ -48,7 +48,7 @@
                         </x-atrium::table.cell>
                         <x-atrium::table.cell>
                             @if ($message->signature_valid === false)
-                                <x-impex::status :variant="Badges::forSignature(false)" :label="__('impex::impex.bad_signature')" data-status="bad_signature" />
+                                @include('impex::ui.partials.status-dot', ['variant' => Badges::forSignature(false), 'label' => __('impex::impex.bad_signature'), 'state' => 'bad_signature'])
                             @else
                                 {{ $message->status_code ?? __('impex::impex.none') }}
                             @endif

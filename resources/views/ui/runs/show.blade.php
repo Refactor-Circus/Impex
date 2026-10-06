@@ -10,7 +10,7 @@
 <x-atrium::layout :title="$run->flow">
     <x-atrium::page-header :title="$run->flow">
         <x-slot:actions>
-            <x-impex::status :status="$run->status" data-testid="run-status" />
+            @include('impex::ui.partials.status-dot', ['status' => $run->status, 'testid' => 'run-status'])
 
             @unless ($run->status->isFinished())
                 @impexCan('cancel', $run)
@@ -31,45 +31,27 @@
     </x-atrium::page-header>
 
     <div class="mt-5 flex flex-col gap-5">
-        @include('impex::ui.partials.status')
+        <x-atrium::flash />
 
         <x-atrium::card>
-            <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.run_id') }}</dt>
-                    <dd class="font-mono text-sm">{{ $run->getKey() }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.trigger') }}</dt>
-                    <dd class="text-sm">{{ $run->trigger->value }}</dd>
-                </div>
+            <x-atrium::description-list>
+                <x-atrium::description-list.item :term="__('impex::impex.run_id')" class="font-mono">{{ $run->getKey() }}</x-atrium::description-list.item>
+                <x-atrium::description-list.item :term="__('impex::impex.trigger')">{{ $run->trigger->value }}</x-atrium::description-list.item>
 
                 @if ($run->idempotency_key)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.idempotency_key') }}</dt>
-                        <dd class="font-mono text-sm">{{ $run->idempotency_key }}</dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.idempotency_key')" class="font-mono">{{ $run->idempotency_key }}</x-atrium::description-list.item>
                 @endif
 
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.started') }}</dt>
-                    <dd class="text-sm">{{ $run->started_at?->diffForHumans() ?? __('impex::impex.none') }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.finished') }}</dt>
-                    <dd class="text-sm">{{ $run->finished_at?->diffForHumans() ?? __('impex::impex.none') }}</dd>
-                </div>
+                <x-atrium::description-list.item :term="__('impex::impex.started')">{{ $run->started_at?->diffForHumans() ?? __('impex::impex.none') }}</x-atrium::description-list.item>
+                <x-atrium::description-list.item :term="__('impex::impex.finished')">{{ $run->finished_at?->diffForHumans() ?? __('impex::impex.none') }}</x-atrium::description-list.item>
 
                 @if ($run->parent_run_id)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.parent') }}</dt>
-                        <dd class="text-sm">
-                            <a class="underline-offset-2 hover:underline"
-                               href="{{ route('atrium.impex.runs.show', $run->parent_run_id) }}">{{ $run->parent_run_id }}</a>
-                        </dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.parent')">
+                        <a class="underline-offset-2 hover:underline"
+                           href="{{ route('atrium.impex.runs.show', $run->parent_run_id) }}">{{ $run->parent_run_id }}</a>
+                    </x-atrium::description-list.item>
                 @endif
-            </dl>
+            </x-atrium::description-list>
         </x-atrium::card>
 
         @if ($run->error)
@@ -108,7 +90,7 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="font-mono text-sm">{{ $step->name }}</span>
 
-                                    <x-impex::status :status="$step->status" />
+                                    @include('impex::ui.partials.status-dot', ['status' => $step->status])
 
                                     @if ($isRollback)
                                         <x-atrium::badge variant="warning">{{ __('impex::impex.rollback') }}</x-atrium::badge>
@@ -200,5 +182,7 @@
                 @endif
             </x-atrium::card>
         @endimpexCan
+
+        <x-atrium::audit-trail source="impex" :subject="$run" />
     </div>
 </x-atrium::layout>

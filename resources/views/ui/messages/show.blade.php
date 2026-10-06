@@ -10,57 +10,41 @@
 
     <div class="mt-5 flex flex-col gap-5">
         <x-atrium::card>
-            <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.transport') }}</dt>
-                    <dd class="text-sm">{{ $message->transport }}{{ $message->method ? ' · '.$message->method : '' }}</dd>
-                </div>
+            <x-atrium::description-list>
+                <x-atrium::description-list.item :term="__('impex::impex.transport')">{{ $message->transport }}{{ $message->method ? ' · '.$message->method : '' }}</x-atrium::description-list.item>
 
                 @if ($message->status_code)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.status') }}</dt>
-                        <dd class="text-sm">{{ $message->status_code }}</dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.status')">{{ $message->status_code }}</x-atrium::description-list.item>
                 @endif
 
                 @if ($message->duration_ms !== null)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.duration') }}</dt>
-                        <dd class="text-sm">{{ __('impex::impex.milliseconds', ['count' => $message->duration_ms]) }}</dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.duration')">{{ __('impex::impex.milliseconds', ['count' => $message->duration_ms]) }}</x-atrium::description-list.item>
                 @endif
 
                 @if ($message->signature_valid !== null)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.signature') }}</dt>
-                        <dd>
-                            <x-impex::status :variant="Badges::forSignature($message->signature_valid)"
-                                             :label="$message->signature_valid ? __('impex::impex.verified') : __('impex::impex.bad_signature')"
-                                             :data-status="$message->signature_valid ? 'verified' : 'bad_signature'"
-                                             data-testid="message-signature" />
-                        </dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.signature')">
+                        @include('impex::ui.partials.status-dot', [
+                            'variant' => Badges::forSignature($message->signature_valid),
+                            'label' => $message->signature_valid ? __('impex::impex.verified') : __('impex::impex.bad_signature'),
+                            'state' => $message->signature_valid ? 'verified' : 'bad_signature',
+                            'testid' => 'message-signature',
+                        ])
+                    </x-atrium::description-list.item>
                 @endif
 
-                <div>
-                    <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.size') }}</dt>
-                    <dd class="text-sm">{{ __('impex::impex.bytes', ['count' => $message->bytes]) }}</dd>
-                </div>
+                <x-atrium::description-list.item :term="__('impex::impex.size')">{{ __('impex::impex.bytes', ['count' => $message->bytes]) }}</x-atrium::description-list.item>
 
                 @if ($message->run_id)
-                    <div>
-                        <dt class="text-sm text-on-surface dark:text-on-surface-dark">{{ __('impex::impex.run') }}</dt>
-                        <dd class="font-mono text-sm">
-                            @if ($message->run !== null && ScreenAccess::allows('view', $message->run))
-                                <a class="underline-offset-2 hover:underline"
-                                   href="{{ route('atrium.impex.runs.show', $message->run_id) }}" data-testid="message-run">{{ $message->run_id }}</a>
-                            @else
-                                {{ $message->run_id }}
-                            @endif
-                        </dd>
-                    </div>
+                    <x-atrium::description-list.item :term="__('impex::impex.run')" class="font-mono">
+                        @if ($message->run !== null && ScreenAccess::allows('view', $message->run))
+                            <a class="underline-offset-2 hover:underline"
+                               href="{{ route('atrium.impex.runs.show', $message->run_id) }}" data-testid="message-run">{{ $message->run_id }}</a>
+                        @else
+                            {{ $message->run_id }}
+                        @endif
+                    </x-atrium::description-list.item>
                 @endif
-            </dl>
+            </x-atrium::description-list>
         </x-atrium::card>
 
         @if ($message->headers)
@@ -78,5 +62,7 @@
                 </p>
             @endif
         </x-atrium::card>
+
+        <x-atrium::audit-trail source="impex" :subject="$message" />
     </div>
 </x-atrium::layout>

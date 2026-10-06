@@ -174,8 +174,13 @@ run (unowned ones included) and may use every Impex control — on the Atrium
 screens only, never the API or MCP. With `jayi/pennantplus`,
 `Feature::for(null)->deactivate(ImpexSupportFeature::class)` hides Impex in
 Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
-`JayI\Impex\Atrium\Badges` (`info` only for pending/waiting); actions are
-icon buttons. Over MCP the tools sit behind `search_tools` and
+`JayI\Impex\Atrium\Badges` (`info` only for pending/waiting, through the
+`impex::ui.partials.status-dot` partial); actions are icon buttons. Impex ships
+no stylesheet and no components: views use `x-atrium::*` components and Atrium's
+safelisted utilities only, never `<style>` or `style=` (a test runs
+`AtriumStyles::missingClasses()` / `inlineStyles()`). The run and message pages
+show `<x-atrium::audit-trail source="impex" :subject="..." />`, the runs page the
+package-wide trail; they render nothing until jayi/keen is installed. Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
 check the steps with phase `rollback` to see what was rolled back. With an audit
