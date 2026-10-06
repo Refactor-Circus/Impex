@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Flow\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
+use JayI\Foundation\Http\Requests\Request;
 use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Http\Request;
 
 final class IndexFlowsRequest extends Request
 {

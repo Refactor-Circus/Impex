@@ -6,7 +6,7 @@ namespace JayI\Impex\Domains\Message\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Contracts\ActionStartingEvent;
+use JayI\Foundation\Contracts\ActionStartingEvent;
 
 /**
  * The inbound channels are about to be listed.

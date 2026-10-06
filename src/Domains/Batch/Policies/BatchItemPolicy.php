@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Batch\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Gate;
 use JayI\Impex\Domains\Batch\Models\BatchItemModel;
 use JayI\Impex\Domains\Batch\Models\BatchModel;
 use JayI\Impex\Support\Policies\Policy;
@@ -18,11 +17,11 @@ class BatchItemPolicy extends Policy
 {
     public function viewAny(Model $user, BatchModel $batch): bool
     {
-        return Gate::forUser($user)->allows('view', $batch);
+        return $this->allowsOn($user, 'view', $batch);
     }
 
     public function view(Model $user, BatchItemModel $item): bool
     {
-        return Gate::forUser($user)->allows('view', $item->batch);
+        return $this->allowsOn($user, 'view', $item->batch);
     }
 }

@@ -258,7 +258,29 @@ Signing secrets are never returned.
 
 The inbound endpoint. See [The ledger](07-ledger.md).
 
+## History
+
+### `GET impex/history`
+
+Impex's audit entries, newest first: who did what, through which surface, and
+which fields changed. Filter with `subject_type` and `subject_id` for one
+record, or `action`; cursor paginated with `cursor` and `per_page`. The route
+comes from jayi/foundation and needs an audit log
+([jayi/keen](https://github.com/jayjfletcher/Keen)) installed. Until one is, it
+answers `404`:
+
+```json
+{ "message": "No audit log is installed. Install jayi/keen to record history." }
+```
+
 ## Errors
+
+A broken Impex rule (an `ImpexException`, such as a disabled flow or a signal to
+a finished run) answers `409` with its message:
+
+```json
+{ "message": "The flow [extract-products] is disabled. Re-enable it by removing or updating its row in impex_flows." }
+```
 
 Validation failures return `422` in Laravel's standard shape:
 
@@ -272,5 +294,5 @@ Validation failures return `422` in Laravel's standard shape:
 ## Route names
 
 Every route is named `impex.*` — `impex.runs.index`, `impex.flows.runs.store`,
-`impex.runs.signals.store`, and so on — so you can `route()` them from your own
+`impex.runs.signals.store`, `impex.history.index`, and so on — so you can `route()` them from your own
 code.

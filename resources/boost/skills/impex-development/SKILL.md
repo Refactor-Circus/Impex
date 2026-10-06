@@ -178,7 +178,9 @@ Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
 icon buttons. Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
-check the steps with phase `rollback` to see what was rolled back.
+check the steps with phase `rollback` to see what was rolled back. With an audit
+log (jayi/keen) installed, `GET impex/history` and `list-impex-history-tool`
+show who changed what; without one they answer "not installed".
 
 ## Rules, References, and Templates
 

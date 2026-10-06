@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
 use JayI\Impex\Domains\Run\Enums\StepPhase;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Signal\Enums\TimerKind;
-use JayI\Impex\Support\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

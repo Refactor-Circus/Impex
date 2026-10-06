@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Domains\Flow\Mcp\Requests;
 
+use JayI\Foundation\Mcp\Requests\Request;
 use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
 use JayI\Impex\Domains\Run\Enums\RunTrigger;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Resources\RunResource;
-use JayI\Impex\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Domains\Message\Mcp\Requests;
 
+use JayI\Foundation\Mcp\Requests\Request;
 use JayI\Impex\Domains\Message\Actions\ShowMessageAction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Message\Resources\MessageResource;
-use JayI\Impex\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 

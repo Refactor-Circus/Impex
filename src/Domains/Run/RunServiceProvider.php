@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Run;
 
 use Illuminate\Console\Scheduling\Schedule;
+use JayI\Foundation\Support\ServiceProvider;
 use JayI\Impex\Domains\Run\Console\Commands\TickCommand;
 use JayI\Impex\Domains\Run\Contracts\RollbackStrategy;
 use JayI\Impex\Domains\Run\Models\RunModel;
@@ -17,7 +18,6 @@ use JayI\Impex\Domains\Run\Services\JobRouter;
 use JayI\Impex\Domains\Run\Services\Rollbacks;
 use JayI\Impex\Domains\Run\Services\StepWriter;
 use JayI\Impex\Domains\Run\Services\Sweeper;
-use JayI\Impex\Support\ServiceProvider;
 
 class RunServiceProvider extends ServiceProvider
 {

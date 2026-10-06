@@ -6,7 +6,7 @@ namespace JayI\Impex\Domains\Run\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Contracts\ActionStartingEvent;
+use JayI\Foundation\Contracts\ActionStartingEvent;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Models\RunOwnerModel;
 

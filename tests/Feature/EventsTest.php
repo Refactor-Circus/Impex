@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use JayI\Impex\Contracts\ActionFinishedEvent;
-use JayI\Impex\Contracts\ActionStartingEvent;
-use JayI\Impex\Contracts\ModelLifecycleEvent;
+use JayI\Foundation\Contracts\ActionFinishedEvent;
+use JayI\Foundation\Contracts\ActionStartingEvent;
+use JayI\Foundation\Contracts\ModelLifecycleEvent;
 use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
 use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
 use JayI\Impex\Domains\Flow\Events\FlowRanActionEvent;

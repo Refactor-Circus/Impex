@@ -6,7 +6,6 @@ namespace JayI\Impex\Domains\Signal\Exceptions;
 
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Exceptions\ImpexException;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * A signal was delivered to a run that has already finished.
@@ -24,18 +23,5 @@ final class CannotSignalTerminalRunException extends ImpexException
             $runId,
             $status->value,
         ));
-    }
-
-    /**
-     * Conflict, not a validation error: the request was well-formed, the run's
-     * state simply makes it impossible.
-     */
-    public function render(): Response
-    {
-        return new Response(
-            json_encode(['message' => $this->getMessage()], JSON_THROW_ON_ERROR),
-            409,
-            ['Content-Type' => 'application/json'],
-        );
     }
 }

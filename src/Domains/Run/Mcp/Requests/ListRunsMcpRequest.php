@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Domains\Run\Mcp\Requests;
 
+use JayI\Foundation\Mcp\Requests\Request;
 use JayI\Impex\Domains\Run\Actions\ListRunsAction;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Resources\RunResource;
-use JayI\Impex\Mcp\Request;
 use Laravel\Mcp\ResponseFactory;
 
 final class ListRunsMcpRequest extends Request

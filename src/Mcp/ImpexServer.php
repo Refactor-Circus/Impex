@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Mcp;
 
-use JayI\Impex\Cortex\CortexIntegration;
+use JayI\Foundation\Mcp\Server;
 use JayI\Impex\Domains\Flow\Mcp\Tools\ListFlowsTool;
 use JayI\Impex\Domains\Flow\Mcp\Tools\RunFlowTool;
 use JayI\Impex\Domains\Message\Mcp\Tools\ListChannelsTool;
@@ -19,11 +19,10 @@ use JayI\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
 use JayI\Impex\Domains\Run\Mcp\Tools\RetryRunTool;
 use JayI\Impex\Domains\Run\Mcp\Tools\ShowRunTool;
 use JayI\Impex\Domains\Signal\Mcp\Tools\SignalRunTool;
-use Laravel\Mcp\Server;
+use JayI\Impex\Mcp\Tools\ListImpexHistoryTool;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
-use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
 
@@ -71,6 +70,9 @@ final class ImpexServer extends Server
         ListMessagesTool::class,
         ShowMessageTool::class,
         ListChannelsTool::class,
+
+        // History
+        ListImpexHistoryTool::class,
     ];
 
     /**
@@ -79,20 +81,4 @@ final class ImpexServer extends Server
     protected array $tools = [
         ToolSearch::class => self::TOOLS,
     ];
-
-    /**
-     * Serve Cortex's published instructions override, when Cortex is
-     * installed and one is published, in place of the ones declared above.
-     */
-    public function createContext(): ServerContext
-    {
-        $context = parent::createContext();
-        $override = app(CortexIntegration::class)->instructions();
-
-        if ($override !== null) {
-            $context->instructions = $override;
-        }
-
-        return $context;
-    }
 }

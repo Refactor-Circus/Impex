@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
 use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Support\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

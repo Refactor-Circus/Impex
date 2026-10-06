@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
 use JayI\Impex\Database\Factories\MessageFactory;
 use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Support\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

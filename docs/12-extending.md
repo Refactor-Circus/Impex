@@ -191,7 +191,7 @@ Alongside these engine events, every model fires a class-based event per
 Eloquent hook (`JayI\Impex\Domains\Run\Events\RunCreatedEvent`, ...) and every
 action fires a start and a finish event (`JayI\Impex\Domains\Flow\Events\FlowRanActionEvent`,
 ...). Listen to `ModelLifecycleEvent`, `ActionStartingEvent` or
-`ActionFinishedEvent` in `JayI\Impex\Contracts` to receive a whole family. See
+`ActionFinishedEvent` in `JayI\Foundation\Contracts` to receive a whole family. See
 the [README](../README.md#events) for the full list.
 
 ## Registering channels from a package

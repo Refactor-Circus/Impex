@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Flow\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
+use JayI\Foundation\Http\Requests\Request;
 use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Resources\RunResource;
-use JayI\Impex\Http\Request;
 
 final class StoreFlowRunRequest extends Request
 {

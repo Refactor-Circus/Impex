@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Message\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
+use JayI\Foundation\Http\Requests\Request;
 use JayI\Impex\Domains\Message\Actions\ListMessagesAction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Message\Resources\MessageResource;
-use JayI\Impex\Http\Request;
 
 final class IndexMessagesRequest extends Request
 {

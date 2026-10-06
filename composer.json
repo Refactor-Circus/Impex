@@ -22,6 +22,7 @@
     "require": {
         "php": "^8.4",
         "jayi/atrium": "dev-main",
+        "jayi/foundation": "dev-main",
         "laravel/framework": "^13.15",
         "laravel/mcp": "^1.0"
     },
@@ -136,6 +137,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/jayjfletcher/PennantPlus.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/jayjfletcher/Foundation.git"
         }
     ]
 }

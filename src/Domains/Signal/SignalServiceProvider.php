@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Domains\Signal;
 
+use JayI\Foundation\Support\ServiceProvider;
 use JayI\Impex\Domains\Signal\Console\Commands\SignalCommand;
 use JayI\Impex\Domains\Signal\Models\SignalModel;
 use JayI\Impex\Domains\Signal\Models\TimerModel;
 use JayI\Impex\Domains\Signal\Services\Waits;
-use JayI\Impex\Support\ServiceProvider;
 
 class SignalServiceProvider extends ServiceProvider
 {

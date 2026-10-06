@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace JayI\Impex\Support\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Gate;
+use JayI\Foundation\Policies\Policy as BasePolicy;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Models\RunOwnerModel;
 
 /**
- * Shared checks for the bundled policies.
+ * Shared checks for the bundled policies, on top of the suite's base policy.
  *
  * Each policy is registered from `impex.policies`, so an application swaps
  * one by pointing its model at another class there.
  */
-abstract class Policy
+abstract class Policy extends BasePolicy
 {
     /**
      * Whether the user is one of the run's owners, in any role.
@@ -43,6 +43,6 @@ abstract class Policy
      */
     protected function allowsOnRun(Model $user, string $ability, ?RunModel $run, array $arguments = []): bool
     {
-        return $run instanceof RunModel && Gate::forUser($user)->allows($ability, [$run, ...$arguments]);
+        return $run instanceof RunModel && $this->allowsOn($user, $ability, $run, $arguments);
     }
 }

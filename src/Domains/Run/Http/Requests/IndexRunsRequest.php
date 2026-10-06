@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
+use JayI\Foundation\Http\Requests\Request;
 use JayI\Impex\Domains\Run\Actions\ListRunsAction;
 use JayI\Impex\Domains\Run\Models\RunModel;
 use JayI\Impex\Domains\Run\Resources\RunResource;
-use JayI\Impex\Http\Request;
 
 final class IndexRunsRequest extends Request
 {

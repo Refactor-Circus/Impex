@@ -15,6 +15,8 @@ use JayI\Atrium\Domains\Search\Data\SearchSource;
 use JayI\Atrium\Domains\Settings\Data\SettingsPanel;
 use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
 use JayI\Atrium\Support\Icons;
+use JayI\Foundation\Auth\Authorizer;
+use JayI\Foundation\Packages\PackageRegistry;
 use JayI\Impex\Atrium\Http\Controllers\ChannelUiController;
 use JayI\Impex\Atrium\Http\Controllers\FlowUiController;
 use JayI\Impex\Atrium\Http\Controllers\MessageUiController;
@@ -24,7 +26,6 @@ use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Support\Authorizer;
 use Throwable;
 
 /**
@@ -98,7 +99,7 @@ class ImpexPlugin extends Plugin
                 ->route('atrium.impex.channels.index')
                 ->group('Impex')
                 ->sort(40)
-                ->authorize(fn (Request $request): bool => app(Authorizer::class)->authenticated($request->user())),
+                ->authorize(fn (Request $request): bool => Authorizer::for(app(PackageRegistry::class)->get('impex'))->authenticated($request->user())),
         ];
     }
 

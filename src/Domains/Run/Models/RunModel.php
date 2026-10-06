@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
 use JayI\Impex\Database\Factories\RunFactory;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Run\Enums\ChildClosePolicy;
@@ -20,7 +21,6 @@ use JayI\Impex\Domains\Run\Enums\RunTrigger;
 use JayI\Impex\Domains\Run\Enums\StepPhase;
 use JayI\Impex\Domains\Signal\Models\SignalModel;
 use JayI\Impex\Domains\Signal\Models\TimerModel;
-use JayI\Impex\Support\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

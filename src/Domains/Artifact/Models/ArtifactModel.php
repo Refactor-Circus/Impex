@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
 use JayI\Impex\Database\Factories\ArtifactFactory;
 use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Support\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

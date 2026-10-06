@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Flow;
 
 use Illuminate\Console\Scheduling\Schedule;
+use JayI\Foundation\Support\ServiceProvider;
 use JayI\Impex\Domains\Flow\Console\Commands\RunFlowCommand;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use JayI\Impex\Domains\Flow\Services\FlowRegistry;
-use JayI\Impex\Support\ServiceProvider;
 
 class FlowServiceProvider extends ServiceProvider
 {

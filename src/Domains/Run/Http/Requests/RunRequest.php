@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JayI\Impex\Domains\Run\Http\Requests;
 
+use JayI\Foundation\Http\Requests\Request;
 use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Http\Request;
 
 abstract class RunRequest extends Request
 {

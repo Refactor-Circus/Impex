@@ -7,7 +7,8 @@ namespace JayI\Impex\Atrium;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Support\Authorizer;
+use JayI\Foundation\Auth\Authorizer;
+use JayI\Foundation\Packages\PackageRegistry;
 
 /**
  * Whether the signed-in user may perform an ability, asked exactly as the
@@ -117,6 +118,6 @@ final class ScreenAccess
 
     private static function authorizer(): Authorizer
     {
-        return app(Authorizer::class);
+        return Authorizer::for(app(PackageRegistry::class)->get('impex'));
     }
 }

@@ -250,11 +250,16 @@ GET    impex/runs/{run}/owners            POST   impex/runs/{run}/owners
 DELETE impex/runs/{run}/owners/{owner}
 GET    impex/messages                     GET    impex/messages/{message}
 GET    impex/channels                     POST   impex/channels/{channel}
+GET    impex/history
 ```
 
 Run listing filters on `status`, `flow`, `trigger`, `owner_type`+`owner_id`,
 `tag[key]=value`, `since`, `until`, and `parent`, with cursor pagination.
-Triggering answers `202` with the run — never inline execution.
+Triggering answers `202` with the run — never inline execution. A broken rule
+(a disabled flow, a signal to a finished run) answers `409` with its message.
+`GET impex/history` lists Impex's audit entries, newest first, once
+[jayi/keen](https://github.com/jayjfletcher/Keen) is installed; until then it
+answers `404`.
 
 Every endpoint is one line: validation rules come from an Action's static
 `rules()`, and the request's `persist()` calls that same Action. The MCP surface
@@ -287,11 +292,12 @@ a tool.
 ```
 
 The server lists two entry points, `search_tools` and `execute_tools`, with
-fourteen tools behind them: `list-flows-tool`, `run-flow-tool`, `list-runs-tool`,
+fifteen tools behind them: `list-flows-tool`, `run-flow-tool`, `list-runs-tool`,
 `show-run-tool`, `cancel-run-tool`, `retry-run-tool`, `list-run-steps-tool`,
 `signal-run-tool`, `list-run-owners-tool`, `attach-run-owner-tool`,
-`detach-run-owner-tool`, `list-messages-tool`, `show-message-tool` and
-`list-channels-tool`.
+`detach-run-owner-tool`, `list-messages-tool`, `show-message-tool`,
+`list-channels-tool` and `list-impex-history-tool` (the audit history, once an
+audit log is installed).
 
 The server's instructions tell an agent the things it cannot infer from the
 schema: that `run-flow-tool` is asynchronous and `show-run-tool` must be polled, that a
@@ -556,7 +562,7 @@ Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it 
 
 ### Listening to a whole family
 
-Listen to an interface in `JayI\Impex\Contracts` to receive every event of that family:
+Listen to an interface in `JayI\Foundation\Contracts` to receive every event of that family. Every package of the jayi suite implements the same interfaces, so one listener hears them all:
 
 | Interface | Receives |
 | --- | --- |
@@ -581,7 +587,9 @@ The code is organised into domain modules under `src/Domains`, each with its own
 | `Message` | The ledger, channels and their profiles and validators, outbound recording |
 | `Artifact` | Artifacts and the `PayloadStore` |
 
-Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, the event contracts in `Contracts`, the base `Http\Request`, `Mcp\Request`, `Mcp\Tool` and `Mcp\ImpexServer`, `Support` (locks, the authorizer, the base policy and model-event trait), `Testing\Flows`, `impex:prune`, the Atrium screens in `Atrium` and the Cortex bridge in `Cortex`. The queued jobs keep their `JayI\Impex\Jobs` names, because those names are inside job payloads already on a queue.
+Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks and the base policy), `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
+
+Impex stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), the shared runtime of the jayi suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`JayI\Foundation\...`), so every package of the suite behaves the same way. The queued jobs keep their `JayI\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
 ## Vapor notes
 

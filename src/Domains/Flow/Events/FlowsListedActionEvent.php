@@ -6,7 +6,7 @@ namespace JayI\Impex\Domains\Flow\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Contracts\ActionFinishedEvent;
+use JayI\Foundation\Contracts\ActionFinishedEvent;
 
 /**
  * The registered flows were listed.

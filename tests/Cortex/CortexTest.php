@@ -6,7 +6,8 @@ use JayI\Cortex\Domains\McpServer\Actions\CreateMcpInstructionVersionAction;
 use JayI\Cortex\Domains\McpServer\Services\McpServerRegistry;
 use JayI\Cortex\Domains\Tool\Actions\CreateToolDescriptionVersionAction;
 use JayI\Cortex\Domains\Tool\Services\ToolRegistry;
-use JayI\Impex\Cortex\CortexIntegration;
+use JayI\Foundation\Cortex\CortexIntegration;
+use JayI\Foundation\Packages\PackageRegistry;
 use JayI\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
 use JayI\Impex\Mcp\ImpexServer;
 use Laravel\Ai\Contracts\Tool as AgentTool;
@@ -26,7 +27,7 @@ it('offers every Impex tool to Cortex agents under its own name', function (): v
 
     $names = array_map(fn (string $class): string => app($class)->name(), ImpexServer::TOOLS);
 
-    expect(ImpexServer::TOOLS)->toHaveCount(14)
+    expect(ImpexServer::TOOLS)->toHaveCount(15)
         ->and(array_diff($names, $tools->names()))->toBe([])
         ->and($tools->get('list-runs-tool'))->toBeInstanceOf(AgentTool::class)
         ->and($tools->tagsFor('list-runs-tool'))->toContain('impex');
@@ -65,7 +66,7 @@ it('lets an agent call an Impex tool with its arguments', function (): void {
 });
 
 it('stays out of Cortex when turned off', function (): void {
-    $integration = app(CortexIntegration::class);
+    $integration = CortexIntegration::for(app(PackageRegistry::class)->get('impex'));
 
     expect($integration->active())->toBeTrue();
 

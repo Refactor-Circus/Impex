@@ -4,6 +4,18 @@
 
 ### Breaking
 
+- Impex now stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), the shared runtime of the jayi suite, and its local copies are gone. `ImpexServiceProvider` extends `PackageServiceProvider` and registers Impex with the suite's `PackageRegistry` (key `impex`); policies, the MCP server, Cortex and the Atrium plugin are wired through its helpers, reading the same `impex.*` config keys as before. Old → new:
+  - `JayI\Impex\Contracts\ActionStartingEvent`, `ActionFinishedEvent`, `ModelLifecycleEvent` → `JayI\Foundation\Contracts\...` (listen to these to hear every package of the suite)
+  - `JayI\Impex\Support\Models\Concerns\DispatchesModelEvents` → `JayI\Foundation\Models\Concerns\DispatchesModelEvents`
+  - `JayI\Impex\Http\Request` → `JayI\Foundation\Http\Requests\Request`
+  - `JayI\Impex\Mcp\Request` → `JayI\Foundation\Mcp\Requests\Request` (calls now run inside the `mcp` surface)
+  - `JayI\Impex\Mcp\Tool` → `JayI\Foundation\Mcp\Tool`
+  - `JayI\Impex\Support\Authorizer` → `JayI\Foundation\Auth\Authorizer`, built with `Authorizer::for(app(PackageRegistry::class)->get('impex'))` rather than resolved from the container
+  - `JayI\Impex\Cortex\CortexIntegration` → `JayI\Foundation\Cortex\CortexIntegration`, built with `CortexIntegration::for($package)`; agent tool calls are now marked with the `cortex` surface
+  - `JayI\Impex\Support\ServiceProvider` → `JayI\Foundation\Support\ServiceProvider` (the inbound channel route group moves into `MessageServiceProvider`)
+  - `ImpexServer` extends `JayI\Foundation\Mcp\Server`, which serves the Cortex instructions override; `ImpexException` extends `JayI\Foundation\Exceptions\PackageException`; `Support\Policies\Policy` extends `JayI\Foundation\Policies\Policy`.
+- Every `ImpexException` thrown during an HTTP request now answers `409` with its message as JSON, as `CannotSignalTerminalRunException` already did. A disabled flow, for example, was a `500`.
+
 - The package is reorganised into domain modules (`src/Domains/Run`, `Flow`, `Signal`, `Batch`, `Message`, `Artifact`), mirroring the mono application's layout. Classes move namespaces and the models gain a `Model` suffix (`Run` → `RunModel`, ...); there are no aliases for the old class names, so update imports, `impex.policies` keys and any `impex.channels` profile or validator classes. The flow DSL base classes (`Flow`, `ResumableAction`) and the builders move to `Domains\Flow\Support`, and the engine and its collaborators to `Domains\Run\Services` - rebind them by their new names. Config keys, route names and paths, MCP tool names, publish tags, views, translations, tables and model event class names are unchanged. Package-wide pieces keep their names: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexPlugin`, `Badges`, the event contracts, `Http\Request`, `Mcp\Request`, `Mcp\Tool`, `Mcp\ImpexServer`, `ImpexException`, `Support\Locks`, `Testing\Flows`, `CortexIntegration` and `PruneCommand`. The queued jobs (`DriveRun`, `ExecuteStep`, `ProcessBatchItem`, `SeedBatch`) keep their `JayI\Impex\Jobs` names, so jobs already on a queue still run. Each model keeps its old class name as its morph alias, so values stored under it (a run owner's `owner_type`, an audit subject) still resolve, and `ImpexSupportFeature` keeps its Pennant stored name (`JayI\Impex\Features\ImpexSupportFeature`). The JSON API routes now load from each domain (`routes/impex.php` is gone). References to Atrium, Cortex and PennantPlus follow their domain-module renames. Old → new:
   - `JayI\Impex\Access\Authorizer` → `JayI\Impex\Support\Authorizer`
   - `JayI\Impex\Actions\AttachRunOwnerAction` → `JayI\Impex\Domains\Run\Actions\AttachRunOwnerAction`
@@ -314,6 +326,8 @@
   - `JayI\Impex\Support\PayloadStore` → `JayI\Impex\Domains\Artifact\Services\PayloadStore`
 
 ### Added
+
+- `GET impex/history` (`impex.history.index`) and the `list-impex-history-tool` MCP tool list Impex's audit entries, newest first, once an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) is installed. Until then the route answers `404` and the tool explains that none is installed.
 
 - Atrium screens follow Atrium's screen conventions (needs Atrium f5eb488 or later): every action is an icon button (`<x-atrium::icon-button>`), run, step, flow and channel/message signature states are status dots (`<x-impex::status>`, with `data-status`), and every Impex nav item has a Heroicons icon. `Badges::forStatus()`, `forFlow()` and `forSignature()` decide every colour; `info` is kept for pending (`pending`, and a run `waiting` on a signal).
 - The dashboard asks the same policies as the JSON API and MCP tools: nav items, widgets, search, cards and buttons are shown only when their action would be allowed, through `JayI\Impex\Http\Ui\ScreenAccess` and the `@impexCan` Blade conditional.

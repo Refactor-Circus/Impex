@@ -64,7 +64,9 @@ it('returns the original run when an idempotency key is reused', function (): vo
 it('refuses to run a flow disabled by a database override', function (): void {
     FlowOverrideModel::query()->create(['slug' => 'linear', 'enabled' => false]);
 
-    $this->postJson('/impex/flows/linear/runs', ['arguments' => [1]])->assertStatus(500);
+    $this->postJson('/impex/flows/linear/runs', ['arguments' => [1]])
+        ->assertStatus(409)
+        ->assertJsonPath('message', 'The flow [linear] is disabled. Re-enable it by removing or updating its row in impex_flows.');
 
     expect(RunModel::query()->count())->toBe(0);
 });
