@@ -4,6 +4,7 @@
 
 ### Added
 
+- The package's section in Atrium's sidebar rail has its own icon (`arrows-right-left`) and a fixed place in the rail.
 - An **Audit log** link in the package's sidebar group, opening its own audit log in Atrium (`/atrium/history/impex`), shown while an audit log (jayi/keen) is installed and to those who may read the package's history.
 
 ### Breaking
