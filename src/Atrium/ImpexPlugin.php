@@ -84,6 +84,9 @@ class ImpexPlugin extends Plugin
                 ->group('Impex')
                 ->sort(40)
                 ->authorize(fn (Request $request): bool => Authorizer::for(app(PackageRegistry::class)->get('impex'))->authenticated($request->user())),
+
+            // The package's own audit log, while an audit log is installed.
+            $this->historyNavItem('impex')->group('Impex')->sort(90),
         ];
     }
 

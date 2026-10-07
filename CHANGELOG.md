@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/jayi/impex/compare/v0.1.0...1.x)
 
+### Added
+
+- An **Audit log** link in the package's sidebar group, opening its own audit log in Atrium (`/atrium/history/impex`), shown while an audit log (jayi/keen) is installed and to those who may read the package's history.
+
 ### Breaking
 
 - Impex ships no stylesheet and no Blade components; Atrium owns them all. `resources/css/atrium.css` and its `Atrium::css()` registration are gone (every utility the screens use is in Atrium's stylesheet), the `<x-impex::status>` component is now the `impex::ui.partials.status-dot` partial (`@include('impex::ui.partials.status-dot', ['status' => $run->status])`), and the `impex::ui.partials.status` partial is replaced by `<x-atrium::flash />`. Republish `impex-views` if you customised them.
