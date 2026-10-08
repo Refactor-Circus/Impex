@@ -27,7 +27,7 @@ it('offers every Impex tool to Cortex agents under its own name', function (): v
 
     $names = array_map(fn (string $class): string => app($class)->name(), ImpexServer::TOOLS);
 
-    expect(ImpexServer::TOOLS)->toHaveCount(15)
+    expect(ImpexServer::TOOLS)->toHaveCount(36)
         ->and(array_diff($names, $tools->names()))->toBe([])
         ->and($tools->get('list-runs-tool'))->toBeInstanceOf(AgentTool::class)
         ->and($tools->tagsFor('list-runs-tool'))->toContain('impex');

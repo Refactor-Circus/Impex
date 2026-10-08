@@ -1,6 +1,9 @@
 # Impex documentation
 
-`jayi/impex` — a Laravel workflow engine and data-flow ledger, built for Vapor.
+`jayi/impex` — a Laravel workflow engine and the application's I/O gateway:
+every payload in or out goes through a named channel and lands in one ledger,
+and subscribers follow your data's changes through signed, batched
+subscriptions. Built for Vapor.
 
 ## Guides
 
@@ -12,7 +15,7 @@
 | [Rollback](04-rollback.md) | Rollback, policies, and what it cannot undo |
 | [Signals and timers](05-signals-timers.md) | Waiting for humans and for the clock |
 | [Scale](06-scale.md) | `fanOut`, `batch`, and resumable actions |
-| [The ledger](07-ledger.md) | Inbound channels, outbound recording |
+| [The ledger](07-ledger.md) | Every crossing recorded: inbound channels, outbound sends, bodies |
 | [Ownership](08-ownership.md) | Polymorphic owners and scoping |
 | [HTTP API](09-api.md) | Every endpoint, with requests and responses |
 | [MCP](10-mcp.md) | Every tool, and how parity is enforced |
@@ -23,6 +26,8 @@
 | [Testing](15-testing.md) | Testing flows in a host application |
 | [Child workflows](16-children.md) | Running a flow from a flow, and close policies |
 | [Versioning](17-versioning.md) | Branching old runs down old code, and deadlines |
+| [Channels and transports](18-channels.md) | Ways in and out, `Impex::send()`, signing, the endpoint guard, mail |
+| [Subscriptions](19-subscriptions.md) | Streams, subscribers, push delivery, the feed, exports |
 
 ## The shape of it in one page
 

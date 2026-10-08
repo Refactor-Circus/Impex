@@ -15,6 +15,8 @@ final readonly class SweepReport
         public int $batches = 0,
         public int $expiredSteps = 0,
         public int $expiredRuns = 0,
+        public int $detections = 0,
+        public int $deliveries = 0,
     ) {}
 
     /**
@@ -27,19 +29,23 @@ final readonly class SweepReport
 
     public function total(): int
     {
-        return $this->timers + $this->leases + $this->batches + $this->expiredSteps + $this->expiredRuns;
+        return $this->timers + $this->leases + $this->batches + $this->expiredSteps + $this->expiredRuns
+            + $this->detections + $this->deliveries;
     }
 
     public function summary(): string
     {
         return sprintf(
             '%d timer(s) fired, %d lease(s) reclaimed, %d batch(es) finalised, '.
-            '%d step(s) and %d run(s) past their deadline.',
+            '%d step(s) and %d run(s) past their deadline, '.
+            '%d stream(s) queued for detection, %d subscription(s) queued for delivery.',
             $this->timers,
             $this->leases,
             $this->batches,
             $this->expiredSteps,
             $this->expiredRuns,
+            $this->detections,
+            $this->deliveries,
         );
     }
 }

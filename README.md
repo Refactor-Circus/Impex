@@ -3,9 +3,12 @@
 Workflow engine and data-flow ledger for Laravel.
 
 Impex runs multi-step work as deterministic, replayable flows with automatic
-rollback, and records every payload that crosses the application boundary so you
-can see the flow of data in and out. It is designed for a runtime with a hard
-execution ceiling, a small queue message, and no local disk.
+rollback, and is the application's one way in and out: every webhook received,
+API call made, feed uploaded, mail sent and subscriber pushed to goes through a
+named channel and lands in the ledger. Subscribers — vendors, marketplaces,
+partners — follow streams of change and are pushed only what they asked for.
+It is designed for a runtime with a hard execution ceiling, a small queue
+message, and no local disk, and for catalogues in the tens of millions.
 
 > **Status: complete through the dashboard.** Everything below is built and
 > tested — engine, ledger, HTTP API, MCP server, and UI.
@@ -27,6 +30,9 @@ $schedule->command('impex:tick')->everyMinute();
 ```
 
 The package registers this itself when `impex.timers.enabled` is not `false`.
+It is also the repair pass: it reclaims step and batch item leases whose worker
+died, and queues subscription detection and deliveries a lost job never ran.
+Schedule `impex:prune` yourself, daily.
 
 On Vapor/Lambda, point the artifact disk at S3 and the lock store at Redis or DynamoDB:
 
@@ -207,11 +213,60 @@ final class ProductSearchSource implements BatchSource
 `batch()`. What `batch` costs you: no per-item rollback, no positional
 results, no per-item signals.
 
+Batch items are leased while they run. If a worker dies mid-item, `impex:tick`
+reclaims the item once its lease lapses and counts the attempt, so an item that
+keeps killing its worker fails instead of blocking its batch. `ProcessBatchItem`
+implements Laravel's `Interruptible`: when the worker times it out (`SIGALRM`,
+Laravel 13.34+ with `pcntl`) it gives the item up at once for an immediate
+retry, rather than waiting out the lease. A graceful `SIGTERM` lets it finish.
+
+## Job middleware
+
+Give Impex's queued jobs your own queue middleware by job class, with `*` for
+all of them:
+
+```php
+// config/impex.php
+'jobs' => [
+    'middleware' => [
+        '*' => [\App\Queue\TagWithTenant::class],
+        \JayI\Impex\Jobs\DeliverSubscription::class => [
+            [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
+        ],
+    ],
+],
+```
+
+An entry is a middleware class, `[class, ...constructor arguments]`, or a
+`JayI\Impex\Contracts\JobMiddlewareFactory` that builds middleware from the job
+in hand — a lock keyed by the subscription a delivery is for, say. It is read
+when the job runs, and applies to `DriveRun`, `ExecuteStep`, `SeedBatch`,
+`ProcessBatchItem`, `DetectStream`, `DeliverSubscription` and
+`ExportSubscription`.
+
 ## The ledger
 
-Every payload crossing the boundary is recorded, in both directions.
+Every payload crossing the boundary is recorded, in both directions: one row per
+crossing, with its channel, endpoint, status, duration, size and a sha256 of
+the body, linked to the run, step or subscription delivery that caused it. A
+failed crossing is recorded too — a timeout or a refused connection is the one
+someone opens the ledger to find. Rows are written with a single insert and no
+per-row model events (`MessageRecorded` still fires), because at scale this is
+the hottest table in the application.
 
-Inbound, as a named channel:
+Which bodies are kept is each channel's `body_policy`: `all`, `failures` or
+`none`. Bodies up to the artifact threshold are kept whole in the row, larger
+ones on the artifact disk, and binary ones as base64; `Impex::body($message)`
+reads any of them back.
+
+## Channels
+
+A channel is a named way in or out. Applications define them in
+`impex.channels`; others are stored at runtime — a subscriber's webhook
+endpoint, an integration an operator adds — through the API, MCP or the
+dashboard. A stored channel of the same name wins over a configured one.
+
+Inbound:
 
 ```php
 'channels' => [
@@ -229,15 +284,128 @@ Inbound, as a named channel:
 request, responds `202`, and queues the bound flow. A request with a bad
 signature is still recorded — it is evidence of what an upstream sent — but
 starts no run. Only the headers you name are stored, because webhook headers
-routinely carry credentials.
+routinely carry credentials. `signature_validator` picks the scheme:
+`HmacSha256Validator` (the default) or `StandardWebhooksValidator`
+(standardwebhooks.com, with a replay window). Every secret in
+`credentials.secrets` is accepted beside `signing_secret`, so a sender can
+rotate without a gap.
 
-Outbound, as the mirror:
+Outbound, through a transport — `http`, `mail`, `file`, or one you register:
+
+```php
+'carrier-api' => [
+    'direction' => 'outbound',
+    'transport' => 'http',
+    'options' => ['url' => 'https://api.carrier.test/rates', 'timeout' => 5],
+    'credentials' => ['signing_secret' => env('CARRIER_SECRET')],
+    'body_policy' => 'failures',
+],
+```
+
+```php
+$receipt = Impex::send('carrier-api', ['zip' => '90210']);   // JSON
+$receipt = Impex::send('ops-mail', OutboundMessage::mail(new LowStockMail($sku)));
+$receipt = Impex::send('partner-sftp', new OutboundMessage(stream: $handle));
+
+$receipt->successful; // a 500 or a timeout is a failed receipt, not an exception
+```
+
+An HTTP send through a channel with a secret is signed (Standard Webhooks by
+default: `webhook-id`, `webhook-timestamp`, `webhook-signature`, under every
+secret the channel holds). An endpoint someone outside the application
+supplied — a subscriber's URL — is guarded: it must be https and may not
+resolve to a private or reserved address, and the request is pinned to the
+address that was checked. Register a transport with
+`Impex::transports()->extend('sqs', fn ($app) => $app->make(SqsTransport::class))`.
+
+`Impex::http()` and `Impex::record()` still record calls made outside a
+channel:
 
 ```php
 Impex::http('vendor-api', $runId, $stepId)->post('https://vendor.test/quote', $payload);
 
 Impex::record(channel: 'sftp-drop', endpoint: 'sftp://partner.test/out.csv', body: $csv);
 ```
+
+### Mail
+
+Wrap the application's real mailer in the `impex` transport and every mail it
+sends — Mailables, notifications, password resets — is recorded, failures
+included:
+
+```php
+// config/mail.php
+'default' => 'impex',
+'mailers' => [
+    'impex' => ['transport' => 'impex', 'mailer' => 'ses', 'channel' => 'mail'],
+    'ses' => ['transport' => 'ses'],
+],
+```
+
+`impex.mail.record_unwrapped` records mail from any other mailer too, from the
+`MessageSent` event (successes only).
+
+## Subscriptions
+
+Subscribers follow **streams** of change through **subscriptions**, and are
+pushed only the subjects and topics they chose — or pull them from a feed.
+
+A package registers a stream. A *snapshot* stream (products, manufacturers) is
+touched when subjects may have changed; Impex loads them, hashes each topic's
+slice, and turns only real changes into events. An *append* stream (orders)
+publishes discrete events, each delivered as it is.
+
+```php
+final class ManufacturerStream extends AbstractStream
+{
+    public function key(): string { return 'manufacturers'; }
+
+    public function topics(): array { return ['profile', 'certifications']; }   // append only
+
+    public function snapshots(array $keys): array
+    {
+        // One query per chunk, never one per key.
+        return Manufacturer::whereIn('code', $keys)->get()->mapWithKeys(fn ($m) => [$m->code => $m->toSnapshot()])->all()
+            + array_fill_keys($keys, null);
+    }
+}
+
+Impex::streams()->register(ManufacturerStream::class);
+
+Impex::streams()->touch('manufacturers', ['ACME', 'GLOBEX']);                 // after a save
+Impex::streams()->publish('orders', $order->number, 'order.shipped', $payload); // an append stream
+```
+
+Subscribers authenticate as OAuth clients on their own API, under
+`/impex/subscriber` (set `impex.routes.subscriber_middleware` to your OAuth
+middleware; the subscriber is found by the token's client):
+
+```http
+POST /impex/subscriber/subscriptions
+{"stream": "keystone.products", "topics": ["pricing", "assets"],
+ "filter": {"categories": ["power-tools"]}, "format": "slice",
+ "endpoint": {"url": "https://vendor.example.com/hooks"}}
+```
+
+The response carries the signing secret, once. Deliveries are batched — up to
+`delivery.batch` events per request, one subject's changes folded into one
+entry — in order, one request in flight per subscription, and the cursor moves
+only when the endpoint answers 2xx. Failures back off exponentially with
+jitter; `breaker_threshold` failures in a row switch the subscription off
+(`SubscriptionDisabled`) until it is resumed. A subject that moves into a
+subscription's scope is sent whole; one that leaves it, or is deleted, is sent
+as `removed`.
+
+Without an endpoint a subscription is feed-only:
+`GET /impex/subscriber/subscriptions/{id}/events?after={cursor}`. A new
+subscriber can ask for a full export (`POST …/export`), which writes every
+subject the subscription covers to one file and moves the cursor past it.
+
+Operators manage subscribers and subscriptions over the operator API, MCP and
+the dashboard. Built for scale: nothing on the write path is per subscriber,
+filters are matched as rules rather than expanded, fan-out writes one narrow
+row per match, and payloads are built at send time — never copied per
+subscriber.
 
 ## HTTP API
 
@@ -249,9 +417,24 @@ GET    impex/runs/{run}/steps             POST   impex/runs/{run}/signals
 GET    impex/runs/{run}/owners            POST   impex/runs/{run}/owners
 DELETE impex/runs/{run}/owners/{owner}
 GET    impex/messages                     GET    impex/messages/{message}
-GET    impex/channels                     POST   impex/channels/{channel}
+GET    impex/channels                     POST   impex/channels
+GET    impex/channels/{name}              PATCH  impex/channels/{channel}
+DELETE impex/channels/{channel}           POST   impex/channels/{channel}/rotate-secret
+POST   impex/channels/{channel}           (receive, signature-authenticated)
+GET    impex/streams
+GET    impex/subscribers                  POST   impex/subscribers
+GET    impex/subscribers/{subscriber}     PATCH  impex/subscribers/{subscriber}
+DELETE impex/subscribers/{subscriber}     POST   impex/subscribers/{subscriber}/subscriptions
+GET    impex/subscriptions                GET    impex/subscriptions/{subscription}
+PATCH  impex/subscriptions/{subscription} DELETE impex/subscriptions/{subscription}
+POST   impex/subscriptions/{subscription}/ping|export|rotate-secret|subjects
+GET    impex/subscriptions/{subscription}/events|deliveries
 GET    impex/history
 ```
+
+The subscriber API serves `streams` and the `subscriptions` routes again under
+`impex/subscriber`, scoped to the calling subscriber. See
+[HTTP API](docs/09-api.md).
 
 Run listing filters on `status`, `flow`, `trigger`, `owner_type`+`owner_id`,
 `tag[key]=value`, `since`, `until`, and `parent`, with cursor pagination.
@@ -292,17 +475,26 @@ a tool.
 ```
 
 The server lists two entry points, `search_tools` and `execute_tools`, with
-fifteen tools behind them: `list-flows-tool`, `run-flow-tool`, `list-runs-tool`,
+thirty-six tools behind them: `list-flows-tool`, `run-flow-tool`, `list-runs-tool`,
 `show-run-tool`, `cancel-run-tool`, `retry-run-tool`, `list-run-steps-tool`,
 `signal-run-tool`, `list-run-owners-tool`, `attach-run-owner-tool`,
-`detach-run-owner-tool`, `list-messages-tool`, `show-message-tool`,
-`list-channels-tool` and `list-impex-history-tool` (the audit history, once an
-audit log is installed).
+`detach-run-owner-tool`, `list-messages-tool`, `show-message-tool`; the channel
+tools `list-channels-tool`, `show-channel-tool`, `create-channel-tool`,
+`update-channel-tool`, `delete-channel-tool`, `rotate-channel-secret-tool`; the
+subscription tools `list-streams-tool`, `list-subscribers-tool`,
+`show-subscriber-tool`, `create-subscriber-tool`, `update-subscriber-tool`,
+`delete-subscriber-tool`, `list-subscriptions-tool`, `show-subscription-tool`,
+`create-subscription-tool`, `update-subscription-tool`,
+`delete-subscription-tool`, `ping-subscription-tool`,
+`export-subscription-tool`, `update-subscription-subjects-tool`,
+`list-subscription-events-tool`, `list-deliveries-tool`; and
+`list-impex-history-tool` (the audit history, once an audit log is installed).
+See [MCP](docs/10-mcp.md).
 
 The server's instructions tell an agent the things it cannot infer from the
 schema: that `run-flow-tool` is asynchronous and `show-run-tool` must be polled, that a
-`waiting` run is blocked on a signal, and that payloads are never inlined in
-listings.
+`waiting` run is blocked on a signal, that payloads are never inlined in
+listings, and how channels, streams, subscriptions and deliveries fit together.
 
 ## Cortex
 
@@ -586,10 +778,12 @@ The code is organised into domain modules under `src/Domains`, each with its own
 | `Flow` | The `Flow` and `ResumableAction` base classes, the DSL builders, `FlowRegistry`, flow overrides, `impex:run` |
 | `Signal` | Signals and timers, `Waits`, `impex:signal` |
 | `Batch` | Batches and their items, `BatchSource`, `BatchChunk`, `BatchRunner` |
-| `Message` | The ledger, channels and their profiles and validators, outbound recording |
+| `Channel` | Channels (configured and stored), transports, signing and validation, the endpoint guard, mail recording |
+| `Message` | The ledger, inbound receiving, outbound HTTP recording |
+| `Subscription` | Streams, subscribers, subscriptions, change detection, fan-out, delivery, the feed |
 | `Artifact` | Artifacts and the `PayloadStore` |
 
-Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks and the base policy), `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
+Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
 
 Impex stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), the shared runtime of the jayi suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`JayI\Foundation\...`), so every package of the suite behaves the same way. The queued jobs keep their `JayI\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
@@ -608,10 +802,10 @@ Impex stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), t
 
 | | |
 |---|---|
-| `impex:tick` | fire due timers, reclaim lapsed leases, enforce deadlines |
+| `impex:tick` | fire due timers, reclaim lapsed leases, enforce deadlines, queue subscription detection and due deliveries |
 | `impex:run {flow}` | start a run |
 | `impex:signal {run} {name}` | deliver a signal to a run |
-| `impex:prune` | prune expired runs, messages, and artifacts |
+| `impex:prune` | prune expired runs, messages, subscription events, deliveries and artifacts |
 
 ## Roadmap
 
@@ -622,6 +816,8 @@ Impex stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), t
 - [x] Run owners and the HTTP API
 - [x] MCP server with API parity
 - [x] Dashboard
+- [x] Outbound channels and transports (http, mail, file), signing, mail recording
+- [x] Streams, subscriptions, push delivery and the feed
 
 ## Testing
 

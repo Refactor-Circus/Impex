@@ -7,6 +7,8 @@ namespace JayI\Impex\Atrium;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Domains\Run\Enums\StepStatus;
+use JayI\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 
 /**
  * Maps Impex's states onto Atrium colours.
@@ -74,6 +76,27 @@ final class Badges
         return match ($direction) {
             Direction::Inbound => 'neutral',
             Direction::Outbound => 'primary',
+        };
+    }
+
+    /**
+     * A subscription delivering (`success`), held (`neutral`), or switched
+     * off by the circuit breaker (`danger`).
+     */
+    public static function forSubscription(SubscriptionStatus $status): string
+    {
+        return match ($status) {
+            SubscriptionStatus::Active => 'success',
+            SubscriptionStatus::Paused => 'neutral',
+            SubscriptionStatus::Disabled => 'danger',
+        };
+    }
+
+    public static function forDelivery(DeliveryStatus $status): string
+    {
+        return match ($status) {
+            DeliveryStatus::Succeeded => 'success',
+            DeliveryStatus::Failed => 'danger',
         };
     }
 }

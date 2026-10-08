@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JayI\Impex\Domains\Run\Services\Engine;
+use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Claims one step under lease, runs it, and records the outcome.
@@ -23,6 +24,7 @@ final class ExecuteStep implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use UsesConfiguredMiddleware;
 
     public function __construct(
         public readonly string $runId,

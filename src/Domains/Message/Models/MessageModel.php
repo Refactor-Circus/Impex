@@ -28,8 +28,12 @@ use JayI\Impex\Domains\Run\Models\RunModel;
  * @property string|null $method
  * @property int|null $status_code
  * @property array<string, mixed>|null $headers
+ * @property string|null $delivery_id
+ * @property string|null $body
  * @property string|null $body_artifact_id
  * @property string|null $body_preview
+ * @property string $body_encoding
+ * @property string|null $body_sha256
  * @property int $bytes
  * @property bool|null $signature_valid
  * @property int|null $duration_ms
@@ -39,6 +43,14 @@ use JayI\Impex\Domains\Run\Models\RunModel;
  */
 final class MessageModel extends Model
 {
+    /**
+     * The full body is read through Impex::body(), which decodes it; listings
+     * carry the preview.
+     *
+     * @var list<string>
+     */
+    protected $hidden = ['body'];
+
     use DispatchesModelEvents;
 
     /** @use HasFactory<MessageFactory> */
@@ -62,8 +74,12 @@ final class MessageModel extends Model
         'method',
         'status_code',
         'headers',
+        'delivery_id',
+        'body',
         'body_artifact_id',
         'body_preview',
+        'body_encoding',
+        'body_sha256',
         'bytes',
         'signature_valid',
         'duration_ms',
@@ -83,7 +99,7 @@ final class MessageModel extends Model
     /**
      * @return BelongsTo<ArtifactModel, $this>
      */
-    public function body(): BelongsTo
+    public function bodyArtifact(): BelongsTo
     {
         return $this->belongsTo(ArtifactModel::class, 'body_artifact_id');
     }

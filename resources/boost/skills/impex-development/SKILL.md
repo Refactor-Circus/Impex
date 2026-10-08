@@ -30,6 +30,8 @@ serverless timeout, or tracking data crossing the application boundary.
 - migrations are published: `php artisan vendor:publish --tag=impex-migrations`
 - **`impex:tick` is on the schedule.** Without it, any run that sleeps or waits
   on a signal past the queue's delay ceiling never wakes. This is not optional.
+  It also reclaims dead workers' step and batch item leases and retries
+  subscription deliveries. Schedule `impex:prune` daily yourself.
 - `impex.cache.store` points at a store that supports atomic locks and is shared
   across workers — Redis or DynamoDB on Vapor, never `array` or a per-instance
   store, because Lambda shares no memory between invocations
@@ -123,8 +125,9 @@ in advance.
 ### 6. Record what crosses the boundary
 
 Inbound traffic becomes a channel in `impex.channels`; outbound goes through
-`Impex::http($channel, $runId, $stepId)` so every call lands in the ledger with
-the run and step that made it. Name only the headers worth storing —
+an outbound channel with `Impex::send($channel, $message)` (or, for ad hoc
+calls, `Impex::http($channel, $runId, $stepId)`) so every call lands in the
+ledger with the run and step that made it. Name only the headers worth storing —
 `store_headers` exists because webhook headers routinely carry credentials.
 
 ### 7. Trigger it
@@ -196,8 +199,71 @@ Read before executing:
 
 The package's own `docs/` directory carries the full reference: the DSL
 (`02-flows.md`), rollback (`04-rollback.md`), scale (`06-scale.md`),
-the ledger (`07-ledger.md`), the API (`09-api.md`), MCP (`10-mcp.md`), and
-every config key (`13-configuration.md`).
+the ledger (`07-ledger.md`), the API (`09-api.md`), MCP (`10-mcp.md`),
+extending (`12-extending.md`), every config key (`13-configuration.md`),
+every table (`14-schema.md`), channels and transports (`18-channels.md`), and
+subscriptions (`19-subscriptions.md`).
+
+## Queue middleware and batch items
+
+Give Impex's jobs (`DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
+`DetectStream`, `DeliverSubscription`, `ExportSubscription`, in
+`JayI\Impex\Jobs`) queue middleware through config, never by subclassing them:
+
+```php
+'jobs' => [
+    'middleware' => [
+        '*' => [\App\Queue\TagWithTenant::class],                      // every job
+        \JayI\Impex\Jobs\DeliverSubscription::class => [
+            [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'], // [class, ...args]
+            \App\Queue\SubscriptionLocks::class,                       // a JobMiddlewareFactory
+        ],
+    ],
+],
+```
+
+A `JayI\Impex\Contracts\JobMiddlewareFactory` implements
+`middleware(object $job): array` to build middleware from the job in hand.
+Entries are class names or arrays only, so the config caches; they are read
+when the job runs.
+
+Batch items are leased while `ProcessBatchItem` runs. `impex:tick` reclaims an
+item whose worker died once its lease lapses (`BatchRunner::reclaimLeases()`),
+counting the attempt, so a poison item fails (`BatchItemAbandonedException`)
+rather than blocking its batch. `ProcessBatchItem` implements Laravel's
+`Interruptible` (Laravel `^13.34`, `pcntl`): on `SIGALRM` — the worker timing
+it out — it abandons the item at once for an immediate retry; on `SIGTERM` it
+lets the item finish. Size `tries()` on a batch knowing that a killed attempt
+counts.
+
+## Channels, transports and subscriptions
+
+Impex is the application's one way in and out. Send everything outbound
+through a channel so it is recorded:
+
+```php
+Impex::send('carrier-api', ['zip' => '90210']);                 // http, JSON
+Impex::send('ops-mail', OutboundMessage::mail(new LowStock($sku))); // mail
+Impex::send('partner-sftp', new OutboundMessage(stream: $handle));  // file
+```
+
+Channels live in `impex.channels` or `impex_channels` (runtime, via the
+`/impex/channels` API or MCP). Outbound HTTP through a channel with a secret is
+signed (Standard Webhooks). Wrap the default mailer in the `impex` mail
+transport to record every mail.
+
+To push changes to subscribers, register a stream and report change:
+
+```php
+Impex::streams()->register(ProductStream::class);       // extends AbstractStream
+Impex::streams()->touch('keystone.products', $skus);   // snapshot stream
+Impex::streams()->publish('orders', $number, 'order.shipped', $payload); // append stream
+```
+
+A stream's `snapshots()` must load a whole chunk in a constant number of
+queries; its `matcher()` must index subscription filters, never expand them.
+Subscribers manage subscriptions on `/impex/subscriber/...` behind the app's
+OAuth middleware (`impex.routes.subscriber_middleware`).
 
 ## Examples
 
@@ -213,9 +279,18 @@ every config key (`13-configuration.md`).
 
 ## Anti-patterns
 
+- **do not** call `Http::` or `Mail::` directly for traffic leaving the
+  application — send through `Impex::send()` (or `Impex::http()` for ad hoc
+  calls) so it lands in the ledger
+- **do not** reorder or remove a stream's topics: their order is stored as bits
+- **do not** load snapshots one subject at a time, or expand a subscription's
+  filter into the subjects it covers; both break at catalogue scale
+
 - **do not** call `now()`, `rand()`, `Str::ulid()`, or an unrecorded query
   directly in `handle()` — wrap them in `sideEffect()` or the run will diverge
   on resume
+- **do not** subclass an Impex job to add queue middleware — use
+  `impex.jobs.middleware`
 - **do not** catch `JayI\Impex\Domains\Run\Support\Suspended` in flow code; it is the
   engine's control flow, and catching it corrupts the run
 - **do not** put business logic in `handle()` — it belongs in an action, because

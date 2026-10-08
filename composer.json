@@ -23,7 +23,7 @@
         "php": "^8.4",
         "jayi/atrium": "dev-main",
         "jayi/foundation": "dev-main",
-        "laravel/framework": "^13.15",
+        "laravel/framework": "^13.34",
         "laravel/mcp": "^1.0"
     },
     "require-dev": {

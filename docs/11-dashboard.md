@@ -40,7 +40,9 @@ crossed your application boundary.
 | Messages | The ledger in both directions, filterable by direction and channel. |
 | Message detail | Headers, body preview, signature status, and a link to the owning run. |
 | Flows | The catalogue with a trigger form per flow. |
-| Channels | Registered inbound channels and whether each verifies signatures. |
+| Channels | Every channel, inbound and outbound, configured and stored: its direction, transport, receive path (inbound only), bound flow, and whether it verifies signatures. |
+| Subscriptions | Subscriptions filterable by stream and status, with subscriber, endpoint (or feed-only), failures and last delivery. |
+| Subscription detail | Topics, selection, format, endpoint, cursor, backoff and last error; the latest deliveries, each linking to the ledger row it sent; pause, resume, replay and ping. |
 
 Status filters are driven from `RunStatus::cases()`, so the dashboard can never
 offer a status the API would reject.
@@ -50,6 +52,24 @@ for details, `x-atrium::flash` for the status and first error after an action,
 `x-atrium::status-dot` for states) and the utilities Atrium's stylesheet
 contains. Impex ships no stylesheet and no Blade components; to restyle the
 pages, publish `impex-views` or retheme Atrium.
+
+## Subscriptions
+
+The Subscriptions item sits in the Impex sidebar group, shown to those the
+`SubscriptionPolicy` lets `viewAny`. A subscription's page offers, to those
+who may `update` it:
+
+| Control | Does |
+|---|---|
+| Pause | Holds deliveries. Events keep collecting. |
+| Resume | Shown instead of Pause for a paused or disabled subscription. Clears the failure count and backoff, and delivers what is pending. |
+| Replay | Delivers again from the event id entered. |
+| Ping | Push subscriptions only. Sends a signed, empty ping and flashes how the endpoint answered. |
+
+Each calls the same Action as the API (`UpdateSubscriptionAction`,
+`PingSubscriptionAction`). Subscribers and new subscriptions are managed over
+the [API](09-api.md#subscribers) and [MCP](10-mcp.md). See
+[Subscriptions](19-subscriptions.md).
 
 ## History
 

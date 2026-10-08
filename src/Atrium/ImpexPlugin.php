@@ -22,11 +22,13 @@ use JayI\Impex\Atrium\Http\Controllers\ChannelUiController;
 use JayI\Impex\Atrium\Http\Controllers\FlowUiController;
 use JayI\Impex\Atrium\Http\Controllers\MessageUiController;
 use JayI\Impex\Atrium\Http\Controllers\RunUiController;
+use JayI\Impex\Atrium\Http\Controllers\SubscriptionUiController;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Domains\Run\Models\RunModel;
+use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * Registers Impex inside the Atrium dashboard.
@@ -96,6 +98,13 @@ class ImpexPlugin extends Plugin
                 ->sort(40)
                 ->authorize(fn (Request $request): bool => Authorizer::for(app(PackageRegistry::class)->get('impex'))->authenticated($request->user())),
 
+            NavItem::make(__('impex::impex.subscriptions'))
+                ->icon(Icons::svg('rss'))
+                ->route('atrium.impex.subscriptions.index')
+                ->group('Impex')
+                ->sort(50)
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', SubscriptionModel::class)),
+
             // The package's own audit log, while an audit log is installed.
             $this->historyNavItem('impex')->group('Impex')->sort(90),
         ];
@@ -117,6 +126,13 @@ class ImpexPlugin extends Plugin
             Route::post('impex/flows/{flow}/runs', [FlowUiController::class, 'run'])->name('flows.run');
 
             Route::get('impex/channels', ChannelUiController::class)->name('channels.index');
+
+            Route::get('impex/subscriptions', [SubscriptionUiController::class, 'index'])->name('subscriptions.index');
+            Route::get('impex/subscriptions/{subscription}', [SubscriptionUiController::class, 'show'])->name('subscriptions.show');
+            Route::post('impex/subscriptions/{subscription}/pause', [SubscriptionUiController::class, 'pause'])->name('subscriptions.pause');
+            Route::post('impex/subscriptions/{subscription}/resume', [SubscriptionUiController::class, 'resume'])->name('subscriptions.resume');
+            Route::post('impex/subscriptions/{subscription}/replay', [SubscriptionUiController::class, 'replay'])->name('subscriptions.replay');
+            Route::post('impex/subscriptions/{subscription}/ping', [SubscriptionUiController::class, 'ping'])->name('subscriptions.ping');
         });
     }
 

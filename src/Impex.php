@@ -6,12 +6,18 @@ namespace JayI\Impex;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\LazyCollection;
 use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
 use JayI\Impex\Domains\Artifact\Services\PayloadStore;
 use JayI\Impex\Domains\Batch\Models\BatchItemModel;
+use JayI\Impex\Domains\Channel\Data\OutboundMessage;
+use JayI\Impex\Domains\Channel\Data\Receipt;
+use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
+use JayI\Impex\Domains\Channel\Services\ChannelSender;
+use JayI\Impex\Domains\Channel\Services\TransportManager;
 use JayI\Impex\Domains\Flow\Services\FlowRegistry;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
@@ -25,6 +31,7 @@ use JayI\Impex\Domains\Run\Support\RunHandle;
 use JayI\Impex\Domains\Run\Support\RunQuery;
 use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
 use JayI\Impex\Domains\Signal\Models\SignalModel;
+use JayI\Impex\Domains\Subscription\Services\Streams;
 
 /**
  * The package's public entry point.
@@ -37,6 +44,10 @@ class Impex
         private readonly PayloadStore $payloads,
         private readonly MessageRecorder $messages,
         private readonly OutboundRecorder $outbound,
+        private readonly ChannelRegistry $channels,
+        private readonly ChannelSender $sender,
+        private readonly TransportManager $transports,
+        private readonly Streams $streams,
     ) {}
 
     /**
@@ -70,12 +81,10 @@ class Impex
         ?string $version = null,
         DateTimeInterface|int|null $expiresAt = null,
     ): RunModel {
-        if ($idempotencyKey !== null) {
-            $existing = RunModel::query()->where('idempotency_key', $idempotencyKey)->first();
+        $existing = $this->existingRun($slug, $idempotencyKey);
 
-            if ($existing instanceof RunModel) {
-                return $existing;
-            }
+        if ($existing instanceof RunModel) {
+            return $existing;
         }
 
         $class = $this->flows->class($slug);
@@ -85,18 +94,24 @@ class Impex
         // positional list has no string keys and is unaffected.
         $stored = $this->payloads->put($arguments, ArtifactKind::Payload);
 
-        $run = RunModel::query()->create([
-            'flow' => $slug,
-            'flow_class' => $class,
-            'status' => RunStatus::Pending,
-            'trigger' => $trigger,
-            'idempotency_key' => $idempotencyKey,
-            'flow_version' => $version ?? $this->flows->version($slug),
-            'input' => $stored['inline'],
-            'input_artifact_id' => $stored['artifact_id'],
-            'tags' => $tags === [] ? null : $tags,
-            'expires_at' => $this->deadline($expiresAt),
-        ]);
+        try {
+            $run = RunModel::query()->create([
+                'flow' => $slug,
+                'flow_class' => $class,
+                'status' => RunStatus::Pending,
+                'trigger' => $trigger,
+                'idempotency_key' => $idempotencyKey,
+                'flow_version' => $version ?? $this->flows->version($slug),
+                'input' => $stored['inline'],
+                'input_artifact_id' => $stored['artifact_id'],
+                'tags' => $tags === [] ? null : $tags,
+                'expires_at' => $this->deadline($expiresAt),
+            ]);
+        } catch (UniqueConstraintViolationException $e) {
+            // A concurrent redelivery won the insert between the lookup above
+            // and this one, so its run is the run.
+            return $this->existingRun($slug, $idempotencyKey) ?? throw $e;
+        }
 
         foreach ($owners as $role => $owner) {
             $this->addOwner($run, $owner, is_string($role) ? $role : 'owner');
@@ -237,6 +252,52 @@ class Impex
     }
 
     /**
+     * The catalogue of channels, configured and stored.
+     */
+    public function channels(): ChannelRegistry
+    {
+        return $this->channels;
+    }
+
+    /**
+     * The streams subscribers follow: register one, touch a snapshot
+     * stream's subjects when they may have changed, or publish to an append
+     * stream.
+     */
+    public function streams(): Streams
+    {
+        return $this->streams;
+    }
+
+    /**
+     * The transports channels send through. extend() adds one.
+     */
+    public function transports(): TransportManager
+    {
+        return $this->transports;
+    }
+
+    /**
+     * Send through an outbound channel, recorded in the ledger.
+     *
+     * An array is sent as JSON, a string as it is. A failed send — a refused
+     * connection, a 500 — comes back as a failed receipt, not an exception,
+     * so retrying is the caller's call.
+     *
+     * @param  OutboundMessage|array<int|string, mixed>|string  $message
+     */
+    public function send(string $channel, OutboundMessage|array|string $message): Receipt
+    {
+        $message = match (true) {
+            $message instanceof OutboundMessage => $message,
+            is_array($message) => OutboundMessage::json($message),
+            default => new OutboundMessage(body: $message),
+        };
+
+        return $this->sender->send($channel, $message);
+    }
+
+    /**
      * An HTTP client whose traffic is recorded against a channel.
      *
      * Pass the run and step so each call is traceable to the work that made it.
@@ -299,6 +360,24 @@ class Impex
     public function result(RunModel $run): mixed
     {
         return $this->payloads->get($run->result, $run->result_artifact_id);
+    }
+
+    /**
+     * The run a flow already started under an idempotency key.
+     *
+     * Scoped to the flow, because two channels may legitimately deliver the
+     * same key to different flows.
+     */
+    private function existingRun(string $slug, ?string $idempotencyKey): ?RunModel
+    {
+        if ($idempotencyKey === null) {
+            return null;
+        }
+
+        return RunModel::query()
+            ->where('flow', $slug)
+            ->where('idempotency_key', $idempotencyKey)
+            ->first();
     }
 
     /**

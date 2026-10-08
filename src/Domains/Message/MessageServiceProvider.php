@@ -8,7 +8,6 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Route;
 use JayI\Foundation\Support\ServiceProvider;
 use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Services\ChannelRegistry;
 use JayI\Impex\Domains\Message\Services\MessageRecorder;
 use JayI\Impex\Domains\Message\Services\OutboundRecorder;
 
@@ -16,8 +15,6 @@ class MessageServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(ChannelRegistry::class);
-
         $this->app->singleton(MessageRecorder::class);
 
         $this->app->singleton(OutboundRecorder::class);

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Routing\RouteCollection;
+use JayI\Impex\Domains\Channel\ChannelServiceProvider;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use JayI\Impex\Domains\Message\MessageServiceProvider;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
@@ -206,11 +207,19 @@ it('lists channels without leaking their signing secrets', function (): void {
     $response = $this->getJson('/impex/channels')->assertOk();
 
     expect($response->json('data.0'))->toBe([
+        'id' => null,
         'name' => 'supplier-feed',
         'direction' => 'inbound',
+        'transport' => 'http',
+        'status' => 'active',
+        'body_policy' => 'all',
         'verifies_signatures' => true,
         'flow' => 'linear',
         'path' => null,
+        'options' => [],
+        'stored' => false,
+        'owner_type' => null,
+        'owner_id' => null,
     ]);
 
     expect($response->content())->not->toContain('shhh');
@@ -234,6 +243,7 @@ it('keeps the channel receive routes off the operator middleware stack', functio
 
     // Each domain loads its own routes when it boots.
     (new MessageServiceProvider(app()))->boot();
+    (new ChannelServiceProvider(app()))->boot();
     (new RunServiceProvider(app()))->boot();
 
     $router->getRoutes()->refreshNameLookups();

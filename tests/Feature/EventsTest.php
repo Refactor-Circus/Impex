@@ -59,7 +59,7 @@ it('maps every Eloquent hook of every model to its own event', function (): void
             ->not->toContain(false);
     }
 
-    expect($models)->toHaveCount(10);
+    expect($models)->toHaveCount(14);
 });
 
 it('fires model events as a run executes', function (): void {
@@ -106,7 +106,7 @@ it('gives every action exactly one start and one finish event', function (): voi
         }
     }
 
-    expect($actions)->toHaveCount(14)
+    expect($actions)->toHaveCount(35)
         ->and($unpaired)->toBe([]);
 });
 

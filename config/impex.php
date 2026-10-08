@@ -9,6 +9,9 @@ use JayI\Impex\Domains\Batch\Models\BatchItemModel;
 use JayI\Impex\Domains\Batch\Models\BatchModel;
 use JayI\Impex\Domains\Batch\Policies\BatchItemPolicy;
 use JayI\Impex\Domains\Batch\Policies\BatchPolicy;
+use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use JayI\Impex\Domains\Channel\Policies\ChannelPolicy;
+use JayI\Impex\Domains\Channel\Support\StandardWebhooksSigner;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy;
 use JayI\Impex\Domains\Message\Models\MessageModel;
@@ -23,6 +26,13 @@ use JayI\Impex\Domains\Signal\Models\SignalModel;
 use JayI\Impex\Domains\Signal\Models\TimerModel;
 use JayI\Impex\Domains\Signal\Policies\SignalPolicy;
 use JayI\Impex\Domains\Signal\Policies\TimerPolicy;
+use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
+use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use JayI\Impex\Domains\Subscription\Policies\DeliveryPolicy;
+use JayI\Impex\Domains\Subscription\Policies\SubscriberPolicy;
+use JayI\Impex\Domains\Subscription\Policies\SubscriptionPolicy;
+use JayI\Impex\Domains\Subscription\Support\OAuthClientResolver;
 
 return [
 
@@ -72,6 +82,31 @@ return [
     'queue' => [
         'connection' => null,
         'queue' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job Middleware
+    |--------------------------------------------------------------------------
+    |
+    | Queue middleware for Impex's own jobs, by job class; `*` applies to all
+    | of them, before a class's own. Each entry is a middleware class, a list
+    | of a class and its constructor arguments, or a JobMiddlewareFactory
+    | that builds middleware for the job in hand. Read when a job runs.
+    |
+    | The jobs: DriveRun and ExecuteStep (runs), SeedBatch and
+    | ProcessBatchItem (batches), DetectStream, DeliverSubscription and
+    | ExportSubscription (subscriptions), all in JayI\Impex\Jobs.
+    |
+    |     \JayI\Impex\Jobs\DeliverSubscription::class => [
+    |         [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
+    |     ],
+    |     '*' => [\App\Queue\TagWithTenant::class],
+    |
+    */
+
+    'jobs' => [
+        'middleware' => [],
     ],
 
     /*
@@ -187,6 +222,78 @@ return [
 
     'messages' => [
         'preview_bytes' => 2048,
+
+        /*
+        | The largest outbound HTTP body recorded whole. A larger or
+        | unrewindable one — a streamed feed — is recorded by size alone, so
+        | recording never holds a whole feed in memory.
+        */
+
+        'max_recorded_bytes' => 16 * 1024 * 1024,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Outbound
+    |--------------------------------------------------------------------------
+    |
+    | Defaults for sending through outbound channels. A channel's own options
+    | win. `signer` signs the body of every HTTP send through a channel that
+    | has a secret; the default follows the Standard Webhooks specification.
+    |
+    | `guard` refuses endpoints that resolve to private or reserved addresses
+    | for channels someone outside the application supplied, such as a
+    | subscriber's webhook URL, so a delivery cannot be turned into a request
+    | from inside your network. Leave it on outside tests. `allow_insecure`
+    | permits plain http:// for those endpoints.
+    |
+    */
+
+    'outbound' => [
+        'timeout' => 10,
+        'connect_timeout' => 3,
+        'signer' => StandardWebhooksSigner::class,
+        'guard' => true,
+        'allow_insecure' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mail
+    |--------------------------------------------------------------------------
+    |
+    | Impex records mail through the `impex` mail transport. Add a mailer that
+    | wraps the one that really sends, and make it the default:
+    |
+    |     'mailers' => [
+    |         'impex' => ['transport' => 'impex', 'mailer' => 'ses', 'channel' => 'mail'],
+    |     ],
+    |
+    | Every Mailable and notification it sends is recorded, failures
+    | included. `record_unwrapped` also records mail sent through any other
+    | mailer, from the MessageSent event — successes only, since a failed
+    | send never fires it. `channel` names the ledger channel for both.
+    |
+    */
+
+    'mail' => [
+        'channel' => 'mail',
+        'record_unwrapped' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Channel Registry
+    |--------------------------------------------------------------------------
+    |
+    | Stored channels are read from the database at most once per window in
+    | each process. A change made in a process shows there at once, and in
+    | other processes once their copy ages out.
+    |
+    */
+
+    'channel_registry' => [
+        'cache_seconds' => 30,
     ],
 
     /*
@@ -205,6 +312,15 @@ return [
         'failed_runs_days' => 365,
         'messages_days' => 90,
         'artifacts_days' => 365,
+
+        /*
+        | Subscription events are kept this long whether or not they were
+        | delivered, so a subscriber can replay or catch up on the feed
+        | within the window and no further. Deliveries record each attempt.
+        */
+
+        'events_days' => 30,
+        'deliveries_days' => 30,
     ],
 
     /*
@@ -246,6 +362,10 @@ return [
         BatchModel::class => BatchPolicy::class,
         BatchItemModel::class => BatchItemPolicy::class,
         MessageModel::class => MessagePolicy::class,
+        ChannelModel::class => ChannelPolicy::class,
+        SubscriberModel::class => SubscriberPolicy::class,
+        SubscriptionModel::class => SubscriptionPolicy::class,
+        DeliveryModel::class => DeliveryPolicy::class,
         ArtifactModel::class => ArtifactPolicy::class,
         FlowOverrideModel::class => FlowOverridePolicy::class,
     ],
@@ -274,6 +394,16 @@ return [
         'prefix' => 'impex',
         'middleware' => ['api'],
         'channel_middleware' => ['api'],
+
+        /*
+        | The subscriber API, under `{prefix}/subscriber`, where vendors and
+        | partners manage their own subscriptions and read their feed. Put
+        | your OAuth middleware here, such as ['api', 'auth:api'] or
+        | ['api', 'client:impex'] for client-credentials tokens; the
+        | subscriber is then found by the token's OAuth client.
+        */
+
+        'subscriber_middleware' => ['api'],
     ],
 
     /*
@@ -376,12 +506,93 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Streams
+    |--------------------------------------------------------------------------
+    |
+    | Sources of change that subscribers can follow, such as products or
+    | orders: classes implementing the Stream contract. Packages may also
+    | register their own with Impex::streams()->register().
+    |
+    */
+
+    'streams' => [
+        // \App\Streams\OrderStream::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscriptions
+    |--------------------------------------------------------------------------
+    |
+    | How changes reach subscribers. A touched subject is compared with how it
+    | looked last time, in chunks of `detection.chunk`, by
+    | `detection.concurrency` workers at once. Each subscription then gets up
+    | to `delivery.batch` events per request, one request in flight at a
+    | time. A failure backs off from `backoff.base` seconds doubling to
+    | `backoff.max`; `breaker_threshold` failures in a row switch the
+    | subscription off until it is resumed.
+    |
+    | Detection and delivery queue separately, so a big import cannot hold
+    | up deliveries behind it. Null uses `queue` above.
+    |
+    */
+
+    'subscriptions' => [
+        'queue' => [
+            'detect' => ['connection' => null, 'queue' => null],
+            'deliver' => ['connection' => null, 'queue' => null],
+        ],
+        'detection' => [
+            'chunk' => 1000,
+            'concurrency' => 1,
+            'lease_seconds' => 300,
+            'time_budget' => 50,
+        ],
+        'delivery' => [
+            'batch' => 100,
+            'time_budget' => 50,
+            'gzip' => false,
+            'breaker_threshold' => 20,
+            'backoff' => [
+                'base' => 10,
+                'max' => 3600,
+                'jitter' => true,
+            ],
+        ],
+        'feed' => [
+            'max_limit' => 1000,
+        ],
+        'exports' => [
+            'disk' => null,
+            'path' => 'impex/exports',
+        ],
+        'default_format' => 'slice',
+        // What the ledger keeps of a subscription's deliveries. Every batch is
+        // recorded with its hash either way, and can be rebuilt from its
+        // events; keeping all of them at scale is a lot of storage.
+        'body_policy' => 'failures',
+        // How subscriptions are cached between detection chunks.
+        'cache_seconds' => 30,
+        // Maps an authenticated subscriber-API request to its subscriber.
+        'resolver' => OAuthClientResolver::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Channels
     |--------------------------------------------------------------------------
     |
-    | Named boundary configurations. Each inbound channel validates a signature,
-    | applies a profile, records the request as a Message, and dispatches the
-    | flow bound to it.
+    | The named boundaries traffic crosses, in either direction. Everything
+    | the application sends or receives goes through one and is recorded in
+    | the ledger against its name. Channels can also be stored at runtime —
+    | a subscriber's webhook endpoint, say — through the API, MCP or the
+    | dashboard; a stored channel of the same name wins over one here.
+    |
+    | Inbound: validates a signature, applies a profile, records the request
+    | and starts the flow bound to it. Outbound: `transport` is http, mail,
+    | file, or one registered with Impex::transports()->extend(), and
+    | `options` configure it. `body_policy` is which bodies the ledger keeps
+    | (all, failures, none); sizes and hashes are always kept.
     |
     */
 
@@ -392,6 +603,17 @@ return [
         //     'signature_header' => 'X-Signature',
         //     'flow' => 'extract-products',
         //     'store_headers' => ['content-type'],
+        // ],
+        // 'carrier-api' => [
+        //     'direction' => 'outbound',
+        //     'transport' => 'http',
+        //     'options' => ['url' => 'https://api.carrier.test/rates', 'timeout' => 5],
+        //     'body_policy' => 'failures',
+        // ],
+        // 'ops-mail' => [
+        //     'direction' => 'outbound',
+        //     'transport' => 'mail',
+        //     'options' => ['to' => 'ops@example.com'],
         // ],
     ],
 

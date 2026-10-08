@@ -6,7 +6,7 @@ namespace JayI\Impex\Atrium\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use JayI\Impex\Atrium\ScreenAccess;
-use JayI\Impex\Domains\Message\Actions\ListChannelsAction;
+use JayI\Impex\Domains\Channel\Actions\ListChannelsAction;
 
 final class ChannelUiController
 {

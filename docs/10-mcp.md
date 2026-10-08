@@ -51,8 +51,35 @@ name through `execute_tools`:
 | `detach-run-owner-tool` | Remove one |
 | `list-messages-tool` | The data-flow ledger |
 | `show-message-tool` | One message with headers and body preview |
-| `list-channels-tool` | Inbound channels. Never returns signing secrets. |
+| `list-channels-tool` | Every channel, inbound and outbound, configured and stored. Never returns secrets. |
+| `show-channel-tool` | One channel by name |
+| `create-channel-tool` | Create a stored channel |
+| `update-channel-tool` | Change a stored channel's transport, status, body policy, options or credentials |
+| `delete-channel-tool` | Delete a stored channel. Its traffic stays in the ledger. |
+| `rotate-channel-secret-tool` | A new signing secret, the previous one still valid. Returned once. |
+| `list-streams-tool` | Streams subscribers can follow, with topics, formats and filters |
+| `list-subscribers-tool` | Subscribers |
+| `show-subscriber-tool` | One subscriber and how many subscriptions it has |
+| `create-subscriber-tool` | Register a subscriber, with its OAuth `client_id` |
+| `update-subscriber-tool` | Change a subscriber's name, client, status or metadata |
+| `delete-subscriber-tool` | Delete a subscriber and every subscription it has |
+| `list-subscriptions-tool` | Filter by stream, status or subscriber |
+| `show-subscription-tool` | One subscription: topics, filter, endpoint, cursor, delivery health. Never its secret. |
+| `create-subscription-tool` | Subscribe a subscriber to a stream. The signing secret is returned once. |
+| `update-subscription-tool` | Change, pause, resume (`status: active`) or replay (`replay_from`) a subscription |
+| `delete-subscription-tool` | Delete a subscription and its pending events |
+| `ping-subscription-tool` | Send a signed, empty ping to the endpoint and report how it answered |
+| `export-subscription-tool` | Queue a full export of everything the subscription covers |
+| `update-subscription-subjects-tool` | Add or remove explicit subject keys |
+| `list-subscription-events-tool` | Read the feed after a cursor |
+| `list-deliveries-tool` | Delivery attempts, newest first |
 | `list-impex-history-tool` | Impex's audit history, newest first. Needs an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed. |
+
+Each name is the tool's class name in kebab case (`ListChannelsTool` is
+`list-channels-tool`), as laravel/mcp derives it. Channel tools name a stored
+channel by `channel`; subscription tools take `subscription` or `subscriber`
+ids. A subscription's endpoint secret is rotated with
+`rotate-channel-secret-tool` on its channel, `subscription-{id}`.
 
 The catalog is `ImpexServer::TOOLS`. The same list is registered with
 [Cortex](../README.md#cortex) when it is installed.
@@ -71,7 +98,12 @@ The server tells an agent the things it cannot infer from a schema:
 > The ledger (list-messages-tool) records every payload that has crossed the
 > application boundary in either direction, linked to the run and step that
 > caused it. Payloads are never inlined in listings — large results live on an
-> artifact disk and are referenced by id.
+> artifact disk and are referenced by id. Every channel (list-channels-tool) is
+> a named way in or out — http, mail or file — and every crossing is in the
+> ledger. Subscribers follow streams (list-streams-tool) through subscriptions:
+> changes are pushed to a subscription's endpoint in batches, or pulled from its
+> feed (list-subscription-events-tool); list-deliveries-tool shows how each
+> push went.
 
 When Cortex is installed and publishes an instructions override for the
 `impex` server, that override is served instead.

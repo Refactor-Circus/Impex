@@ -24,12 +24,22 @@ return new class extends Migration
             $table->json('headers')->nullable();
             $table->foreignUlid('body_artifact_id')->nullable()
                 ->constrained('impex_artifacts')->nullOnDelete();
+            // Bodies up to the artifact threshold live here in full; the
+            // preview is only what the list view shows.
+            $table->longText('body')->nullable();
             $table->text('body_preview')->nullable();
+            // utf8, or base64 for binary bodies a JSON or text column cannot hold.
+            $table->string('body_encoding', 8)->default('utf8');
+            // Kept even when the body is not, so a delivery can be matched to
+            // what the other side says it received.
+            $table->char('body_sha256', 64)->nullable();
             $table->unsignedBigInteger('bytes')->default(0);
             $table->boolean('signature_valid')->nullable();
             $table->unsignedInteger('duration_ms')->nullable();
             $table->json('error')->nullable();
             $table->string('idempotency_key', 191)->nullable();
+            // The subscription delivery that sent this, when one did.
+            $table->ulid('delivery_id')->nullable()->index();
             $table->timestamp('occurred_at')->index();
             $table->timestamps();
 
@@ -38,6 +48,7 @@ return new class extends Migration
             // because two suppliers may legitimately reuse a key.
             $table->unique(['channel', 'idempotency_key'], 'impex_messages_unique');
             $table->index(['direction', 'occurred_at']);
+            $table->index(['channel', 'occurred_at']);
             $table->index(['run_id', 'occurred_at']);
         });
     }
