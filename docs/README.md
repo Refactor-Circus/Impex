@@ -5,6 +5,9 @@ every payload in or out goes through a named channel and lands in one ledger,
 and subscribers follow your data's changes through signed, batched
 subscriptions. Built for Vapor.
 
+Impex stands alone: any Laravel application can use every part of it, and
+domain packages such as jayi/keystone build on it by registering streams.
+
 ## Guides
 
 | | |

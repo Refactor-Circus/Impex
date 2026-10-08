@@ -180,8 +180,8 @@ public function boot(): void
         $streams->register(ProductStream::class);
     });
 
-    Product::saved(fn (Product $product) => Impex::streams()->touch('catalogue.products', [$product->sku]));
-    Product::deleted(fn (Product $product) => Impex::streams()->touch('catalogue.products', [$product->sku]));
+    Product::saved(fn (Product $product) => Impex::streams()->touch('catalogue.products', [$product->id]));
+    Product::deleted(fn (Product $product) => Impex::streams()->touch('catalogue.products', [$product->id]));
 }
 ```
 

@@ -7,15 +7,22 @@ an endpoint in signed batches or pull it from a feed. Every push goes out
 through an outbound [channel](18-channels.md), so every delivery is in the
 [ledger](07-ledger.md).
 
+Subscriptions need nothing but Impex. Any application or package offers its
+own data by writing a stream — a class, usually extending `AbstractStream` —
+and reporting change to it; Impex does the rest: the subscriber API, filters,
+detection, signed batched delivery, retries, the feed, exports, MCP tools and
+the dashboard. jayi/keystone's product stream is one such stream, not a
+requirement.
+
 ## Concepts
 
 | Term | Meaning |
 |---|---|
 | **Stream** | A source of change a package registers: products, manufacturers, orders. Identified by a permanent key such as `catalogue.products`. |
-| **Subject** | One thing in a stream, by its subject key: a SKU, an order number. |
+| **Subject** | One thing in a stream, by its subject key: a product's id, an order number. Use a key that never changes — a renamed key reads as one subject removed and another added, and breaks every subscriber's list. Carry changeable codes such as a SKU as data. |
 | **Topic** | A part of a subject a subscriber can choose to hear about: `pricing`, `assets`, `content`. |
 | **Subscriber** | Who receives changes: a vendor, a partner. Authenticates as an OAuth client. |
-| **Subscription** | A subscriber's interest in one stream: which subjects, which topics, which format, delivered where. |
+| **Subscription** | A subscriber's interest in one stream: which subjects, which topics, which format, delivered where. A subscriber following several streams — products and orders, say — holds one subscription per stream, each with its own endpoint (or the same URL twice) and its own cursor. |
 | **Event** | One recorded change, in a sequence whose id is every subscriber's cursor. |
 | **Delivery** | One attempt to push a batch of events to a subscription's endpoint. |
 
@@ -70,16 +77,18 @@ final class ProductStream extends AbstractStream
     }
 
     /**
-     * One query for the whole chunk, never one per key. A key with no
-     * subject maps to null: Impex sends it as removed.
+     * Keys are the products' ids: permanent, unlike a SKU, which a rename
+     * would turn into one product removed and another added, breaking every
+     * subscriber's list. One query for the whole chunk, never one per key. A
+     * key with no subject maps to null: Impex sends it as removed.
      */
     public function snapshots(array $keys): array
     {
         $products = Product::query()
             ->with(['prices', 'media'])
-            ->whereIn('sku', $keys)
+            ->whereIn('id', $keys)
             ->get()
-            ->keyBy('sku');
+            ->keyBy('id');
 
         $snapshots = [];
 
@@ -90,7 +99,9 @@ final class ProductStream extends AbstractStream
                 // Outside the topics: never sent, but a change here can move
                 // the product into or out of a filtered subscription.
                 'category' => $product->category_slug,
-                'content' => ['name' => $product->name, 'description' => $product->description],
+                // The SKU travels as data, so a renamed SKU is a content
+                // change, not a different product.
+                'content' => ['sku' => $product->sku, 'name' => $product->name, 'description' => $product->description],
                 'pricing' => $product->prices->map->only(['currency', 'amount'])->values()->all(),
                 'assets' => $product->media->pluck('url')->all(),
             ];
@@ -121,10 +132,10 @@ final class ProductStream extends AbstractStream
 
         Product::query()
             ->when($categories !== null, fn ($query) => $query->whereIn('category_slug', $categories))
-            ->select(['id', 'sku'])
+            ->select(['id'])
             ->chunkById(1000, function ($products) use ($handle): void {
-                foreach ($this->snapshots($products->pluck('sku')->all()) as $sku => $snapshot) {
-                    fwrite($handle, json_encode(['subject' => $sku, 'data' => $snapshot]).PHP_EOL);
+                foreach ($this->snapshots($products->modelKeys()) as $id => $snapshot) {
+                    fwrite($handle, json_encode(['subject' => $id, 'data' => $snapshot]).PHP_EOL);
                 }
             });
     }
@@ -181,6 +192,302 @@ final class CategoryMatcher implements SubscriptionMatcher
 A stream that supports `list` subscriptions should honour the list in
 `export()` too; the shape of each exported line is the stream's choice.
 
+### An append stream
+
+Orders, shipments, payments: things that happen, rather than state to compare.
+An append stream needs only a key, its topics and its kind. It loads nothing,
+because each event carries its own payload.
+
+```php
+use JayI\Impex\Domains\Subscription\Enums\StreamKind;
+use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+
+final class OrderStream extends AbstractStream
+{
+    public function key(): string
+    {
+        return 'orders';
+    }
+
+    public function kind(): StreamKind
+    {
+        return StreamKind::Append;
+    }
+
+    public function topics(): array
+    {
+        return ['status', 'shipping', 'payments'];   // append only
+    }
+}
+```
+
+Every event published to it reaches each subscription following one of its
+topics, in order and never folded together: two status changes in a minute are
+two entries. With no filter rules or matcher of its own, a filtered
+subscription to an append stream matches every subject; list subjects
+(`"subjects": ["SO-1001"]`) to follow particular orders.
+
+### Example: a customer following a million products, only prices and stock
+
+A customer's purchasing system wants price and stock changes for the million
+products it carries, and nothing else: no description edits, no image swaps.
+Nothing here needs a domain package; it builds on the `ProductStream` above,
+with an `inventory` topic appended (topics are only ever appended):
+
+```php
+public function topics(): array
+{
+    return ['content', 'pricing', 'assets', 'inventory'];
+}
+
+// …and in snapshots(), beside the other topics:
+'inventory' => ['on_hand' => $product->stock_on_hand, 'lead_days' => $product->lead_days],
+```
+
+**Say which million — by rule if you can.** A rule costs nothing per product:
+a subscription to two brands or forty categories is a few bytes, however many
+products those cover, and products that join the brand later are covered
+automatically. Give the stream a filter for it (a `brands` filter beside
+`categories`, matched the same way as `CategoryMatcher`), and the customer
+subscribes with it:
+
+```http
+POST /impex/subscriber/subscriptions
+{
+  "stream": "catalogue.products",
+  "topics": ["pricing", "inventory"],
+  "filter": {"brands": ["schlage", "von-duprin"]},
+  "format": "slice",
+  "endpoint": {"url": "https://purchasing.customer.example/hooks/products"}
+}
+```
+
+If the million is an arbitrary list of products, list them instead — by the
+stream's subject key, the product ids, never SKUs, so a renamed SKU leaves the
+list intact. Create the subscription with the first 10,000 in `subjects`, then
+add the rest 10,000 at a time — a hundred calls for a million:
+
+```http
+POST /impex/subscriber/subscriptions/{id}/subjects
+{"add": ["01J9XQ4C2V…", "01J9XQ4C2W…", "…"]}
+```
+
+The customer learns the ids from the export below, which carries each
+product's id and current SKU. A list is one row per product, looked up only for
+the products in each chunk of changes, so it is cheap to match against — but
+it is a million rows to keep in step with what the customer carries. Prefer a
+rule when one exists.
+
+**Start from a file, not a million webhooks.** Ask for an export once the
+subscription exists. It writes every product the subscription covers to one
+JSONL file and moves the subscription's cursor past it, so pushes pick up from
+there:
+
+```http
+POST /impex/subscriber/subscriptions/{id}/export
+```
+
+**Give every entry the current SKU.** The customer follows `pricing` and
+`inventory`, so it would never see the SKU, which lives in `content`. A
+formatter can add it to every entry, read from the product as it is when the
+batch is sent:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\Stream;
+use JayI\Impex\Domains\Subscription\Formatters\SliceFormatter;
+use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+
+final class ProductSliceFormatter extends SliceFormatter
+{
+    public function format(Stream $stream, SubscriptionModel $subscription, array $events, array $snapshots): array
+    {
+        return array_map(
+            fn (array $entry): array => [...$entry, 'sku' => $snapshots[$entry['subject']]['content']['sku'] ?? null],
+            parent::format($stream, $subscription, $events, $snapshots),
+        );
+    }
+}
+
+// In ProductStream:
+public function formats(): array
+{
+    return [...parent::formats(), 'slice' => new ProductSliceFormatter];
+}
+```
+
+A removed product has no snapshot, so its entry carries no SKU; the customer
+already knows it by id.
+
+**What arrives afterwards.** Only changes in `pricing` or `inventory`, and only
+those topics' data:
+
+- A description is rewritten: `content` changed, which the customer does not
+  follow. Nothing is sent.
+- A price changes: one entry with `topics: ["pricing"]` and only the prices.
+- A price and the stock level change before the next delivery: the two are
+  folded into one entry carrying both topics, because the customer wants the
+  product as it is now, not every step on the way.
+- A nightly price file rewrites all million prices but 30,000 actually move:
+  30,000 events, delivered as 300 requests of 100.
+
+```json
+{
+  "type": "events",
+  "subscription": "01J9Z3…",
+  "stream": "catalogue.products",
+  "events": [
+    {
+      "id": "48211907",
+      "type": "changed",
+      "subject": "01J9XQ4C2VR7M8D2N6Q0F3K5TB",
+      "sku": "SCH-ND80PD-RHO-626",
+      "topics": ["pricing", "inventory"],
+      "occurred_at": "2026-10-08T14:02:11+00:00",
+      "data": {
+        "pricing": [{"currency": "USD", "amount": "182.40"}],
+        "inventory": {"on_hand": 12, "lead_days": 3}
+      }
+    }
+  ],
+  "cursor": "48211907"
+}
+```
+
+**What it costs.** The customer's subscription adds nothing to the write path
+and nothing per product. Each real change to a product the customer follows,
+in a topic it follows, adds one narrow routing row. The payload is built when
+the batch is sent, from the product as it is then. If the customer's endpoint
+is down, events wait under the subscription's cursor and are delivered in
+order once it recovers — or the customer reads them from the
+[feed](#the-feed).
+
+### Example: each customer gets only their own orders
+
+Customers subscribe to the orders stream and should receive their own orders
+and nobody else's. Who a subscriber is comes from the operator side, never
+from anything the subscriber sends: set the subscriber's **owner** to the
+customer when you register it, and have the stream's matcher compare each
+order's customer with the subscriber's owner.
+
+> **Warning: not yet safe for customer data.** Today Impex runs a stream's
+> matcher only for subscriptions created with a `filter`. A customer who
+> subscribes with no filter receives **every** order, and one who lists order
+> numbers (`"subjects"`) receives those orders whoever owns them. Until a
+> stream can require that its matcher apply to every subscription, do not
+> offer this stream on the subscriber API; create its subscriptions yourself,
+> always with a filter, and never with subjects.
+
+Register each customer as a subscriber, owned by your customer record and
+authenticating as the customer's OAuth client:
+
+```php
+use JayI\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+
+app(CreateSubscriberAction::class)->execute(
+    ['name' => $customer->name, 'client_id' => $customer->oauth_client_id],
+    owner: $customer,
+);
+```
+
+The stream is an append stream whose payloads carry the customer:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use JayI\Impex\Domains\Subscription\Enums\StreamKind;
+use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+
+final class CustomerOrderStream extends AbstractStream
+{
+    public function key(): string
+    {
+        return 'orders';
+    }
+
+    public function kind(): StreamKind
+    {
+        return StreamKind::Append;
+    }
+
+    public function topics(): array
+    {
+        return ['status', 'shipping', 'invoices'];
+    }
+
+    public function filterRules(): array
+    {
+        // The filter carries no choice of customer — that comes from the
+        // subscriber — only that the subscription is scoped.
+        return ['filter.own' => ['required', 'accepted']];
+    }
+
+    public function matcher(): SubscriptionMatcher
+    {
+        return new CustomerOrderMatcher;
+    }
+}
+```
+
+```php
+Impex::streams()->publish('orders', $order->number, 'order.shipped', [
+    'customer_id' => $order->customer_id,
+    'status' => $order->status,
+    'shipping' => ['carrier' => 'UPS', 'tracking' => $tracking],
+], topics: ['shipping']);
+```
+
+The matcher looks up every subscriber's owner in one query, indexes the
+subscriptions by customer, and gives each order to its customer's
+subscriptions only. Each order is one lookup, however many customers
+subscribe:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+
+final class CustomerOrderMatcher implements SubscriptionMatcher
+{
+    public function match(array $snapshots, array $subscriptions): array
+    {
+        $owners = SubscriberModel::query()
+            ->whereIn('id', array_map(fn ($subscription) => $subscription->subscriber_id, $subscriptions))
+            ->where('owner_type', (new Customer)->getMorphClass())
+            ->pluck('owner_id', 'id');
+
+        $byCustomer = [];
+
+        foreach ($subscriptions as $subscription) {
+            $customer = $owners[$subscription->subscriber_id] ?? null;
+
+            if ($customer !== null) {
+                $byCustomer[(string) $customer][] = $subscription->id;
+            }
+        }
+
+        $matches = [];
+
+        foreach ($snapshots as $order => $payload) {
+            foreach ($byCustomer[(string) ($payload['customer_id'] ?? '')] ?? [] as $id) {
+                $matches[$id][] = (string) $order;
+            }
+        }
+
+        return $matches;
+    }
+}
+```
+
+A customer's subscription is then created with `"filter": {"own": true}`:
+
+```http
+POST /impex/subscriber/subscriptions
+{"stream": "orders", "topics": ["status", "shipping"], "filter": {"own": true},
+ "endpoint": {"url": "https://erp.customer.example/hooks/orders"}}
+```
+
+A subscriber with no owner, or owned by something other than a customer,
+matches nothing. The same pattern serves any per-account stream: invoices,
+quotes, shipments, returns.
+
 ### Registering it
 
 In config:
@@ -203,8 +510,8 @@ Impex::streams()->register(ProductStream::class);
 
 ```php
 // A snapshot stream: after a save, an import, a price feed.
-Impex::streams()->touch('catalogue.products', [$product->sku]);
-Impex::streams()->touch('catalogue.products', $skus);   // any iterable of keys
+Impex::streams()->touch('catalogue.products', [$product->id]);
+Impex::streams()->touch('catalogue.products', $ids);   // any iterable of keys
 
 // An append stream: one event, delivered as it is.
 Impex::streams()->publish('orders', $order->number, 'order.shipped', ['carrier' => 'UPS']);

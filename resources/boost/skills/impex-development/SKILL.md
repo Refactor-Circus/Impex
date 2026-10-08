@@ -252,11 +252,14 @@ Channels live in `impex.channels` or `impex_channels` (runtime, via the
 signed (Standard Webhooks). Wrap the default mailer in the `impex` mail
 transport to record every mail.
 
-To push changes to subscribers, register a stream and report change:
+Impex has no dependency on any domain package; any app can use all of it. To
+push an app's own data to subscribers, write a stream (extend `AbstractStream`;
+`StreamKind::Append` for events such as orders), register it and report change.
+A subscriber following several streams holds one subscription per stream:
 
 ```php
 Impex::streams()->register(ProductStream::class);       // extends AbstractStream
-Impex::streams()->touch('keystone.products', $skus);   // snapshot stream
+Impex::streams()->touch('keystone.products', $identifiers);   // snapshot stream
 Impex::streams()->publish('orders', $number, 'order.shipped', $payload); // append stream
 ```
 
@@ -291,6 +294,13 @@ Atrium Channels screens. Measure the subscription pipeline with
   application — send through `Impex::send()` (or `Impex::http()` for ad hoc
   calls) so it lands in the ledger
 - **do not** reorder or remove a stream's topics: their order is stored as bits
+- **do not** key a stream by anything that can change, such as a SKU: a renamed
+  key reads as one subject removed and another added, and breaks subscribers'
+  lists. Key by a permanent id and carry the SKU as data
+- **do not** offer a per-account stream (each customer's own orders) on the
+  subscriber API yet: a stream's matcher applies only to filtered
+  subscriptions, so an unfiltered or subject-listed subscription bypasses it.
+  Bind the account through the subscriber's owner, never through the filter
 - **do not** load snapshots one subject at a time, or expand a subscription's
   filter into the subjects it covers; both break at catalogue scale
 
