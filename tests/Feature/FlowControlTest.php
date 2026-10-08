@@ -93,3 +93,21 @@ it('prunes finished runs with their steps, and expired artifacts with their file
 
     Storage::disk('local')->assertMissing($stored->path);
 });
+
+it('fills arguments a caller left out from the flow override\'s defaults', function (): void {
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'defaults' => ['start' => 5]]);
+
+    $defaulted = app(Impex::class)->runSync('linear');
+    $given = app(Impex::class)->run('linear', [1]);
+
+    expect($defaulted->refresh()->input['value'] ?? null)->toBe(['start' => 5])
+        ->and(app(Impex::class)->result($defaulted->refresh()))->toBe(['value' => 12])
+        // What the caller passed wins over the default.
+        ->and($given->refresh()->input['value'] ?? null)->toBe(['start' => 1]);
+});
+
+it('ignores defaults for parameters the flow does not have', function (): void {
+    FlowOverrideModel::query()->create(['slug' => 'linear', 'defaults' => ['nonsense' => true]]);
+
+    expect(app(Impex::class)->run('linear', [2])->input['value'] ?? null)->toBe(['start' => 2]);
+});

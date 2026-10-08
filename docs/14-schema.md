@@ -263,7 +263,7 @@ Runtime overrides only. The registry decides which flows exist.
 | `enabled` | nullable; only an explicit `false` disables |
 | `schedule` | overrides `impex.schedule` |
 | `queue`, `queue_connection` | the queue new runs of the flow are routed to, unless the caller names one (an inbound channel's `queue` does) |
-| `defaults` | reserved; not read by the engine |
+| `defaults` | default arguments for new runs, keyed by `handle()` parameter name, filling only what the caller left out. The stored run input carries the merged arguments by name, so replay never reads this again. Ignored for a flow with a variadic parameter |
 
 ## `impex_batches` / `impex_batch_items`
 
