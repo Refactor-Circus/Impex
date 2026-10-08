@@ -268,7 +268,8 @@ OAuth middleware (`impex.routes.subscriber_middleware`).
 Pausing a flow (its `impex_flows` row, `enabled = false`) stops every
 trigger: `Impex::run()` throws `DisabledFlowException`, and an inbound channel
 bound to it answers `503` with `Retry-After`. The row's `queue` and
-`queue_connection` route new runs. Stored channels can be managed on the
+`queue_connection` route new runs, and its `defaults` fill `handle()` parameters
+a caller left out, by name. Stored channels can be managed on the
 Atrium Channels screens. Measure the subscription pipeline with
 `vendor/bin/testbench impex:bench` in the package workbench.
 

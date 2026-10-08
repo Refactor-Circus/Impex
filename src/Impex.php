@@ -20,6 +20,7 @@ use JayI\Impex\Domains\Channel\Services\ChannelSender;
 use JayI\Impex\Domains\Channel\Services\TransportManager;
 use JayI\Impex\Domains\Flow\Exceptions\DisabledFlowException;
 use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use JayI\Impex\Domains\Flow\Support\FlowArguments;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
 use JayI\Impex\Domains\Message\Services\MessageRecorder;
@@ -102,6 +103,7 @@ class Impex
 
         $class = $this->flows->class($slug);
         $override = $this->flows->override($slug);
+        $arguments = FlowArguments::withDefaults($class, $arguments, $override->defaults ?? []);
         // Keys are kept rather than flattened: a caller may pass arguments by
         // name, which the engine applies as named arguments, so the names have
         // to survive into the stored payload and back out on replay. A plain

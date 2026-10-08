@@ -202,6 +202,57 @@ final class FlowArguments
     }
 
     /**
+     * Fill the parameters a caller left out from a flow override's
+     * `defaults`, keyed by parameter name. What the caller passed always
+     * wins. The result is keyed by name, so the stored run input says which
+     * value went where, and the engine applies it as named arguments.
+     *
+     * A flow with a variadic parameter is left as called: its positions have
+     * no single name to merge by.
+     *
+     * @param  class-string  $flow
+     * @param  array<int|string, mixed>  $arguments
+     * @param  array<string, mixed>  $defaults
+     * @return array<int|string, mixed>
+     */
+    public static function withDefaults(string $flow, array $arguments, array $defaults): array
+    {
+        $parameters = self::parameters($flow);
+
+        if ($defaults === [] || $parameters === []) {
+            return $arguments;
+        }
+
+        $named = [];
+
+        foreach ($parameters as $position => $parameter) {
+            if ($parameter->isVariadic()) {
+                return $arguments;
+            }
+
+            $name = $parameter->getName();
+
+            if (array_key_exists($position, $arguments)) {
+                $named[$name] = $arguments[$position];
+            } elseif (array_key_exists($name, $arguments)) {
+                $named[$name] = $arguments[$name];
+            } elseif (array_key_exists($name, $defaults)) {
+                $named[$name] = $defaults[$name];
+            }
+        }
+
+        // Arguments that match no parameter are passed on as they came, so
+        // the engine reports them rather than this dropping them.
+        foreach ($arguments as $key => $value) {
+            if (is_int($key) ? $key >= count($parameters) : ! array_key_exists($key, $named)) {
+                return $arguments;
+            }
+        }
+
+        return $named;
+    }
+
+    /**
      * @param  class-string  $flow
      * @return array<int, ReflectionParameter>
      */

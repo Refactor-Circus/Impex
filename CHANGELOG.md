@@ -6,7 +6,7 @@
 
 - **Channel screens.** Create, change, rotate the secret of, and delete stored channels from Atrium; configured channels are shown read-only.
 - **A paused flow is paused everywhere.** `Impex::run()` refuses a disabled flow from any trigger, not only the API; an inbound channel bound to one answers `503` with `Retry-After`.
-- **Flow overrides route runs.** `impex_flows.queue` and `queue_connection` now apply to new runs; an inbound channel's own `queue` wins.
+- **Flow overrides route and default runs.** `impex_flows.queue` and `queue_connection` now apply to new runs (an inbound channel's own `queue` wins), and `defaults` fills the `handle()` parameters a caller left out, by name — a nightly sweep's batch size, say, retuned without a deploy.
 - **Failed batch items back off** before their next attempt, as failed steps do.
 - **Faster pruning.** Runs prune in bulk (their children cascade); artifacts prune a thousand at a time with one bulk file delete per disk. New indexes on `impex_run_steps.expires_at` and `impex_runs (status, finished_at)`.
 - **A benchmark** in the workbench: `vendor/bin/testbench impex:bench`.
