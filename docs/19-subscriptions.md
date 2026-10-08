@@ -369,13 +369,14 @@ from anything the subscriber sends: set the subscriber's **owner** to the
 customer when you register it, and have the stream's matcher compare each
 order's customer with the subscriber's owner.
 
-> **Warning: not yet safe for customer data.** Today Impex runs a stream's
-> matcher only for subscriptions created with a `filter`. A customer who
-> subscribes with no filter receives **every** order, and one who lists order
-> numbers (`"subjects"`) receives those orders whoever owns them. Until a
-> stream can require that its matcher apply to every subscription, do not
-> offer this stream on the subscriber API; create its subscriptions yourself,
-> always with a filter, and never with subjects.
+> **Guard the stream yourself.** Impex runs a stream's matcher for
+> subscriptions created with a `filter` only: one with no filter takes every
+> subject, and one listing `subjects` takes those, whoever owns them. That is
+> right for a public catalogue and wrong for anyone's orders. Which streams
+> are private to their subscriber is your application's knowledge, so the
+> guard is yours: refuse any subscription to such a stream that is not
+> filtered, or that lists subjects. [Guarding it](#guarding-a-per-account-stream)
+> below shows how.
 
 Register each customer as a subscriber, owned by your customer record and
 authenticating as the customer's OAuth client:
@@ -485,7 +486,57 @@ POST /impex/subscriber/subscriptions
 ```
 
 A subscriber with no owner, or owned by something other than a customer,
-matches nothing. The same pattern serves any per-account stream: invoices,
+matches nothing.
+
+#### Guarding a per-account stream
+
+Every way a subscription is made or changed — the subscriber API, the operator
+API, MCP — goes through an action that fires a `…ingActionEvent` first. A
+listener that throws stops the action before anything is saved, and a
+`ValidationException` answers the caller `422`. Three listeners keep a
+per-account stream scoped:
+
+```php
+use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
+use JayI\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
+use JayI\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatingActionEvent;
+use JayI\Impex\Domains\Subscription\Events\SubscriptionUpdatingActionEvent;
+
+// In a service provider's boot().
+$private = ['orders', 'invoices'];
+
+// Created: must be filtered, and may not list subjects.
+Event::listen(function (SubscriptionCreatingActionEvent $event) use ($private): void {
+    if (in_array($event->data['stream'] ?? null, $private, true)
+        && (empty($event->data['filter']) || ! empty($event->data['subjects']))) {
+        throw ValidationException::withMessages([
+            'filter' => 'This stream sends only your own records: subscribe with "filter": {"own": true}, without subjects.',
+        ]);
+    }
+});
+
+// Changed: the filter may not be dropped.
+Event::listen(function (SubscriptionUpdatingActionEvent $event) use ($private): void {
+    if (in_array($event->subscription->stream, $private, true)
+        && array_key_exists('filter', $event->data) && empty($event->data['filter'])) {
+        throw ValidationException::withMessages(['filter' => 'This stream\'s subscriptions must stay filtered.']);
+    }
+});
+
+// Listed: no subjects may be added.
+Event::listen(function (SubscriptionSubjectsUpdatingActionEvent $event) use ($private): void {
+    if (in_array($event->subscription->stream, $private, true) && ! empty($event->data['add'])) {
+        throw ValidationException::withMessages(['add' => 'This stream does not take a list of subjects.']);
+    }
+});
+```
+
+With those in place the matcher decides every delivery, and the matcher reads
+the customer from the subscriber's owner, which only you set. Test the guard
+like any other rule: a subscription with no filter, with subjects, or with its
+filter removed must be refused.
+ The same pattern serves any per-account stream: invoices,
 quotes, shipments, returns.
 
 ### Registering it
