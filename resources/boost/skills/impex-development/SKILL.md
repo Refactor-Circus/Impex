@@ -265,6 +265,13 @@ queries; its `matcher()` must index subscription filters, never expand them.
 Subscribers manage subscriptions on `/impex/subscriber/...` behind the app's
 OAuth middleware (`impex.routes.subscriber_middleware`).
 
+Pausing a flow (its `impex_flows` row, `enabled = false`) stops every
+trigger: `Impex::run()` throws `DisabledFlowException`, and an inbound channel
+bound to it answers `503` with `Retry-After`. The row's `queue` and
+`queue_connection` route new runs. Stored channels can be managed on the
+Atrium Channels screens. Measure the subscription pipeline with
+`vendor/bin/testbench impex:bench` in the package workbench.
+
 ## Examples
 
 - a supplier webhook lands on an inbound channel, which records the payload as a
