@@ -19,7 +19,7 @@ requirement.
 | Term | Meaning |
 |---|---|
 | **Stream** | A source of change a package registers: products, manufacturers, orders. Identified by a permanent key such as `catalogue.products`. |
-| **Subject** | One thing in a stream, by its subject key: a SKU, an order number. |
+| **Subject** | One thing in a stream, by its subject key: a product's id, an order number. Use a key that never changes — a renamed key reads as one subject removed and another added, and breaks every subscriber's list. Carry changeable codes such as a SKU as data. |
 | **Topic** | A part of a subject a subscriber can choose to hear about: `pricing`, `assets`, `content`. |
 | **Subscriber** | Who receives changes: a vendor, a partner. Authenticates as an OAuth client. |
 | **Subscription** | A subscriber's interest in one stream: which subjects, which topics, which format, delivered where. A subscriber following several streams — products and orders, say — holds one subscription per stream, each with its own endpoint (or the same URL twice) and its own cursor. |
@@ -77,16 +77,18 @@ final class ProductStream extends AbstractStream
     }
 
     /**
-     * One query for the whole chunk, never one per key. A key with no
-     * subject maps to null: Impex sends it as removed.
+     * Keys are the products' ids: permanent, unlike a SKU, which a rename
+     * would turn into one product removed and another added, breaking every
+     * subscriber's list. One query for the whole chunk, never one per key. A
+     * key with no subject maps to null: Impex sends it as removed.
      */
     public function snapshots(array $keys): array
     {
         $products = Product::query()
             ->with(['prices', 'media'])
-            ->whereIn('sku', $keys)
+            ->whereIn('id', $keys)
             ->get()
-            ->keyBy('sku');
+            ->keyBy('id');
 
         $snapshots = [];
 
@@ -97,7 +99,9 @@ final class ProductStream extends AbstractStream
                 // Outside the topics: never sent, but a change here can move
                 // the product into or out of a filtered subscription.
                 'category' => $product->category_slug,
-                'content' => ['name' => $product->name, 'description' => $product->description],
+                // The SKU travels as data, so a renamed SKU is a content
+                // change, not a different product.
+                'content' => ['sku' => $product->sku, 'name' => $product->name, 'description' => $product->description],
                 'pricing' => $product->prices->map->only(['currency', 'amount'])->values()->all(),
                 'assets' => $product->media->pluck('url')->all(),
             ];
@@ -128,10 +132,10 @@ final class ProductStream extends AbstractStream
 
         Product::query()
             ->when($categories !== null, fn ($query) => $query->whereIn('category_slug', $categories))
-            ->select(['id', 'sku'])
+            ->select(['id'])
             ->chunkById(1000, function ($products) use ($handle): void {
-                foreach ($this->snapshots($products->pluck('sku')->all()) as $sku => $snapshot) {
-                    fwrite($handle, json_encode(['subject' => $sku, 'data' => $snapshot]).PHP_EOL);
+                foreach ($this->snapshots($products->modelKeys()) as $id => $snapshot) {
+                    fwrite($handle, json_encode(['subject' => $id, 'data' => $snapshot]).PHP_EOL);
                 }
             });
     }
@@ -258,18 +262,21 @@ POST /impex/subscriber/subscriptions
 }
 ```
 
-If the million is an arbitrary list of SKUs, list them instead. Create the
-subscription with the first 10,000 in `subjects`, then add the rest 10,000 at
-a time — a hundred calls for a million:
+If the million is an arbitrary list of products, list them instead — by the
+stream's subject key, the product ids, never SKUs, so a renamed SKU leaves the
+list intact. Create the subscription with the first 10,000 in `subjects`, then
+add the rest 10,000 at a time — a hundred calls for a million:
 
 ```http
 POST /impex/subscriber/subscriptions/{id}/subjects
-{"add": ["SKU-10001", "SKU-10002", "…"]}
+{"add": ["01J9XQ4C2V…", "01J9XQ4C2W…", "…"]}
 ```
 
-A list is one row per SKU, looked up only for the products in each chunk of
-changes, so it is cheap to match against — but it is a million rows to keep in
-step with what the customer carries. Prefer a rule when one exists.
+The customer learns the ids from the export below, which carries each
+product's id and current SKU. A list is one row per product, looked up only for
+the products in each chunk of changes, so it is cheap to match against — but
+it is a million rows to keep in step with what the customer carries. Prefer a
+rule when one exists.
 
 **Start from a file, not a million webhooks.** Ask for an export once the
 subscription exists. It writes every product the subscription covers to one
@@ -279,6 +286,37 @@ there:
 ```http
 POST /impex/subscriber/subscriptions/{id}/export
 ```
+
+**Give every entry the current SKU.** The customer follows `pricing` and
+`inventory`, so it would never see the SKU, which lives in `content`. A
+formatter can add it to every entry, read from the product as it is when the
+batch is sent:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\Stream;
+use JayI\Impex\Domains\Subscription\Formatters\SliceFormatter;
+use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+
+final class ProductSliceFormatter extends SliceFormatter
+{
+    public function format(Stream $stream, SubscriptionModel $subscription, array $events, array $snapshots): array
+    {
+        return array_map(
+            fn (array $entry): array => [...$entry, 'sku' => $snapshots[$entry['subject']]['content']['sku'] ?? null],
+            parent::format($stream, $subscription, $events, $snapshots),
+        );
+    }
+}
+
+// In ProductStream:
+public function formats(): array
+{
+    return [...parent::formats(), 'slice' => new ProductSliceFormatter];
+}
+```
+
+A removed product has no snapshot, so its entry carries no SKU; the customer
+already knows it by id.
 
 **What arrives afterwards.** Only changes in `pricing` or `inventory`, and only
 those topics' data:
@@ -301,7 +339,8 @@ those topics' data:
     {
       "id": "48211907",
       "type": "changed",
-      "subject": "SKU-40417",
+      "subject": "01J9XQ4C2VR7M8D2N6Q0F3K5TB",
+      "sku": "SCH-ND80PD-RHO-626",
       "topics": ["pricing", "inventory"],
       "occurred_at": "2026-10-08T14:02:11+00:00",
       "data": {
@@ -471,8 +510,8 @@ Impex::streams()->register(ProductStream::class);
 
 ```php
 // A snapshot stream: after a save, an import, a price feed.
-Impex::streams()->touch('catalogue.products', [$product->sku]);
-Impex::streams()->touch('catalogue.products', $skus);   // any iterable of keys
+Impex::streams()->touch('catalogue.products', [$product->id]);
+Impex::streams()->touch('catalogue.products', $ids);   // any iterable of keys
 
 // An append stream: one event, delivered as it is.
 Impex::streams()->publish('orders', $order->number, 'order.shipped', ['carrier' => 'UPS']);
