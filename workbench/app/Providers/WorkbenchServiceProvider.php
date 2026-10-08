@@ -64,6 +64,15 @@ class WorkbenchServiceProvider extends ServiceProvider
         // Drive runs as soon as they start, so the Run, Signal, Cancel and
         // Retry buttons work without a queue worker.
         config()->set('queue.default', 'sync');
+
+        // jayi/pennantplus's layered store: users who follow a feature's
+        // global value store nothing, as in a real application.
+        config()->set('pennant.default', 'pennantplus');
+        config()->set('pennant.stores.pennantplus', [
+            'driver' => 'pennantplus',
+            'connection' => null,
+            'table' => 'features',
+        ]);
     }
 
     /**
