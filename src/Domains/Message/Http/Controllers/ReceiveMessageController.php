@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use JayI\Impex\Domains\Channel\Contracts\ChannelProfile;
 use JayI\Impex\Domains\Channel\Contracts\SignatureValidator;
 use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
+use JayI\Impex\Domains\Flow\Exceptions\DisabledFlowException;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Services\MessageRecorder;
 use JayI\Impex\Domains\Run\Enums\RunTrigger;
@@ -72,12 +73,23 @@ final class ReceiveMessageController
             return new JsonResponse(['message' => 'Accepted.', 'message_id' => $message->getKey()], 202);
         }
 
-        $run = $impex->run(
-            slug: $config->flow,
-            arguments: [$this->decode($request)],
-            trigger: RunTrigger::Channel,
-            idempotencyKey: $message->idempotency_key,
-        );
+        try {
+            $run = $impex->run(
+                slug: $config->flow,
+                arguments: [$this->decode($request)],
+                trigger: RunTrigger::Channel,
+                idempotencyKey: $message->idempotency_key,
+                queue: $config->queue,
+            );
+        } catch (DisabledFlowException) {
+            // Paused, not refused: a 503 tells the sender to try again later,
+            // and its idempotency key keeps the retry from becoming a second
+            // run once the flow is back on.
+            return new JsonResponse([
+                'message' => 'The flow behind this channel is paused. Retry later.',
+                'message_id' => $message->getKey(),
+            ], 503, ['Retry-After' => '300']);
+        }
 
         $message->update(['run_id' => $run->getKey()]);
 

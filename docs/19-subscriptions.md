@@ -536,8 +536,9 @@ temporary URL on S3, say — once `last_export_at` is set.
 A subscriber's copy should not keep a subject it should no longer have.
 
 - **A deleted subject** — `snapshots()` returns `null` for a key that had
-  state — becomes a `removed` event, sent to exactly the subscriptions that
-  were sent that subject before.
+  state — becomes a `removed` event, sent to the filtered and listed
+  subscriptions that were sent that subject before, and to every subscription
+  that takes everything.
 - **A subject that leaves a subscription's scope** — moved out of a filtered
   category, say — is sent to that subscription as `removed`, named
   `left_scope`.
@@ -552,7 +553,39 @@ moved is still checked against every subscription's scope.
 
 Who "was sent the subject before" is read from the event history, which covers
 the retention window. A subscriber last sent a subject before then, or whose
-latest word on it was already `removed`, is not told again.
+latest word on it was already `removed`, is not told again. Only filtered and
+listed subscriptions can gain or lose a subject, so only their history is read:
+a subscription that takes everything never enters or leaves scope, and at
+catalogue scale reading its history for every change would be most of the
+work.
+
+## Measuring it
+
+The workbench carries a benchmark of the whole pipeline on synthetic data —
+touching, detection with fan-out, a re-check where most subjects did not change,
+and delivery to an endpoint that answers at once but is still recorded in the
+ledger:
+
+```bash
+vendor/bin/testbench workbench:build
+vendor/bin/testbench impex:bench --subjects=200000 --subscriptions=100 --changed=0.1
+```
+
+One process on SQLite, 200,000 subjects and 100 subscriptions (half taking
+everything, the rest filtered or listed):
+
+| Stage | Time | Throughput | Peak memory |
+|---|---|---|---|
+| Touch | 0.7s | ~300,000 subjects/s | 53 MB |
+| Detect, first look (10.2M routed rows) | 50s | ~4,000 subjects/s | 83 MB |
+| Re-detect, 10% changed | 8.4s | ~24,000 subjects/s | 87 MB |
+| Deliver (111,780 batched requests) | 255s | ~44,000 events/s | 87 MB |
+
+Time grows linearly with volume and memory stays flat. The first look is
+dominated by writing a row per match; a new subscriber starts from an export
+instead. Run it against the database you deploy on, and raise
+`subscriptions.detection.concurrency` and the delivery workers to scale out —
+SQLite numbers are a floor.
 
 ## Retries and the circuit breaker
 

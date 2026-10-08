@@ -16,13 +16,12 @@ use JayI\Atrium\Domains\Search\Data\SearchSource;
 use JayI\Atrium\Domains\Settings\Data\SettingsPanel;
 use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
 use JayI\Atrium\Support\Icons;
-use JayI\Foundation\Auth\Authorizer;
-use JayI\Foundation\Packages\PackageRegistry;
 use JayI\Impex\Atrium\Http\Controllers\ChannelUiController;
 use JayI\Impex\Atrium\Http\Controllers\FlowUiController;
 use JayI\Impex\Atrium\Http\Controllers\MessageUiController;
 use JayI\Impex\Atrium\Http\Controllers\RunUiController;
 use JayI\Impex\Atrium\Http\Controllers\SubscriptionUiController;
+use JayI\Impex\Domains\Channel\Models\ChannelModel;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
@@ -90,13 +89,12 @@ class ImpexPlugin extends Plugin
                 ->sort(30)
                 ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', FlowOverrideModel::class)),
 
-            // Channels have no policy: the API lets anyone signed in list them.
             NavItem::make(__('impex::impex.channels'))
                 ->icon(Icons::svg('signal'))
                 ->route('atrium.impex.channels.index')
                 ->group('Impex')
                 ->sort(40)
-                ->authorize(fn (Request $request): bool => Authorizer::for(app(PackageRegistry::class)->get('impex'))->authenticated($request->user())),
+                ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', ChannelModel::class)),
 
             NavItem::make(__('impex::impex.subscriptions'))
                 ->icon(Icons::svg('rss'))
@@ -125,7 +123,13 @@ class ImpexPlugin extends Plugin
             Route::get('impex/flows', [FlowUiController::class, 'index'])->name('flows.index');
             Route::post('impex/flows/{flow}/runs', [FlowUiController::class, 'run'])->name('flows.run');
 
-            Route::get('impex/channels', ChannelUiController::class)->name('channels.index');
+            Route::get('impex/channels', [ChannelUiController::class, 'index'])->name('channels.index');
+            Route::get('impex/channels/create', [ChannelUiController::class, 'create'])->name('channels.create');
+            Route::post('impex/channels', [ChannelUiController::class, 'store'])->name('channels.store');
+            Route::get('impex/channels/{name}', [ChannelUiController::class, 'show'])->name('channels.show');
+            Route::patch('impex/channels/{channel:name}', [ChannelUiController::class, 'update'])->name('channels.update');
+            Route::post('impex/channels/{channel:name}/rotate-secret', [ChannelUiController::class, 'rotateSecret'])->name('channels.rotate-secret');
+            Route::delete('impex/channels/{channel:name}', [ChannelUiController::class, 'destroy'])->name('channels.destroy');
 
             Route::get('impex/subscriptions', [SubscriptionUiController::class, 'index'])->name('subscriptions.index');
             Route::get('impex/subscriptions/{subscription}', [SubscriptionUiController::class, 'show'])->name('subscriptions.show');

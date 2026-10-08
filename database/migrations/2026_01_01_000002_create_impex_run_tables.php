@@ -39,6 +39,8 @@ return new class extends Migration
 
             $table->index(['status', 'created_at']);
             $table->index(['flow', 'status']);
+            // Pruning reads finished runs by status and age.
+            $table->index(['status', 'finished_at']);
 
             // Scoped to the flow: two channels may legitimately deliver the same key
             // to different flows, and a global unique would make the second a 500.
@@ -80,7 +82,7 @@ return new class extends Migration
             // Groups steps declared inside one unit() block, so a rollback can
             // find a step's peers and apply the group's policy to them.
             $table->string('unit_id', 26)->nullable()->index();
-            $table->timestamp('expires_at')->nullable();
+            $table->timestamp('expires_at')->nullable()->index();
             $table->timestamp('queued_at')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();

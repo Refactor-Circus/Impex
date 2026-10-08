@@ -40,7 +40,8 @@ crossed your application boundary.
 | Messages | The ledger in both directions, filterable by direction and channel. |
 | Message detail | Headers, body preview, signature status, and a link to the owning run. |
 | Flows | The catalogue with a trigger form per flow. |
-| Channels | Every channel, inbound and outbound, configured and stored: its direction, transport, receive path (inbound only), bound flow, and whether it verifies signatures. |
+| Channels | Every channel, inbound and outbound, configured and stored: its direction, transport, receive path (inbound only), status, where it is defined, and whether it verifies signatures. A **New channel** button for those the `ChannelPolicy` lets `create`. |
+| Channel detail | Status, body policy, signature and source. A stored channel can be changed (transport, status, body policy, options as JSON, a new signing secret — left blank, the current one is kept), its secret rotated (the new secret is shown once, in the flash), and deleted; a configured one is read-only. |
 | Subscriptions | Subscriptions filterable by stream and status, with subscriber, endpoint (or feed-only), failures and last delivery. |
 | Subscription detail | Topics, selection, format, endpoint, cursor, backoff and last error; the latest deliveries, each linking to the ledger row it sent; pause, resume, replay and ping. |
 

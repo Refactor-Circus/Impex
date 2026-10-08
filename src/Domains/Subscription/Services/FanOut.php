@@ -62,15 +62,27 @@ final class FanOut
         $snapshot = $stream->kind() === StreamKind::Snapshot;
         $keys = array_values(array_unique([...array_map(fn (StreamEvent $e): string => $e->subjectKey, $events), ...$rescoped]));
         $inScope = $this->scope($stream, $subscriptions, $keys, $snapshots);
-        $prior = $snapshot
-            ? $this->priorRecipients($stream->key(), $keys, $events === [] ? PHP_INT_MAX : min(array_map(fn (StreamEvent $e): int => $e->id, $events)))
-            : [];
 
         $byId = [];
+        $scoped = [];
+        $everything = [];
 
         foreach ($subscriptions as $subscription) {
             $byId[$subscription->id] = $subscription;
+
+            // Only a filtered or listed subscription can gain or lose a
+            // subject; one that takes everything never does, so its history
+            // is never read — at catalogue scale that is most of it.
+            if ($subscription->selection === Selection::All) {
+                $everything[$subscription->id] = true;
+            } else {
+                $scoped[$subscription->id] = true;
+            }
         }
+
+        $prior = $snapshot && $scoped !== []
+            ? $this->priorRecipients($stream->key(), $keys, $events === [] ? PHP_INT_MAX : min(array_map(fn (StreamEvent $e): int => $e->id, $events)), array_keys($scoped))
+            : [];
 
         $rows = [];
         $entering = [];
@@ -81,8 +93,10 @@ final class FanOut
             $key = $event->subjectKey;
             $known = array_intersect_key($prior[$key] ?? [], $byId);
 
+            // A subject that is gone: everyone who had it, and every
+            // subscription that takes everything, which may have.
             if ($event->kind === EventKind::Removed) {
-                foreach (array_keys($known) as $id) {
+                foreach (array_keys($known + $everything) as $id) {
                     $rows[] = ['subscription_id' => $id, 'event_id' => $event->id];
                 }
 
@@ -99,12 +113,12 @@ final class FanOut
             }
 
             if ($snapshot) {
-                $this->rescope($key, $inScope[$key] ?? [], $routed, $known, $present($key), $byId, $entering, $leaving);
+                $this->rescope($key, array_intersect_key($inScope[$key] ?? [], $scoped), $routed, $known, $present($key), $byId, $entering, $leaving);
             }
         }
 
         foreach ($snapshot ? $rescoped : [] as $key) {
-            $this->rescope($key, $inScope[$key] ?? [], [], array_intersect_key($prior[$key] ?? [], $byId), $present($key), $byId, $entering, $leaving);
+            $this->rescope($key, array_intersect_key($inScope[$key] ?? [], $scoped), [], array_intersect_key($prior[$key] ?? [], $byId), $present($key), $byId, $entering, $leaving);
         }
 
         $rows = [
@@ -233,75 +247,49 @@ final class FanOut
     }
 
     /**
-     * The subscriptions that were sent each key before, so a removal reaches
-     * exactly those who had it. Read from the event history, which covers
-     * the retention window.
+     * The filtered and listed subscriptions that currently have each key:
+     * those sent it before whose latest word on it was not "removed". Read
+     * from the event history, which covers the retention window.
      *
      * @param  list<string>  $keys
+     * @param  list<string>  $subscriptions
      * @return array<string, array<string, true>>
      */
-    private function priorRecipients(string $stream, array $keys, int $before): array
+    private function priorRecipients(string $stream, array $keys, int $before, array $subscriptions): array
     {
-        $prior = [];
+        $latest = [];
 
-        foreach (array_chunk($keys, 1000) as $chunk) {
-            $this->db->table('impex_events as e')
-                ->join('impex_subscription_events as se', 'se.event_id', '=', 'e.id')
-                ->where('e.stream', $stream)
-                ->whereIn('e.subject_key', $chunk)
-                ->where('e.id', '<', $before)
-                ->distinct()
-                ->get(['se.subscription_id', 'e.subject_key'])
-                ->each(function (mixed $row) use (&$prior): void {
+        foreach (array_chunk($keys, 500) as $chunk) {
+            foreach (array_chunk($subscriptions, 500) as $ids) {
+                $rows = $this->db->table('impex_events as e')
+                    ->join('impex_subscription_events as se', 'se.event_id', '=', 'e.id')
+                    ->where('e.stream', $stream)
+                    ->whereIn('e.subject_key', $chunk)
+                    ->whereIn('se.subscription_id', $ids)
+                    ->where('e.id', '<', $before)
+                    ->get(['se.subscription_id', 'e.subject_key', 'e.id', 'e.kind']);
+
+                foreach ($rows as $row) {
                     /** @var stdClass $row */
-                    $prior[(string) $row->subject_key][(string) $row->subscription_id] = true;
-                });
-        }
+                    $pair = (string) $row->subject_key."\0".(string) $row->subscription_id;
 
-        // A subscriber whose latest word on a subject was "removed" no longer
-        // has it, and is not told again.
-        return $this->withoutRemoved($stream, $prior, $before);
-    }
-
-    /**
-     * @param  array<string, array<string, true>>  $prior
-     * @return array<string, array<string, true>>
-     */
-    private function withoutRemoved(string $stream, array $prior, int $before): array
-    {
-        if ($prior === []) {
-            return [];
-        }
-
-        foreach (array_chunk(array_keys($prior), 1000) as $chunk) {
-            $latest = $this->db->table('impex_events as e')
-                ->join('impex_subscription_events as se', 'se.event_id', '=', 'e.id')
-                ->where('e.stream', $stream)
-                ->whereIn('e.subject_key', $chunk)
-                ->where('e.id', '<', $before)
-                ->groupBy('se.subscription_id', 'e.subject_key')
-                ->selectRaw('se.subscription_id, e.subject_key, max(e.id) as latest')
-                ->get();
-
-            $ids = $latest->map(fn (mixed $row): int => (int) ((array) $row)['latest'])->all();
-
-            $removed = $ids === [] ? [] : $this->db->table('impex_events')
-                ->whereIn('id', $ids)
-                ->where('kind', EventKind::Removed->value)
-                ->pluck('id')
-                ->map(fn (mixed $id): int => (int) $id)
-                ->flip()
-                ->all();
-
-            foreach ($latest as $row) {
-                /** @var stdClass $row */
-                if (isset($removed[(int) $row->latest])) {
-                    unset($prior[(string) $row->subject_key][(string) $row->subscription_id]);
+                    if (! isset($latest[$pair]) || (int) $row->id > $latest[$pair][0]) {
+                        $latest[$pair] = [(int) $row->id, (string) $row->kind];
+                    }
                 }
             }
         }
 
-        return array_filter($prior);
+        $prior = [];
+
+        foreach ($latest as $pair => [, $kind]) {
+            if ($kind !== EventKind::Removed->value) {
+                [$key, $id] = explode("\0", $pair, 2);
+                $prior[$key][$id] = true;
+            }
+        }
+
+        return $prior;
     }
 
     /**

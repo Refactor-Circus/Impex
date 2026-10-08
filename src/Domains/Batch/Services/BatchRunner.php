@@ -442,7 +442,9 @@ final class BatchRunner
                     'updated_at' => Carbon::now(),
                 ]);
 
-            $this->jobs->batchItem($batch->run, (string) $item->getKey());
+            // Backed off as a failed step is, so an item failing against a
+            // struggling upstream does not hammer it attempt after attempt.
+            $this->jobs->batchItem($batch->run, (string) $item->getKey(), $this->options->backoffSeconds($attempts));
 
             return;
         }

@@ -118,3 +118,14 @@ it('gives its item up at once when the worker times it out', function (): void {
 
     Queue::assertPushed(ProcessBatchItem::class);
 })->skip(! defined('SIGALRM'), 'Needs pcntl.');
+
+it('backs a failed item off before trying it again', function (): void {
+    $item = strandedItem(attempts: 0, maxAttempts: 3);
+    $item->update(['item_key' => 'P1-1', 'payload' => ['value' => ['key' => 'P1-1', 'n' => 3]], 'status' => StepStatus::Pending, 'lease_token' => null, 'leased_until' => null]);
+
+    app(BatchRunner::class)->processItem($item->id);
+
+    expect($item->refresh()->status)->toBe(StepStatus::Pending);
+
+    Queue::assertPushed(ProcessBatchItem::class, fn (ProcessBatchItem $job): bool => $job->itemId === $item->id && $job->delay === 60);
+});

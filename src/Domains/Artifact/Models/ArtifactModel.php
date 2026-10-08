@@ -84,6 +84,29 @@ final class ArtifactModel extends Model
     }
 
     /**
+     * Prune a thousand at a time: one bulk delete per disk for the objects,
+     * then one for the rows, instead of a delete and a round trip to the
+     * disk per artifact. Objects go first, so a failure leaves rows to retry
+     * rather than objects nobody points at.
+     */
+    public function pruneAll(int $chunkSize = 1000): int
+    {
+        $total = 0;
+
+        do {
+            $artifacts = $this->prunable()->orderBy('id')->limit($chunkSize)->get(['id', 'disk', 'path']);
+
+            foreach ($artifacts->groupBy('disk') as $disk => $onDisk) {
+                Storage::disk((string) $disk)->delete($onDisk->pluck('path')->map(fn (mixed $path): string => (string) $path)->all());
+            }
+
+            $total += $artifacts->isEmpty() ? 0 : (int) self::query()->whereKey($artifacts->modelKeys())->toBase()->delete();
+        } while ($artifacts->count() === $chunkSize);
+
+        return $total;
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

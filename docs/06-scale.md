@@ -320,6 +320,10 @@ if it has attempts left under `tries()`, and failed with a
 `BatchItemAbandonedException` if not. An item that keeps killing its worker
 therefore fails and lets its batch finish, instead of blocking it forever.
 
+A failed attempt — the action threw — is retried after the same backoff a
+failed step gets (60 seconds per attempt so far, up to 15 minutes), so an item
+failing against a struggling upstream does not hammer it.
+
 A worker that times a job out does better than waiting for the lease.
 `ProcessBatchItem` implements Laravel's `Interruptible`, so when the worker is
 about to kill it for running past its timeout — `SIGALRM`, which needs the

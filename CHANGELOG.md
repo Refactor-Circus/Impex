@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Channel screens.** Create, change, rotate the secret of, and delete stored channels from Atrium; configured channels are shown read-only.
+- **A paused flow is paused everywhere.** `Impex::run()` refuses a disabled flow from any trigger, not only the API; an inbound channel bound to one answers `503` with `Retry-After`.
+- **Flow overrides route runs.** `impex_flows.queue` and `queue_connection` now apply to new runs; an inbound channel's own `queue` wins.
+- **Failed batch items back off** before their next attempt, as failed steps do.
+- **Faster pruning.** Runs prune in bulk (their children cascade); artifacts prune a thousand at a time with one bulk file delete per disk. New indexes on `impex_run_steps.expires_at` and `impex_runs (status, finished_at)`.
+- **A benchmark** in the workbench: `vendor/bin/testbench impex:bench`.
 - **Job middleware from config.** `impex.jobs.middleware` gives Impex's queued jobs queue middleware by job class, with `*` for all of them: a middleware class, `[class, ...constructor arguments]`, or a `JayI\Impex\Contracts\JobMiddlewareFactory` that builds middleware for the job in hand (a `WithoutOverlapping` keyed by subscription, say).
 - **Batch item leases are reclaimed.** `impex:tick` takes back items whose worker died mid-attempt once their lease lapses, counting the attempt, so an item that keeps killing its worker fails instead of blocking its batch. `ProcessBatchItem` implements Laravel's `Interruptible`: when the worker times it out (Laravel 13.34+, `pcntl`), it gives the item up at once rather than waiting for the lease.
 - **Outbound channels.** Channels now go both ways and can be stored at runtime (`impex_channels`) as well as configured; a stored channel wins over a configured one of the same name. `Impex::send($channel, $message)` sends through a channel's transport — `http`, `mail`, `file`, or one registered with `Impex::transports()->extend()` — and returns a `Receipt`; a failed send is a failed receipt, not an exception. HTTP sends through a channel with a secret are signed (`StandardWebhooksSigner` by default, every secret signing during a rotation). Endpoints an outside party supplied are held to the `EndpointGuard`: https only, no private or reserved addresses, the request pinned to the address that was checked. Channel CRUD and secret rotation over the API (`/impex/channels`) and MCP.
@@ -17,6 +23,8 @@
 ### Breaking
 
 - Requires `laravel/framework` `^13.34`, for jobs being told when a worker times them out.
+- The Channels nav item and screens follow `ChannelPolicy` (`viewAny`), like the other screens, instead of showing to anyone signed in. The bundled policy still allows everyone.
+- `RunModel` prunes with `MassPrunable`: no model events fire for pruned runs.
 - Channel classes move to a new `Channel` domain: `JayI\Impex\Domains\Message\{Contracts\ChannelProfile, Contracts\SignatureValidator, Data\ChannelConfig, Services\ChannelRegistry, Support\HmacSha256Validator, Support\ProcessEverything, Exceptions\UnknownChannelException, Actions\ListChannelsAction}` → `JayI\Impex\Domains\Channel\...`. The inbound receive controller is `Message\Http\Controllers\ReceiveMessageController`, and a configured channel's custom-path route is named `impex.channels.receive.{name}`. An outbound or disabled channel no longer receives (`404`).
 - `GET /impex/channels` lists outbound channels too, with each one's `transport`, `status`, `body_policy` and `options`; filter with `?direction=inbound`.
 - The ledger is written with a query-builder insert: `MessageModel` lifecycle events no longer fire for recorded messages (`MessageRecorded` still does). Bodies are kept whole in the new `body` column up to the artifact threshold instead of only as a 2KB preview, and the `MessageModel::body()` relation is renamed `bodyArtifact()`.

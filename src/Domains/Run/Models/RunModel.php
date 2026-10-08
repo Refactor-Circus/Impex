@@ -7,8 +7,8 @@ namespace JayI\Impex\Domains\Run\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -55,7 +55,11 @@ final class RunModel extends Model
     use HasFactory;
 
     use HasUlids;
-    use Prunable;
+
+    // Safe to mass prune: steps, owners, signals, timers and batches cascade
+    // in the database, and a run owns nothing outside it. Its artifacts prune
+    // on their own schedule, which is never shorter than a run's.
+    use MassPrunable;
 
     protected $table = 'impex_runs';
 

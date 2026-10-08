@@ -18,6 +18,7 @@ use JayI\Impex\Domains\Channel\Data\Receipt;
 use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
 use JayI\Impex\Domains\Channel\Services\ChannelSender;
 use JayI\Impex\Domains\Channel\Services\TransportManager;
+use JayI\Impex\Domains\Flow\Exceptions\DisabledFlowException;
 use JayI\Impex\Domains\Flow\Services\FlowRegistry;
 use JayI\Impex\Domains\Message\Enums\Direction;
 use JayI\Impex\Domains\Message\Models\MessageModel;
@@ -70,6 +71,10 @@ class Impex
      *                                               as named arguments.
      * @param  array<string, string>  $tags
      * @param  iterable<int|string, Model>  $owners  models keyed by role
+     * @param  string|null  $queue  The queue its jobs run on; null for the
+     *                              flow's override, then the default.
+     *
+     * @throws DisabledFlowException when the flow is paused
      */
     public function run(
         string $slug,
@@ -80,6 +85,8 @@ class Impex
         iterable $owners = [],
         ?string $version = null,
         DateTimeInterface|int|null $expiresAt = null,
+        ?string $queue = null,
+        ?string $connection = null,
     ): RunModel {
         $existing = $this->existingRun($slug, $idempotencyKey);
 
@@ -87,7 +94,14 @@ class Impex
             return $existing;
         }
 
+        // Every trigger respects a paused flow — code, channels and the
+        // schedule as well as the API.
+        if (! $this->flows->enabled($slug)) {
+            throw DisabledFlowException::slug($slug);
+        }
+
         $class = $this->flows->class($slug);
+        $override = $this->flows->override($slug);
         // Keys are kept rather than flattened: a caller may pass arguments by
         // name, which the engine applies as named arguments, so the names have
         // to survive into the stored payload and back out on replay. A plain
@@ -106,6 +120,10 @@ class Impex
                 'input_artifact_id' => $stored['artifact_id'],
                 'tags' => $tags === [] ? null : $tags,
                 'expires_at' => $this->deadline($expiresAt),
+                // The caller's queue first (a channel's own), then the flow's
+                // override from the dashboard, then the engine default.
+                'queue' => $queue ?? $override?->queue,
+                'queue_connection' => $connection ?? $override?->queue_connection,
             ]);
         } catch (UniqueConstraintViolationException $e) {
             // A concurrent redelivery won the insert between the lookup above

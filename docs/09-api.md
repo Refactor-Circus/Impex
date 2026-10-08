@@ -93,7 +93,10 @@ held past the gateway's timeout.
 ```
 
 Reusing an idempotency key returns the original run rather than starting a
-second one. A flow disabled by an `impex_flows` override is refused.
+second one. A flow disabled by an `impex_flows` override is refused — from
+every trigger, not only this endpoint: `Impex::run()` refuses it too, and an
+inbound channel bound to it answers `503` with `Retry-After`, so the sender
+retries once the flow is back on.
 
 ## Runs
 

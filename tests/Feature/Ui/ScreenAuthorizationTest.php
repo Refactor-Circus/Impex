@@ -99,10 +99,11 @@ it('shows each nav item only with the ability its page needs', function (array $
     expect(array_values(array_intersect(impexNavigation($this->user), ['Runs', 'Messages', 'Flows', 'Channels'])))
         ->toBe($expected);
 })->with([
-    'nothing' => [[], ['Channels']],
-    'runs' => [['viewAny Run'], ['Runs', 'Channels']],
-    'messages' => [['viewAny Message'], ['Messages', 'Channels']],
-    'flows' => [['viewAny FlowOverride'], ['Flows', 'Channels']],
+    'nothing' => [[], []],
+    'runs' => [['viewAny Run'], ['Runs']],
+    'messages' => [['viewAny Message'], ['Messages']],
+    'flows' => [['viewAny FlowOverride'], ['Flows']],
+    'channels' => [['viewAny Channel'], ['Channels']],
 ]);
 
 it('hides every nav item from a guest while authorization is on', function (): void {
