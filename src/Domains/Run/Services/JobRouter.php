@@ -60,9 +60,13 @@ final class JobRouter
     /**
      * Queue one batch item.
      */
-    public function batchItem(?RunModel $run, string $itemId): void
+    public function batchItem(?RunModel $run, string $itemId, int $delay = 0): void
     {
         $job = new ProcessBatchItem($itemId);
+
+        if ($delay > 0) {
+            $job->delay($delay);
+        }
 
         $this->bus->dispatch($run instanceof RunModel ? $this->route($job, $run) : $job);
     }

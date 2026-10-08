@@ -12,7 +12,7 @@ This repository is a Laravel package. Keep the package focused, idiomatic, and e
 
 ## Layout
 
-The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/agent-os/standards/architecture/domain-modules.md`). Code lives in `src/Domains/{Run,Flow,Signal,Batch,Message,Artifact}` (namespace `JayI\Impex\Domains\{Domain}`), each with its own `{Domain}ServiceProvider` registered by `Domains\DomainServiceProvider`; the domain providers extend `JayI\Foundation\Support\ServiceProvider`, whose `loadApiRoutesFrom()` loads their routes into the shared `impex.` API group (the inbound channel routes keep their own middleware group in `MessageServiceProvider`). Models are named `{Entity}Model` and keep their old class names as morph aliases. The engine and its collaborators live in `Domains\Run\Services`; the flow base classes and DSL builders in `Domains\Flow\Support`. The Atrium screens span every domain and live in `src/Atrium`; package-wide pieces (`Impex`, the facade, `ImpexException`, `Mcp\ImpexServer` and `Mcp\Tools\ListImpexHistoryTool`, `Support\`, `Testing\Flows`, `impex:prune`) stay at the top level. The queued jobs stay in `src/Jobs` because their class names are inside queued payloads. `config/impex.php` stays one file.
+The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/agent-os/standards/architecture/domain-modules.md`). Code lives in `src/Domains/{Run,Flow,Signal,Batch,Channel,Message,Subscription,Artifact}` (namespace `JayI\Impex\Domains\{Domain}`), each with its own `{Domain}ServiceProvider` registered by `Domains\DomainServiceProvider`; the domain providers extend `JayI\Foundation\Support\ServiceProvider`, whose `loadApiRoutesFrom()` loads their routes into the shared `impex.` API group (the inbound channel routes keep their own middleware group in `MessageServiceProvider`). Models are named `{Entity}Model` and keep their old class names as morph aliases. The engine and its collaborators live in `Domains\Run\Services`; the flow base classes and DSL builders in `Domains\Flow\Support`. The Atrium screens span every domain and live in `src/Atrium`; package-wide pieces (`Impex`, the facade, `ImpexException`, `Mcp\ImpexServer` and `Mcp\Tools\ListImpexHistoryTool`, `Support\`, `Testing\Flows`, `impex:prune`) stay at the top level. The queued jobs stay in `src/Jobs` because their class names are inside queued payloads. `config/impex.php` stays one file.
 
 ## Foundation
 
@@ -66,6 +66,13 @@ These are load-bearing. Changing any of them changes correctness, not style.
 - `lease_seconds` must stay above `max_step_seconds`, or a legitimately slow
   step is reclaimed while still working and runs twice.
 - Jobs carry identifiers only, never payloads. There is an arch test for this.
+  Every job uses `Support\Concerns\UsesConfiguredMiddleware`, so applications
+  add queue middleware per job class through `impex.jobs.middleware`; a new job
+  uses it too.
+- Anything leased — steps, batch items, touched subjects — is reclaimed by
+  `impex:tick` once its lease lapses, and counts the dead attempt. A job may
+  release early on a timeout (`Interruptible`, `SIGALRM`), never on `SIGTERM`,
+  which lets the work finish.
   Anything above the inline threshold goes to the artifact disk.
 - Waits longer than the queue's delay ceiling are timer rows, never delayed
   jobs. `impex:tick` is required, not optional.
@@ -84,5 +91,22 @@ These are load-bearing. Changing any of them changes correctness, not style.
 - Engine collaborators are resolved from the container, not newed up. Adding
   behaviour means a new collaborator or a decorated contract, not another method
   on Engine.
+- Impex is the application's one way in and out. Anything a package sends —
+  webhooks, API calls, feeds, mail, subscriber pushes — goes through a channel
+  and its transport so it lands in the ledger. Domain packages add a `Stream`;
+  the generic machinery (channels, transports, subscriptions, delivery) lives
+  here.
+- The ledger write is the hot path: one query-builder insert, no per-row model
+  events. Keep it that way.
+- Subscriptions scale with changes, never with catalogue size times
+  subscribers: nothing per subscriber on the write path, filters matched as
+  rules (a stream's `SubscriptionMatcher`) and never expanded into rows,
+  fan-out one narrow `(subscription_id, event_id)` row per match, payloads
+  built at send time. Every stage works in chunks with a constant number of
+  queries; there is a query-count test for detection.
+- A stream's `topics()` order is stored as bits. Append topics; never reorder
+  or remove one.
+- A subscription's cursor moves only on a 2xx, and one delivery runs per
+  subscription at a time, so a subscriber sees batches in order.
 - Table names are hardcoded, matching cortex. A configurable prefix would break
   the literal table names in the static `rules()` convention.

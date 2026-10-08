@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JayI\Impex\Domains\Batch\Services\BatchRunner;
+use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Seeds a batch from its source, one resumable page at a time.
@@ -24,6 +25,7 @@ final class SeedBatch implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use UsesConfiguredMiddleware;
 
     public function __construct(
         public readonly string $batchId,

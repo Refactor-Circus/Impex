@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JayI\Impex\Domains\Run\Services\Engine;
+use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Replays a run and schedules whatever it reaches that is not yet recorded.
@@ -23,6 +24,7 @@ final class DriveRun implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use UsesConfiguredMiddleware;
 
     public function __construct(public readonly string $runId) {}
 

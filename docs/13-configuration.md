@@ -30,7 +30,32 @@ row takes precedence, so the dashboard can reschedule without a deploy.
 | `queue` | `null` | Queue name. |
 
 Jobs carry ULIDs only, never payloads, so a message can never approach SQS's
-256KB limit however large a run's data is.
+256KB limit however large a run's data is. Subscription jobs have their own
+lanes in `subscriptions.queue`.
+
+## `jobs`
+
+```php
+'jobs' => [
+    'middleware' => [
+        '*' => [\App\Queue\TagWithTenant::class],
+        \JayI\Impex\Jobs\DeliverSubscription::class => [
+            [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
+        ],
+    ],
+],
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `middleware` | `[]` | Queue middleware for Impex's jobs, by job class; `*` applies to all of them, before a class's own. |
+
+An entry is a middleware class, a list of a class and its constructor
+arguments, or a `JayI\Impex\Contracts\JobMiddlewareFactory` that builds
+middleware for the job in hand. Read when a job runs, not when it was queued.
+The jobs: `DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
+`DetectStream`, `DeliverSubscription` and `ExportSubscription`, all in
+`JayI\Impex\Jobs`. See [Extending](12-extending.md#job-middleware).
 
 ## `limits`
 
@@ -89,7 +114,38 @@ exception naming it.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `preview_bytes` | `2048` | How much of a body is kept inline for list views. The full body always lives on the artifact disk. |
+| `preview_bytes` | `2048` | How much of a text body `body_preview` keeps for list views. Display only: a kept body is whole in its row or on the artifact disk. |
+| `max_recorded_bytes` | `16777216` (16MB) | The largest outbound HTTP body `Impex::http()` records whole. A larger or unrewindable one — a streamed feed — is recorded by size alone, so recording never holds a whole feed in memory. |
+
+## `outbound`
+
+Defaults for sending through outbound channels. A channel's own `options` win.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `timeout` | `10` | HTTP request timeout, seconds. |
+| `connect_timeout` | `3` | HTTP connect timeout, seconds. |
+| `signer` | `StandardWebhooksSigner::class` | Signs the body of every HTTP send through a channel that has a secret. `null` signs nothing. |
+| `guard` | `true` | Refuse endpoints an outside party supplied (owned channels, or `options.guard`) that resolve to private or reserved addresses. Leave it on outside tests. |
+| `allow_insecure` | `false` | Permit plain `http://` for guarded endpoints. |
+
+See [Channels and transports](18-channels.md#the-endpoint-guard).
+
+## `mail`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `channel` | `'mail'` | The ledger channel recorded mail is filed under, when the `impex` mailer does not name its own. |
+| `record_unwrapped` | `false` | Also record mail sent through any other mailer, from the `MessageSent` event — successes only, since a failed send never fires it. |
+
+The `impex` mail transport does the recording; configure a mailer with it in
+`config/mail.php`. See [Channels and transports](18-channels.md#mail).
+
+## `channel_registry`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `cache_seconds` | `30` | How long each process holds the stored channels before reading them again. A change shows at once in the process that made it, and in others within this window. |
 
 ## `retention`
 
@@ -99,10 +155,17 @@ exception naming it.
 | `failed_runs_days` | `365` |
 | `messages_days` | `90` |
 | `artifacts_days` | `365` |
+| `events_days` | `30` |
+| `deliveries_days` | `30` |
 
 **Artifacts must never expire before the rows referencing them**, or a failed
 run loses the payloads you would open it to read. Keep `artifacts_days` at or
 above the longest of the others. `impex:prune` deletes in dependency order.
+
+Subscription events are kept for `events_days` whether or not they were
+delivered, so a subscriber can replay or catch up on its feed within the window
+and no further; the window also bounds who is told when a subject is removed.
+`deliveries_days` keeps the per-attempt rows in `impex_deliveries`.
 
 ## `authorization`
 
@@ -110,7 +173,8 @@ above the longest of the others. `impex:prune` deletes in dependency order.
 listing only the runs they own, making them the owner of runs they start, and
 checking every call against `impex.policies`. Set it to `false` only for a
 trusted operator surface, where the route middleware is the only check. The
-inbound channel endpoints are never user-authorized.
+inbound channel endpoints are never user-authorized, and the subscriber API is
+scoped to the calling subscriber rather than checked against these policies.
 
 ## `policies`
 
@@ -126,11 +190,18 @@ your own class to replace its policy. See
 | `prefix` | `'impex'` |
 | `middleware` | `['api']` |
 | `channel_middleware` | `['api']` |
+| `subscriber_middleware` | `['api']` |
 
 Add authentication to `middleware` before exposing these. `channel_middleware`
 is the separate stack for the inbound channel receive endpoints, which
 authenticate with the channel's signing secret rather than a user, so keep
 operator authentication off it and add a throttle of your own.
+
+`subscriber_middleware` is the stack for the subscriber API under
+`{prefix}/subscriber`, where vendors and partners manage their own
+subscriptions. Put your OAuth middleware here, such as `['api', 'auth:api']`,
+or `['api', 'client:impex']` for client-credentials tokens; the subscriber is
+then found by the token's OAuth client (`subscriptions.resolver`).
 
 ## `mcp`
 
@@ -180,6 +251,66 @@ See [Dashboard](11-dashboard.md).
 | `features` | `[ImpexSupportFeature::class]` | Features that switch Impex in Atrium on and off as a whole. Classes that are not installed are skipped. |
 | `show_all` | `false` | Dashboard operators. `true`: everyone past Atrium's gate; a string: those the named Gate ability allows. An operator sees every run, message, count, widget and search result and may use every Impex control, on the Atrium screens only. Ignored with `authorization` off. |
 
+## `streams`
+
+```php
+'streams' => [
+    \App\Streams\OrderStream::class,
+],
+```
+
+Stream classes subscribers can follow, each implementing
+`JayI\Impex\Domains\Subscription\Contracts\Stream`. Packages register their own
+with `Impex::streams()->register()`. See [Subscriptions](19-subscriptions.md).
+
+## `subscriptions`
+
+```php
+'subscriptions' => [
+    'queue' => [
+        'detect' => ['connection' => null, 'queue' => null],
+        'deliver' => ['connection' => null, 'queue' => null],
+    ],
+    'detection' => ['chunk' => 1000, 'concurrency' => 1, 'lease_seconds' => 300, 'time_budget' => 50],
+    'delivery' => [
+        'batch' => 100,
+        'time_budget' => 50,
+        'gzip' => false,
+        'breaker_threshold' => 20,
+        'backoff' => ['base' => 10, 'max' => 3600, 'jitter' => true],
+    ],
+    'feed' => ['max_limit' => 1000],
+    'exports' => ['disk' => null, 'path' => 'impex/exports'],
+    'default_format' => 'slice',
+    'body_policy' => 'failures',
+    'cache_seconds' => 30,
+    'resolver' => OAuthClientResolver::class,
+],
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `queue.detect.connection`, `queue.detect.queue` | `null` | Where `DetectStream` runs. `null` falls back to `impex.queue`. |
+| `queue.deliver.connection`, `queue.deliver.queue` | `null` | Where `DeliverSubscription` and `ExportSubscription` run. Separate, so a big import cannot hold up deliveries behind it. |
+| `detection.chunk` | `1000` | Touched subjects compared per chunk — one `snapshots()` call, one transaction. Also the append-stream fan-out chunk. |
+| `detection.concurrency` | `1` | Detection jobs per stream, sharing the backlog through leases. |
+| `detection.lease_seconds` | `300` | How long a claimed chunk is held before another worker may take it. |
+| `detection.time_budget` | `50` | Seconds one detection job keeps claiming chunks before queuing the next. |
+| `delivery.batch` | `100` | Events per delivery request. |
+| `delivery.time_budget` | `50` | Seconds one delivery job keeps sending batches before queuing the next. |
+| `delivery.gzip` | `false` | Create subscription endpoints that send gzip-compressed bodies. |
+| `delivery.breaker_threshold` | `20` | Consecutive failures that switch a subscription to `disabled`. |
+| `delivery.backoff.base` | `10` | Seconds after the first failure; doubles per consecutive failure. |
+| `delivery.backoff.max` | `3600` | The longest wait between attempts. |
+| `delivery.backoff.jitter` | `true` | ±20%, so subscriptions failing against one outage do not retry together. |
+| `feed.max_limit` | `1000` | The most events one feed page returns. |
+| `exports.disk` | `null` | Disk exports are written to. `null` is the default disk. |
+| `exports.path` | `'impex/exports'` | Path prefix; files land at `{path}/{subscription}/{ulid}.jsonl`. |
+| `default_format` | `'slice'` | Format for a subscription that names none: `thin`, `slice` or `full`. |
+| `body_policy` | `'failures'` | Body policy of the endpoint channel each new push subscription gets. Every batch is recorded with its hash either way. |
+| `cache_seconds` | `30` | How long subscriptions are cached between detection chunks in a process. |
+| `resolver` | `OAuthClientResolver::class` | Maps an authenticated subscriber-API request to its subscriber; a `ResolvesSubscriber`. |
+
 ## `channels`
 
 ```php
@@ -195,7 +326,34 @@ See [Dashboard](11-dashboard.md).
         'store_headers' => ['content-type'],
         'path' => null,
     ],
+    'carrier-api' => [
+        'direction' => 'outbound',
+        'transport' => 'http',
+        'options' => ['url' => 'https://api.carrier.test/rates', 'timeout' => 5],
+        'credentials' => ['signing_secret' => env('CARRIER_SECRET')],
+        'body_policy' => 'failures',
+        'status' => 'active',
+    ],
 ],
 ```
 
-See [The ledger](07-ledger.md).
+| Key | Default | Meaning |
+|---|---|---|
+| `direction` | `'inbound'` | `inbound` or `outbound`. |
+| `transport` | `'http'` | `http`, `mail`, `file`, or one registered with `Impex::transports()->extend()`. |
+| `options` | `[]` | Transport settings. http: `url`, `method`, `headers`, `timeout`, `connect_timeout`, `gzip`, `signer`, `guard`. mail: `mailer`, `to`, `subject`. file: `disk`, `path`. Inbound with `StandardWebhooksValidator`: `tolerance_seconds`. |
+| `credentials` | `[]` | `signing_secret`, and `secrets`: older secrets still accepted, and still signing, during a rotation. |
+| `body_policy` | `'all'` | Which bodies the ledger keeps: `all`, `failures`, `none`. Sizes and hashes are always kept. |
+| `status` | `'active'` | `active` or `disabled`. A disabled channel neither sends nor receives. |
+| `signing_secret` | `null` | Shorthand for `credentials.signing_secret`. |
+| `signature_header` | `'X-Signature'` | |
+| `signature_validator` | `HmacSha256Validator::class` | Inbound. Or `StandardWebhooksValidator::class`, or your own. |
+| `profile` | `ProcessEverything::class` | Inbound: which requests start a run. |
+| `idempotency_header` | `null` | Inbound. |
+| `flow` | `null` | Inbound: the flow a request starts. |
+| `store_headers` | `[]` | Headers kept in the ledger, both directions. |
+| `queue` | `null` | Reserved; not read by the engine. |
+| `path` | `null` | Inbound: a custom receive path, default `channels/{name}`. |
+
+A channel stored in `impex_channels` under the same name wins. See
+[Channels and transports](18-channels.md) and [The ledger](07-ledger.md).

@@ -108,6 +108,10 @@ With it on, every call acts as the authenticated user:
     BatchModel::class => \JayI\Impex\Domains\Batch\Policies\BatchPolicy::class,
     BatchItemModel::class => \JayI\Impex\Domains\Batch\Policies\BatchItemPolicy::class,
     MessageModel::class => \JayI\Impex\Domains\Message\Policies\MessagePolicy::class,
+    ChannelModel::class => \JayI\Impex\Domains\Channel\Policies\ChannelPolicy::class,
+    SubscriberModel::class => \JayI\Impex\Domains\Subscription\Policies\SubscriberPolicy::class,
+    SubscriptionModel::class => \JayI\Impex\Domains\Subscription\Policies\SubscriptionPolicy::class,
+    DeliveryModel::class => \JayI\Impex\Domains\Subscription\Policies\DeliveryPolicy::class,
     ArtifactModel::class => \JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy::class,
     FlowOverrideModel::class => \JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy::class,
 ],
@@ -151,7 +155,29 @@ policy is registered.
 | `DELETE runs/{run}/owners/{owner}` | `detach-run-owner-tool` | `delete` on the owner record |
 | `GET messages` | `list-messages-tool` | `viewAny` on `MessageModel` |
 | `GET messages/{message}` | `show-message-tool` | `view` on the message |
-| `GET channels` | `list-channels-tool` | signed in only — channels are config, not a model |
+| `GET channels` | `list-channels-tool` | `viewAny` on `ChannelModel`; lists the application's channels and the user's own |
+| `GET channels/{name}` | `show-channel-tool` | `view` on a stored channel; a configured one is readable by anyone signed in |
+| `POST channels` | `create-channel-tool` | `create` on `ChannelModel`; the user owns the new channel |
+| `PATCH channels/{channel}` | `update-channel-tool` | `update` on the channel |
+| `DELETE channels/{channel}` | `delete-channel-tool` | `delete` on the channel |
+| `POST channels/{channel}/rotate-secret` | `rotate-channel-secret-tool` | `update` on the channel |
+| `GET streams` | `list-streams-tool` | signed in only — streams are code, not a model |
+| `GET subscribers` | `list-subscribers-tool` | `viewAny` on `SubscriberModel`; lists the user's own |
+| `POST subscribers` | `create-subscriber-tool` | `create` on `SubscriberModel`; the user owns the new subscriber |
+| `GET`, `PATCH`, `DELETE subscribers/{subscriber}` | `show-`, `update-`, `delete-subscriber-tool` | `view`, `update`, `delete` on the subscriber |
+| `POST subscribers/{subscriber}/subscriptions` | `create-subscription-tool` | `create` on `SubscriptionModel`, with the subscriber |
+| `GET subscriptions` | `list-subscriptions-tool` | `viewAny` on `SubscriptionModel`; lists those of the user's subscribers |
+| `GET subscriptions/{subscription}`, `…/events`, `…/deliveries` | `show-subscription-tool`, `list-subscription-events-tool`, `list-deliveries-tool` | `view` on the subscription |
+| `PATCH`, `ping`, `export`, `rotate-secret`, `subjects` | `update-subscription-tool`, `ping-subscription-tool`, `export-subscription-tool`, `update-subscription-subjects-tool` | `update` on the subscription |
+| `DELETE subscriptions/{subscription}` | `delete-subscription-tool` | `delete` on the subscription |
+
+`ChannelPolicy` lets anyone signed in read the application's own channels (no
+owner); a stored channel's owner alone may read, change or delete it.
+`SubscriberPolicy` gives a subscriber to the user who created it, and
+`SubscriptionPolicy` and `DeliveryPolicy` follow the subscriber through the
+Gate. The subscriber API under `impex/subscriber` never reaches these policies:
+it authenticates the subscriber itself and scopes every call to its own
+subscriptions.
 
 **The inbound channel endpoints are never user-authorized.** `POST
 channels/{channel}` authenticates each request with the channel's signing

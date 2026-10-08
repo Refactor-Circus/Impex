@@ -193,7 +193,11 @@ $app['config']->set('queue.default', 'sync');
 $app['config']->set('cache.default', 'array');
 $app['config']->set('impex.cache.store', 'array');   // array supports atomic locks
 $app['config']->set('database.connections.testing.foreign_key_constraints', true);
+$app['config']->set('impex.outbound.guard', false);  // let subscriptions call Http::fake() hosts
 ```
+
+The endpoint guard resolves a subscriber's host in DNS and refuses private
+addresses, which a faked test host may not pass. Turn it off in tests only.
 
 Keep foreign keys on: several of the engine's guarantees are constraints, and a
 test suite that disables them will not catch a broken one.

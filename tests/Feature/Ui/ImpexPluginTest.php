@@ -25,7 +25,7 @@ it('contributes navigation for every section', function (): void {
         app(ImpexPlugin::class)->navigation(),
     );
 
-    expect($labels)->toBe(['Runs', 'Messages', 'Flows', 'Channels', 'Audit log']);
+    expect($labels)->toBe(['Runs', 'Messages', 'Flows', 'Channels', 'Subscriptions', 'Audit log']);
 });
 
 it('registers its routes inside the atrium group', function (): void {

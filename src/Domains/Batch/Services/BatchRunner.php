@@ -13,6 +13,7 @@ use JayI\Impex\Domains\Artifact\Services\PayloadStore;
 use JayI\Impex\Domains\Batch\Contracts\BatchSource;
 use JayI\Impex\Domains\Batch\Data\BatchChunkItem;
 use JayI\Impex\Domains\Batch\Exceptions\BatchFailedException;
+use JayI\Impex\Domains\Batch\Exceptions\BatchItemAbandonedException;
 use JayI\Impex\Domains\Batch\Models\BatchItemModel;
 use JayI\Impex\Domains\Batch\Models\BatchModel;
 use JayI\Impex\Domains\Run\Data\StepDeadline;
@@ -38,6 +39,14 @@ use Throwable;
  */
 final class BatchRunner
 {
+    /**
+     * The item this process is running, and the lease it holds, so a timeout
+     * can release it before the worker is killed.
+     *
+     * @var array{item: string, token: string, attempts: int}|null
+     */
+    private ?array $running = null;
+
     public function __construct(
         private readonly Container $container,
         private readonly PayloadStore $payloads,
@@ -136,6 +145,8 @@ final class BatchRunner
             return;
         }
 
+        $this->running = ['item' => (string) $item->getKey(), 'token' => $token, 'attempts' => $item->attempts + 1];
+
         try {
             $action = $this->container->make($batch->action);
 
@@ -148,10 +159,13 @@ final class BatchRunner
 
             $result = $action->execute($this->payloads->get($item->payload, $item->payload_artifact_id));
         } catch (Throwable $e) {
-            $this->failItem($batch, $item, $token, $e);
+            $this->running = null;
+            $this->failItem($batch, $item, $token, $item->attempts + 1, $e);
 
             return;
         }
+
+        $this->running = null;
 
         $stored = $this->payloads->put($result, ArtifactKind::Result, ['run_id' => $batch->run_id]);
 
@@ -205,6 +219,70 @@ final class BatchRunner
      *
      * @return int the number finalised
      */
+    /**
+     * Give up the item this process is running, because the worker is about
+     * to be killed for running past its timeout. The attempt counts, and the
+     * item is retried or failed as for any other error — now, rather than
+     * once its lease lapses.
+     */
+    public function abandonRunning(): void
+    {
+        $running = $this->running;
+        $this->running = null;
+
+        if ($running === null) {
+            return;
+        }
+
+        $item = BatchItemModel::query()->find($running['item']);
+        $batch = $item?->batch;
+
+        if ($item instanceof BatchItemModel && $batch instanceof BatchModel) {
+            $this->failItem($batch, $item, $running['token'], $running['attempts'], BatchItemAbandonedException::timedOut());
+        }
+    }
+
+    /**
+     * Take back items whose worker died mid-attempt — killed, out of memory,
+     * a lost Lambda — once their lease has lapsed. Each such attempt counts,
+     * so an item that keeps killing its worker fails rather than looping.
+     */
+    public function reclaimLeases(int $limit = 250): int
+    {
+        $items = BatchItemModel::query()
+            ->where('status', StepStatus::Running)
+            ->whereNotNull('leased_until')
+            ->where('leased_until', '<=', Carbon::now())
+            ->limit($limit)
+            ->get();
+
+        $reclaimed = 0;
+
+        foreach ($items as $item) {
+            $token = (string) Str::ulid();
+
+            // Taken over with a fresh token only while still lapsed, so a
+            // worker that finishes late, or another sweep, wins or loses
+            // cleanly.
+            $taken = BatchItemModel::query()
+                ->whereKey($item->getKey())
+                ->where('status', StepStatus::Running->value)
+                ->where('leased_until', '<=', Carbon::now())
+                ->update(['lease_token' => $token, 'updated_at' => Carbon::now()]);
+
+            $batch = $item->batch;
+
+            if ($taken === 0 || ! $batch instanceof BatchModel) {
+                continue;
+            }
+
+            $this->failItem($batch, $item, $token, $item->attempts, BatchItemAbandonedException::leaseLapsed());
+            $reclaimed++;
+        }
+
+        return $reclaimed;
+    }
+
     public function sweep(int $limit = 100): int
     {
         $batches = BatchModel::query()
@@ -342,14 +420,17 @@ final class BatchRunner
         }
     }
 
-    private function failItem(BatchModel $batch, BatchItemModel $item, string $token, Throwable $error): void
+    /**
+     * @param  int  $attempts  Attempts made, this one included.
+     */
+    private function failItem(BatchModel $batch, BatchItemModel $item, string $token, int $attempts, Throwable $error): void
     {
         $describe = [
             'class' => $error::class,
             'message' => $error->getMessage(),
         ];
 
-        if ($item->attempts + 1 < $batch->max_attempts) {
+        if ($attempts < $batch->max_attempts) {
             BatchItemModel::query()
                 ->whereKey($item->getKey())
                 ->where('lease_token', $token)
@@ -361,7 +442,9 @@ final class BatchRunner
                     'updated_at' => Carbon::now(),
                 ]);
 
-            $this->jobs->batchItem($batch->run, (string) $item->getKey());
+            // Backed off as a failed step is, so an item failing against a
+            // struggling upstream does not hammer it attempt after attempt.
+            $this->jobs->batchItem($batch->run, (string) $item->getKey(), $this->options->backoffSeconds($attempts));
 
             return;
         }

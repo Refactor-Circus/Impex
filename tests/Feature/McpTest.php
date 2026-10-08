@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use JayI\Impex\Domains\Channel\Mcp\Tools\ListChannelsTool;
 use JayI\Impex\Domains\Flow\Mcp\Tools\ListFlowsTool;
 use JayI\Impex\Domains\Flow\Mcp\Tools\RunFlowTool;
 use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Domains\Message\Mcp\Tools\ListChannelsTool;
 use JayI\Impex\Domains\Message\Mcp\Tools\ListMessagesTool;
 use JayI\Impex\Domains\Run\Enums\RunStatus;
 use JayI\Impex\Domains\Run\Mcp\Tools\ListRunStepsTool;

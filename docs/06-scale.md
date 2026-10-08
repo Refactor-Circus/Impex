@@ -309,3 +309,26 @@ while the step is legitimately still working.
 
 Batch seeding uses this same protocol internally, so seeding a million-row
 source is bounded the same way.
+
+### Batch items whose worker dies
+
+A batch item is leased too, for `lease_seconds`, while `ProcessBatchItem` runs
+its action. If the worker dies mid-attempt — killed, out of memory, a lost
+Lambda — `impex:tick` reclaims the item once its lease lapses
+(`BatchRunner::reclaimLeases()`). The attempt **counts**: the item is retried
+if it has attempts left under `tries()`, and failed with a
+`BatchItemAbandonedException` if not. An item that keeps killing its worker
+therefore fails and lets its batch finish, instead of blocking it forever.
+
+A failed attempt — the action threw — is retried after the same backoff a
+failed step gets (60 seconds per attempt so far, up to 15 minutes), so an item
+failing against a struggling upstream does not hammer it.
+
+A worker that times a job out does better than waiting for the lease.
+`ProcessBatchItem` implements Laravel's `Interruptible`, so when the worker is
+about to kill it for running past its timeout — `SIGALRM`, which needs the
+`pcntl` extension and Laravel 13.34 or later — it gives the item up at once,
+counting the attempt, and the item is retried now rather than a lease later.
+Other signals are left alone: a worker shutting down gracefully on `SIGTERM`
+lets the item finish. A hard platform kill sends no signal at all, which is
+why the lease is still there.
