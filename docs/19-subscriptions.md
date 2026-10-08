@@ -223,6 +223,105 @@ two entries. With no filter rules or matcher of its own, a filtered
 subscription to an append stream matches every subject; list subjects
 (`"subjects": ["SO-1001"]`) to follow particular orders.
 
+### Example: a customer following a million products, only prices and stock
+
+A customer's purchasing system wants price and stock changes for the million
+products it carries, and nothing else: no description edits, no image swaps.
+Nothing here needs a domain package; it builds on the `ProductStream` above,
+with an `inventory` topic appended (topics are only ever appended):
+
+```php
+public function topics(): array
+{
+    return ['content', 'pricing', 'assets', 'inventory'];
+}
+
+// …and in snapshots(), beside the other topics:
+'inventory' => ['on_hand' => $product->stock_on_hand, 'lead_days' => $product->lead_days],
+```
+
+**Say which million — by rule if you can.** A rule costs nothing per product:
+a subscription to two brands or forty categories is a few bytes, however many
+products those cover, and products that join the brand later are covered
+automatically. Give the stream a filter for it (a `brands` filter beside
+`categories`, matched the same way as `CategoryMatcher`), and the customer
+subscribes with it:
+
+```http
+POST /impex/subscriber/subscriptions
+{
+  "stream": "catalogue.products",
+  "topics": ["pricing", "inventory"],
+  "filter": {"brands": ["schlage", "von-duprin"]},
+  "format": "slice",
+  "endpoint": {"url": "https://purchasing.customer.example/hooks/products"}
+}
+```
+
+If the million is an arbitrary list of SKUs, list them instead. Create the
+subscription with the first 10,000 in `subjects`, then add the rest 10,000 at
+a time — a hundred calls for a million:
+
+```http
+POST /impex/subscriber/subscriptions/{id}/subjects
+{"add": ["SKU-10001", "SKU-10002", "…"]}
+```
+
+A list is one row per SKU, looked up only for the products in each chunk of
+changes, so it is cheap to match against — but it is a million rows to keep in
+step with what the customer carries. Prefer a rule when one exists.
+
+**Start from a file, not a million webhooks.** Ask for an export once the
+subscription exists. It writes every product the subscription covers to one
+JSONL file and moves the subscription's cursor past it, so pushes pick up from
+there:
+
+```http
+POST /impex/subscriber/subscriptions/{id}/export
+```
+
+**What arrives afterwards.** Only changes in `pricing` or `inventory`, and only
+those topics' data:
+
+- A description is rewritten: `content` changed, which the customer does not
+  follow. Nothing is sent.
+- A price changes: one entry with `topics: ["pricing"]` and only the prices.
+- A price and the stock level change before the next delivery: the two are
+  folded into one entry carrying both topics, because the customer wants the
+  product as it is now, not every step on the way.
+- A nightly price file rewrites all million prices but 30,000 actually move:
+  30,000 events, delivered as 300 requests of 100.
+
+```json
+{
+  "type": "events",
+  "subscription": "01J9Z3…",
+  "stream": "catalogue.products",
+  "events": [
+    {
+      "id": "48211907",
+      "type": "changed",
+      "subject": "SKU-40417",
+      "topics": ["pricing", "inventory"],
+      "occurred_at": "2026-10-08T14:02:11+00:00",
+      "data": {
+        "pricing": [{"currency": "USD", "amount": "182.40"}],
+        "inventory": {"on_hand": 12, "lead_days": 3}
+      }
+    }
+  ],
+  "cursor": "48211907"
+}
+```
+
+**What it costs.** The customer's subscription adds nothing to the write path
+and nothing per product. Each real change to a product the customer follows,
+in a topic it follows, adds one narrow routing row. The payload is built when
+the batch is sent, from the product as it is then. If the customer's endpoint
+is down, events wait under the subscription's cursor and are delivered in
+order once it recovers — or the customer reads them from the
+[feed](#the-feed).
+
 ### Example: each customer gets only their own orders
 
 Customers subscribe to the orders stream and should receive their own orders
