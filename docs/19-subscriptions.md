@@ -223,6 +223,133 @@ two entries. With no filter rules or matcher of its own, a filtered
 subscription to an append stream matches every subject; list subjects
 (`"subjects": ["SO-1001"]`) to follow particular orders.
 
+### Example: each customer gets only their own orders
+
+Customers subscribe to the orders stream and should receive their own orders
+and nobody else's. Who a subscriber is comes from the operator side, never
+from anything the subscriber sends: set the subscriber's **owner** to the
+customer when you register it, and have the stream's matcher compare each
+order's customer with the subscriber's owner.
+
+> **Warning: not yet safe for customer data.** Today Impex runs a stream's
+> matcher only for subscriptions created with a `filter`. A customer who
+> subscribes with no filter receives **every** order, and one who lists order
+> numbers (`"subjects"`) receives those orders whoever owns them. Until a
+> stream can require that its matcher apply to every subscription, do not
+> offer this stream on the subscriber API; create its subscriptions yourself,
+> always with a filter, and never with subjects.
+
+Register each customer as a subscriber, owned by your customer record and
+authenticating as the customer's OAuth client:
+
+```php
+use JayI\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+
+app(CreateSubscriberAction::class)->execute(
+    ['name' => $customer->name, 'client_id' => $customer->oauth_client_id],
+    owner: $customer,
+);
+```
+
+The stream is an append stream whose payloads carry the customer:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use JayI\Impex\Domains\Subscription\Enums\StreamKind;
+use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+
+final class CustomerOrderStream extends AbstractStream
+{
+    public function key(): string
+    {
+        return 'orders';
+    }
+
+    public function kind(): StreamKind
+    {
+        return StreamKind::Append;
+    }
+
+    public function topics(): array
+    {
+        return ['status', 'shipping', 'invoices'];
+    }
+
+    public function filterRules(): array
+    {
+        // The filter carries no choice of customer — that comes from the
+        // subscriber — only that the subscription is scoped.
+        return ['filter.own' => ['required', 'accepted']];
+    }
+
+    public function matcher(): SubscriptionMatcher
+    {
+        return new CustomerOrderMatcher;
+    }
+}
+```
+
+```php
+Impex::streams()->publish('orders', $order->number, 'order.shipped', [
+    'customer_id' => $order->customer_id,
+    'status' => $order->status,
+    'shipping' => ['carrier' => 'UPS', 'tracking' => $tracking],
+], topics: ['shipping']);
+```
+
+The matcher looks up every subscriber's owner in one query, indexes the
+subscriptions by customer, and gives each order to its customer's
+subscriptions only. Each order is one lookup, however many customers
+subscribe:
+
+```php
+use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+
+final class CustomerOrderMatcher implements SubscriptionMatcher
+{
+    public function match(array $snapshots, array $subscriptions): array
+    {
+        $owners = SubscriberModel::query()
+            ->whereIn('id', array_map(fn ($subscription) => $subscription->subscriber_id, $subscriptions))
+            ->where('owner_type', (new Customer)->getMorphClass())
+            ->pluck('owner_id', 'id');
+
+        $byCustomer = [];
+
+        foreach ($subscriptions as $subscription) {
+            $customer = $owners[$subscription->subscriber_id] ?? null;
+
+            if ($customer !== null) {
+                $byCustomer[(string) $customer][] = $subscription->id;
+            }
+        }
+
+        $matches = [];
+
+        foreach ($snapshots as $order => $payload) {
+            foreach ($byCustomer[(string) ($payload['customer_id'] ?? '')] ?? [] as $id) {
+                $matches[$id][] = (string) $order;
+            }
+        }
+
+        return $matches;
+    }
+}
+```
+
+A customer's subscription is then created with `"filter": {"own": true}`:
+
+```http
+POST /impex/subscriber/subscriptions
+{"stream": "orders", "topics": ["status", "shipping"], "filter": {"own": true},
+ "endpoint": {"url": "https://erp.customer.example/hooks/orders"}}
+```
+
+A subscriber with no owner, or owned by something other than a customer,
+matches nothing. The same pattern serves any per-account stream: invoices,
+quotes, shipments, returns.
+
 ### Registering it
 
 In config:
