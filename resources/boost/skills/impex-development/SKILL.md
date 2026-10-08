@@ -297,10 +297,13 @@ Atrium Channels screens. Measure the subscription pipeline with
 - **do not** key a stream by anything that can change, such as a SKU: a renamed
   key reads as one subject removed and another added, and breaks subscribers'
   lists. Key by a permanent id and carry the SKU as data
-- **do not** offer a per-account stream (each customer's own orders) on the
-  subscriber API yet: a stream's matcher applies only to filtered
-  subscriptions, so an unfiltered or subject-listed subscription bypasses it.
-  Bind the account through the subscriber's owner, never through the filter
+- **do not** offer a per-account stream (each customer's own orders) without
+  guarding it: Impex applies a stream's matcher only to filtered subscriptions,
+  so an unfiltered or subject-listed one bypasses it. Listen to
+  `SubscriptionCreatingActionEvent`, `SubscriptionUpdatingActionEvent` and
+  `SubscriptionSubjectsUpdatingActionEvent` and throw a `ValidationException`
+  for an unfiltered or listed subscription to it. Bind the account through the
+  subscriber's owner, never through the filter
 - **do not** load snapshots one subject at a time, or expand a subscription's
   filter into the subjects it covers; both break at catalogue scale
 
