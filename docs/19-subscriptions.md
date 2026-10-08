@@ -7,6 +7,13 @@ an endpoint in signed batches or pull it from a feed. Every push goes out
 through an outbound [channel](18-channels.md), so every delivery is in the
 [ledger](07-ledger.md).
 
+Subscriptions need nothing but Impex. Any application or package offers its
+own data by writing a stream — a class, usually extending `AbstractStream` —
+and reporting change to it; Impex does the rest: the subscriber API, filters,
+detection, signed batched delivery, retries, the feed, exports, MCP tools and
+the dashboard. jayi/keystone's product stream is one such stream, not a
+requirement.
+
 ## Concepts
 
 | Term | Meaning |
@@ -15,7 +22,7 @@ through an outbound [channel](18-channels.md), so every delivery is in the
 | **Subject** | One thing in a stream, by its subject key: a SKU, an order number. |
 | **Topic** | A part of a subject a subscriber can choose to hear about: `pricing`, `assets`, `content`. |
 | **Subscriber** | Who receives changes: a vendor, a partner. Authenticates as an OAuth client. |
-| **Subscription** | A subscriber's interest in one stream: which subjects, which topics, which format, delivered where. |
+| **Subscription** | A subscriber's interest in one stream: which subjects, which topics, which format, delivered where. A subscriber following several streams — products and orders, say — holds one subscription per stream, each with its own endpoint (or the same URL twice) and its own cursor. |
 | **Event** | One recorded change, in a sequence whose id is every subscriber's cursor. |
 | **Delivery** | One attempt to push a batch of events to a subscription's endpoint. |
 
@@ -180,6 +187,41 @@ final class CategoryMatcher implements SubscriptionMatcher
 
 A stream that supports `list` subscriptions should honour the list in
 `export()` too; the shape of each exported line is the stream's choice.
+
+### An append stream
+
+Orders, shipments, payments: things that happen, rather than state to compare.
+An append stream needs only a key, its topics and its kind. It loads nothing,
+because each event carries its own payload.
+
+```php
+use JayI\Impex\Domains\Subscription\Enums\StreamKind;
+use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+
+final class OrderStream extends AbstractStream
+{
+    public function key(): string
+    {
+        return 'orders';
+    }
+
+    public function kind(): StreamKind
+    {
+        return StreamKind::Append;
+    }
+
+    public function topics(): array
+    {
+        return ['status', 'shipping', 'payments'];   // append only
+    }
+}
+```
+
+Every event published to it reaches each subscription following one of its
+topics, in order and never folded together: two status changes in a minute are
+two entries. With no filter rules or matcher of its own, a filtered
+subscription to an append stream matches every subject; list subjects
+(`"subjects": ["SO-1001"]`) to follow particular orders.
 
 ### Registering it
 

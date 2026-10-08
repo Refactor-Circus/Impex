@@ -252,7 +252,10 @@ Channels live in `impex.channels` or `impex_channels` (runtime, via the
 signed (Standard Webhooks). Wrap the default mailer in the `impex` mail
 transport to record every mail.
 
-To push changes to subscribers, register a stream and report change:
+Impex has no dependency on any domain package; any app can use all of it. To
+push an app's own data to subscribers, write a stream (extend `AbstractStream`;
+`StreamKind::Append` for events such as orders), register it and report change.
+A subscriber following several streams holds one subscription per stream:
 
 ```php
 Impex::streams()->register(ProductStream::class);       // extends AbstractStream

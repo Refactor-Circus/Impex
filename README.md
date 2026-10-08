@@ -10,6 +10,11 @@ partners — follow streams of change and are pushed only what they asked for.
 It is designed for a runtime with a hard execution ceiling, a small queue
 message, and no local disk, and for catalogues in the tens of millions.
 
+Impex stands alone. Nothing in it depends on a domain package: any Laravel
+application can send through channels, record its mail, receive webhooks, run
+flows and offer subscriptions to its own data. A package such as jayi/keystone
+uses Impex by registering a stream; Impex does not know it exists.
+
 > **Status: complete through the dashboard.** Everything below is built and
 > tested — engine, ledger, HTTP API, MCP server, and UI.
 
