@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JayI\Impex\Domains\Subscription\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher as Events;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
@@ -24,6 +25,7 @@ use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
 use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
 use JayI\Impex\Domains\Subscription\Support\Backoff;
 use JayI\Impex\Support\Locks;
+use Throwable;
 
 /**
  * Delivers a subscription's pending events, a batch per request, in order.
@@ -45,6 +47,7 @@ final class Dispatcher
         private readonly ConnectionInterface $db,
         private readonly Config $config,
         private readonly Events $events,
+        private readonly ExceptionHandler $exceptions,
     ) {}
 
     /**
@@ -67,7 +70,15 @@ final class Dispatcher
         try {
             return $this->drain($subscriptionId, $budget);
         } finally {
-            $lock->release();
+            // By now every batch is delivered and recorded. A lock that cannot
+            // be released — a lost cache connection, a deadlock on a database
+            // lock table — expires on its own, so it is reported rather than
+            // failing a job whose work is done and would only be retried.
+            try {
+                $lock->release();
+            } catch (Throwable $e) {
+                $this->exceptions->report($e);
+            }
         }
     }
 
@@ -172,38 +183,51 @@ final class Dispatcher
 
         $now = Carbon::now();
 
-        $this->db->table('impex_deliveries')->insert([
-            'id' => $deliveryId,
-            'subscription_id' => $subscription->id,
-            'first_event_id' => $first,
-            'last_event_id' => $last,
-            'events' => count($raw),
-            'status' => ($receipt->successful ? DeliveryStatus::Succeeded : DeliveryStatus::Failed)->value,
-            'message_id' => $receipt->messageId,
-            'status_code' => $receipt->statusCode,
-            'duration_ms' => $receipt->durationMs,
-            'error' => $receipt->error === null ? null : json_encode($receipt->error),
-            'attempted_at' => $now,
-        ]);
-
-        if ($receipt->successful) {
-            $this->db->table('impex_subscriptions')->where('id', $subscription->id)->update([
-                'cursor' => $last,
-                'failures' => 0,
-                'paused_until' => null,
-                'last_delivered_at' => $now,
-                'last_error' => null,
+        // The attempt and its outcome commit together: one commit per batch
+        // instead of two, and never a recorded success whose cursor did not
+        // move. The ledger row was written by the transport, outside any
+        // transaction, because none is held open across an HTTP call.
+        $disabled = $this->db->transaction(function () use ($subscription, $receipt, $deliveryId, $first, $last, $raw, $now): bool {
+            $this->db->table('impex_deliveries')->insert([
+                'id' => $deliveryId,
+                'subscription_id' => $subscription->id,
+                'first_event_id' => $first,
+                'last_event_id' => $last,
+                'events' => count($raw),
+                'status' => ($receipt->successful ? DeliveryStatus::Succeeded : DeliveryStatus::Failed)->value,
+                'message_id' => $receipt->messageId,
+                'status_code' => $receipt->statusCode,
+                'duration_ms' => $receipt->durationMs,
+                'error' => $receipt->error === null ? null : json_encode($receipt->error),
+                'attempted_at' => $now,
             ]);
 
-            return true;
+            if ($receipt->successful) {
+                $this->db->table('impex_subscriptions')->where('id', $subscription->id)->update([
+                    'cursor' => $last,
+                    'failures' => 0,
+                    'paused_until' => null,
+                    'last_delivered_at' => $now,
+                    'last_error' => null,
+                ]);
+
+                return false;
+            }
+
+            return $this->fail($subscription, $receipt);
+        });
+
+        if ($disabled) {
+            $this->events->dispatch(new SubscriptionDisabled($subscription->id));
         }
 
-        $this->fail($subscription, $receipt);
-
-        return false;
+        return $receipt->successful;
     }
 
-    private function fail(SubscriptionModel $subscription, Receipt $receipt): void
+    /**
+     * Back off, or switch the subscription off. Whether it was switched off.
+     */
+    private function fail(SubscriptionModel $subscription, Receipt $receipt): bool
     {
         $failures = $subscription->failures + 1;
 
@@ -219,9 +243,7 @@ final class Dispatcher
             ...($disable ? ['status' => SubscriptionStatus::Disabled->value, 'disabled_at' => Carbon::now()] : []),
         ]);
 
-        if ($disable) {
-            $this->events->dispatch(new SubscriptionDisabled($subscription->id));
-        }
+        return $disable;
     }
 
     private function deliverable(SubscriptionModel $subscription): bool

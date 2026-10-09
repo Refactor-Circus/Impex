@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Lock;
+use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
@@ -314,6 +319,9 @@ it('detects a chunk with the same number of queries however many subscribers the
         return count(DB::getQueryLog());
     };
 
+    // Prime the history first, so both measured runs find prior events.
+    $count(1);
+
     $few = $count(2);
     $many = $count(40);
 
@@ -334,4 +342,50 @@ it('exports everything a subscription covers and moves its cursor past it', func
 
     expect(Storage::disk('local')->get((string) $path))->toContain('"subject":"ABC-1"')
         ->and($subscription->refresh()->cursor)->toBe((int) DB::table('impex_events')->max('id'));
+});
+
+it('reports a lock it cannot release instead of failing a finished delivery', function (): void {
+    Http::fake(['vendor.test/*' => Http::response()]);
+
+    Cache::extend('unreleasable', fn (): Repository => Cache::repository(new class extends ArrayStore
+    {
+        public function lock($name, $seconds = 0, $owner = null): Lock
+        {
+            return new class($name, $seconds, $owner) extends Lock
+            {
+                public function acquire(): bool
+                {
+                    return true;
+                }
+
+                public function release(): bool
+                {
+                    throw new RuntimeException('cache went away');
+                }
+
+                public function forceRelease(): void {}
+
+                protected function getCurrentOwner(): string
+                {
+                    return $this->owner;
+                }
+            };
+        }
+    }));
+    config()->set('cache.stores.unreleasable', ['driver' => 'unreleasable']);
+    config()->set('impex.cache.store', 'unreleasable');
+
+    $reported = [];
+    app(ExceptionHandler::class)->reportable(function (RuntimeException $e) use (&$reported): void {
+        $reported[] = $e->getMessage();
+    });
+
+    $subscription = subscribe(['endpoint' => ['url' => 'https://vendor.test/hooks']])['subscription'];
+    FakeCatalog::put('ABC-1', ['price' => 10, 'name' => 'Hammer', 'category' => '/tools/']);
+    touchProducts('ABC-1');
+    detect();
+
+    expect(app(Dispatcher::class)->deliver($subscription->id))->toBe(1)
+        ->and($subscription->refresh()->cursor)->toBeGreaterThan(0)
+        ->and($reported)->toContain('cache went away');
 });
