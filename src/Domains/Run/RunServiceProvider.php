@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Run;
 
 use Illuminate\Console\Scheduling\Schedule;
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Run\Console\Commands\TickCommand;
 use RefactorCircus\Impex\Domains\Run\Contracts\RollbackStrategy;
 use RefactorCircus\Impex\Domains\Run\Services\Children;
@@ -15,6 +14,7 @@ use RefactorCircus\Impex\Domains\Run\Services\JobRouter;
 use RefactorCircus\Impex\Domains\Run\Services\Rollbacks;
 use RefactorCircus\Impex\Domains\Run\Services\StepWriter;
 use RefactorCircus\Impex\Domains\Run\Services\Sweeper;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class RunServiceProvider extends ServiceProvider
 {

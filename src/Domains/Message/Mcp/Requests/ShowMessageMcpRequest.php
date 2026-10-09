@@ -6,10 +6,10 @@ namespace RefactorCircus\Impex\Domains\Message\Mcp\Requests;
 
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
-use RefactorCircus\Foundation\Mcp\Requests\Request;
 use RefactorCircus\Impex\Domains\Message\Actions\ShowMessageAction;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
+use RefactorCircus\Keystone\Mcp\Requests\Request;
 
 final class ShowMessageMcpRequest extends Request
 {

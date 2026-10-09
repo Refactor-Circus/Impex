@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Channel\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use RefactorCircus\Foundation\Http\Requests\Request;
 use RefactorCircus\Impex\Domains\Channel\Actions\ShowChannelAction;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
+use RefactorCircus\Keystone\Http\Requests\Request;
 
 final class ShowChannelRequest extends Request
 {

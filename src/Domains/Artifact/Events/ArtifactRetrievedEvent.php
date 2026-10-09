@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Artifact\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
 use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Keystone\Contracts\ModelLifecycleEvent;
 
 /**
  * The Artifact `retrieved` Eloquent event.

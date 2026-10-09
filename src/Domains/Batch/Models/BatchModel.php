@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

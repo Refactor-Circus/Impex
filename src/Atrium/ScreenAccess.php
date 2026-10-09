@@ -9,8 +9,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use RefactorCircus\Atrium\Support\ScreenAccess as AtriumScreenAccess;
-use RefactorCircus\Foundation\Auth\Authorizer;
-use RefactorCircus\Foundation\Packages\PackageRegistry;
+use RefactorCircus\Keystone\Auth\Authorizer;
+use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 /**
  * Whether the signed-in user may perform an ability, asked exactly as the

@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Flow\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * A flow is about to be run. The run itself starts later, on the queue; RunStarted marks that.

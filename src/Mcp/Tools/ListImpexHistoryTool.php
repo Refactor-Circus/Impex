@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Mcp\Tools;
 
-use RefactorCircus\Foundation\Mcp\Tools\ListHistoryTool;
+use RefactorCircus\Keystone\Mcp\Tools\ListHistoryTool;
 
 /**
  * Impex's audit history, newest first, as `list-impex-history-tool`.

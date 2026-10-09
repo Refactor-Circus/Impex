@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Database\Factories\SubscriptionFactory;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * A subscriber's interest in one stream: which subjects, which topics, in

@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\RetryRunMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Re-queue a drive for a failed or stalled run. Completed steps are not re-executed.')]
 final class RetryRunTool extends Tool

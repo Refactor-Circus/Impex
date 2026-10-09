@@ -123,12 +123,12 @@ arch('every use case is reachable from both the HTTP API and MCP')
 Deliberate omissions go in a `MCP_EXCEPTIONS` map with a reason, so an omission
 is a test failure but an exception is one line. Cortex, for comparison, keeps
 its tool-description endpoints HTTP-only; Impex currently has no exceptions.
-The history tool comes from refactor-circus/foundation rather than an Impex Action, so it
+The history tool comes from refactor-circus/keystone rather than an Impex Action, so it
 sits outside the comparison; `GET impex/history` is its HTTP twin.
 
 ## Errors
 
-An `ImpexException` (a `RefactorCircus\Foundation\Exceptions\PackageException`) surfaces its message rather than a generic failure, because
+An `ImpexException` (a `RefactorCircus\Keystone\Exceptions\PackageException`) surfaces its message rather than a generic failure, because
 those messages carry guidance an agent can act on:
 
 ```

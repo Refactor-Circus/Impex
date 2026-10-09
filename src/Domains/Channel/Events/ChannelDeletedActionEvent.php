@@ -6,7 +6,7 @@ namespace RefactorCircus\Impex\Domains\Channel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * A channel was deleted.

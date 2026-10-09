@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
-use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
 use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
 use RefactorCircus\Impex\Domains\Flow\Events\FlowRanActionEvent;
@@ -18,6 +15,9 @@ use RefactorCircus\Impex\Domains\Run\Events\RunShownActionEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Tests\Fixtures\Calls;
 use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
+use RefactorCircus\Keystone\Contracts\ModelLifecycleEvent;
 
 beforeEach(function (): void {
     Calls::reset();

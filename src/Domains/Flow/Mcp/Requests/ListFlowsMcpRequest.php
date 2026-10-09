@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Flow\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
-use RefactorCircus\Foundation\Mcp\Requests\Request;
 use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
 use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Keystone\Mcp\Requests\Request;
 
 final class ListFlowsMcpRequest extends Request
 {

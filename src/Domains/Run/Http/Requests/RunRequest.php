@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
-use RefactorCircus\Foundation\Http\Requests\Request;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Keystone\Http\Requests\Request;
 
 abstract class RunRequest extends Request
 {

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Database\Factories\RunFactory;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Run\Enums\ChildClosePolicy;
@@ -21,6 +20,7 @@ use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 use RefactorCircus\Impex\Domains\Signal\Models\TimerModel;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

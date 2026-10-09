@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex;
 
 use Illuminate\Support\Facades\Blade;
-use RefactorCircus\Foundation\Packages\Package;
-use RefactorCircus\Foundation\Support\PackageServiceProvider;
 use RefactorCircus\Impex\Atrium\ImpexPlugin;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
 use RefactorCircus\Impex\Console\Commands\PruneCommand;
 use RefactorCircus\Impex\Domains\DomainServiceProvider;
 use RefactorCircus\Impex\Mcp\ImpexServer;
 use RefactorCircus\Impex\Support\Locks;
+use RefactorCircus\Keystone\Packages\Package;
+use RefactorCircus\Keystone\Support\PackageServiceProvider;
 
 class ImpexServiceProvider extends PackageServiceProvider
 {

@@ -7,7 +7,7 @@ namespace RefactorCircus\Impex\Domains\Message\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * The ledger is about to be read.

@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriberMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one subscriber and how many subscriptions it has.')]
 final class ShowSubscriberTool extends Tool

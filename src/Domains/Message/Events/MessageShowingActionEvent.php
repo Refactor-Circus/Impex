@@ -6,8 +6,8 @@ namespace RefactorCircus\Impex\Domains\Message\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * A ledger message is about to be shown.

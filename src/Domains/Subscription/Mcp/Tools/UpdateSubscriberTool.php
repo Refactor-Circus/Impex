@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriberMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Change a subscriber\'s name, OAuth client, status or metadata.')]
 final class UpdateSubscriberTool extends Tool

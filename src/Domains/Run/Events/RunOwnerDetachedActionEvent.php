@@ -6,8 +6,8 @@ namespace RefactorCircus\Impex\Domains\Run\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * An owner was detached from a run. The row is gone, so its fields are kept.

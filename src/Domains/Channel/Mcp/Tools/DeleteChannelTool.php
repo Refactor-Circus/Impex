@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\DeleteChannelMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Delete a stored channel. Its traffic stays in the ledger.')]
 final class DeleteChannelTool extends Tool

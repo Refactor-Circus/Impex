@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Flow\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
 use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Keystone\Contracts\ModelLifecycleEvent;
 
 /**
  * The FlowOverride `updating` Eloquent event.

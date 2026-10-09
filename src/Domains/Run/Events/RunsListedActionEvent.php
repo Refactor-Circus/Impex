@@ -8,8 +8,8 @@ use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * Runs were listed.

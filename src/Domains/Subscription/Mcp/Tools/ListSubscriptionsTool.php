@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListSubscriptionsMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List subscriptions, optionally by stream, status or subscriber.')]
 final class ListSubscriptionsTool extends Tool

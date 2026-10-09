@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * One attempt to deliver a batch of events: which range, how it went, and

@@ -6,8 +6,8 @@ namespace RefactorCircus\Impex\Domains\Channel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * A channel is about to be changed.

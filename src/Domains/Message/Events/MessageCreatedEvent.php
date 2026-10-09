@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Message\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Keystone\Contracts\ModelLifecycleEvent;
 
 /**
  * The Message `created` Eloquent event.

@@ -6,8 +6,8 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * Subscriptions are about to be listed.

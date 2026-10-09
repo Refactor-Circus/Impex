@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Exceptions;
 
-use RefactorCircus\Foundation\Exceptions\PackageException;
+use RefactorCircus\Keystone\Exceptions\PackageException;
 
 /**
  * A rule of Impex that the caller broke.

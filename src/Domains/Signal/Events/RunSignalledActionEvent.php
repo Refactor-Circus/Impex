@@ -6,9 +6,9 @@ namespace RefactorCircus\Impex\Domains\Signal\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * A signal was sent to a run. `signal` is null when an if-running signal found the run finished.

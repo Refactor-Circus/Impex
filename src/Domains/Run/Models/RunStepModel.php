@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Database\Factories\RunStepFactory;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
 use RefactorCircus\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

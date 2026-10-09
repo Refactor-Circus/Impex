@@ -6,9 +6,9 @@ namespace RefactorCircus\Impex\Domains\Message;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Route;
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use RefactorCircus\Impex\Domains\Message\Services\OutboundRecorder;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class MessageServiceProvider extends ServiceProvider
 {

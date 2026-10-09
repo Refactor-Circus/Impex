@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Flow\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use RefactorCircus\Foundation\Http\Requests\Request;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
+use RefactorCircus\Keystone\Http\Requests\Request;
 
 final class StoreFlowRunRequest extends Request
 {

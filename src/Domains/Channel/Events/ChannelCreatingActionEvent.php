@@ -7,7 +7,7 @@ namespace RefactorCircus\Impex\Domains\Channel\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * A channel is about to be created.

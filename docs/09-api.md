@@ -502,7 +502,7 @@ Same bodies and responses as the operator routes above. See
 Impex's audit entries, newest first: who did what, through which surface, and
 which fields changed. Filter with `subject_type` and `subject_id` for one
 record, or `action`; cursor paginated with `cursor` and `per_page`. The route
-comes from refactor-circus/foundation and needs an audit log
+comes from refactor-circus/keystone and needs an audit log
 ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed. Until one is, it
 answers `404`:
 

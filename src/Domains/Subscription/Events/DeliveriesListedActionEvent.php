@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
 use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * A subscription's deliveries were listed.

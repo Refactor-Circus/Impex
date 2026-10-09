@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriptionMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one subscription: its topics, filter, endpoint, cursor and delivery health. Never its secret.')]
 final class ShowSubscriptionTool extends Tool

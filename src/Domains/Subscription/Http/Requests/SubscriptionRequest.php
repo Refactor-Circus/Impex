@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
-use RefactorCircus\Foundation\Http\Requests\Request;
 use RefactorCircus\Impex\Domains\Subscription\Http\Middleware\ResolveSubscriber;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Keystone\Http\Requests\Request;
 
 /**
  * A request served on both surfaces: the operator API, checked against the

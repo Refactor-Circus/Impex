@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\AttachRunOwnerMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Give a model a stake in a run. The host application decides what customers, teams and users are; this only records the link.')]
 final class AttachRunOwnerTool extends Tool

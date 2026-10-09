@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Signal;
 
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Signal\Console\Commands\SignalCommand;
 use RefactorCircus\Impex\Domains\Signal\Services\Waits;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class SignalServiceProvider extends ServiceProvider
 {

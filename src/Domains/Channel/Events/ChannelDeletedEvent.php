@@ -7,8 +7,8 @@ namespace RefactorCircus\Impex\Domains\Channel\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Keystone\Contracts\ModelLifecycleEvent;
 
 /**
  * The Channel `deleted` Eloquent event.

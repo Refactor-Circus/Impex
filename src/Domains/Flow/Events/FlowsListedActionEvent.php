@@ -6,7 +6,7 @@ namespace RefactorCircus\Impex\Domains\Flow\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * The registered flows were listed.

@@ -761,7 +761,7 @@ Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it 
 
 ### Listening to a whole family
 
-Listen to an interface in `RefactorCircus\Foundation\Contracts` to receive every event of that family. Every package of the Refactor Circus suite implements the same interfaces, so one listener hears them all:
+Listen to an interface in `RefactorCircus\Keystone\Contracts` to receive every event of that family. Every package of the Refactor Circus suite implements the same interfaces, so one listener hears them all:
 
 | Interface | Receives |
 | --- | --- |
@@ -790,7 +790,7 @@ The code is organised into domain modules under `src/Domains`, each with its own
 
 Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
 
-Impex stands on [refactor-circus/foundation](https://github.com/Refactor-Circus/Foundation), the shared runtime of the Refactor Circus suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`RefactorCircus\Foundation\...`), so every package of the suite behaves the same way. The queued jobs keep their `RefactorCircus\Impex\Jobs` names, because those names are inside job payloads already on a queue.
+Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Keystone), the shared runtime of the Refactor Circus suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`RefactorCircus\Keystone\...`), so every package of the suite behaves the same way. The queued jobs keep their `RefactorCircus\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
 ## Vapor notes
 

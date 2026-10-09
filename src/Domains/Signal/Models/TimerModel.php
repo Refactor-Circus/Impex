@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Signal\Enums\TimerKind;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

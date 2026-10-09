@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ExportSubscriptionMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Queue a full export of everything a subscription covers, for a subscriber starting from scratch.')]
 final class ExportSubscriptionTool extends Tool

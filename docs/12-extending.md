@@ -397,7 +397,7 @@ Alongside these engine events, every model fires a class-based event per
 Eloquent hook (`RefactorCircus\Impex\Domains\Run\Events\RunCreatedEvent`, ...) and every
 action fires a start and a finish event (`RefactorCircus\Impex\Domains\Flow\Events\FlowRanActionEvent`,
 ...). Listen to `ModelLifecycleEvent`, `ActionStartingEvent` or
-`ActionFinishedEvent` in `RefactorCircus\Foundation\Contracts` to receive a whole family. See
+`ActionFinishedEvent` in `RefactorCircus\Keystone\Contracts` to receive a whole family. See
 the [README](../README.md#events) for the full list.
 
 ## Registering channels from a package

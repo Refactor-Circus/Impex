@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Batch;
 
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Batch\Services\BatchRunner;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class BatchServiceProvider extends ServiceProvider
 {

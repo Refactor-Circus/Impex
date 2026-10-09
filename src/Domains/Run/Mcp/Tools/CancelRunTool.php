@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\CancelRunMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Cancel a run that has not finished. Already-finished runs are returned unchanged.')]
 final class CancelRunTool extends Tool

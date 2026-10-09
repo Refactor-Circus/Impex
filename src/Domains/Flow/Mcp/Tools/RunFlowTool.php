@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Flow\Mcp\Requests\RunFlowMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Start a workflow run. Returns immediately with a pending run — the work is queued, not executed inline. Pass an idempotency key to make a retry safe.')]
 final class RunFlowTool extends Tool

@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ShowRunMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one run with its owners and its recorded step history.')]
 final class ShowRunTool extends Tool

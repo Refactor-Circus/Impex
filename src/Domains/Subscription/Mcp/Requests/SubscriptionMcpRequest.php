@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use RefactorCircus\Foundation\Mcp\Requests\Request;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Keystone\Mcp\Requests\Request;
 
 /**
  * A tool call about a subscription or subscriber, named by `subscription`

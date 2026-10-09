@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use RefactorCircus\Foundation\Audit\Contracts\AuditTrail;
-use RefactorCircus\Foundation\Audit\Data\AuditEntry;
-use RefactorCircus\Foundation\Audit\Data\AuditFilter;
-use RefactorCircus\Foundation\Audit\Data\AuditPage;
 use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
 use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
+use RefactorCircus\Keystone\Audit\Contracts\AuditTrail;
+use RefactorCircus\Keystone\Audit\Data\AuditEntry;
+use RefactorCircus\Keystone\Audit\Data\AuditFilter;
+use RefactorCircus\Keystone\Audit\Data\AuditPage;
 
 beforeEach(function (): void {
     // Atrium denies access outside local until a gate is defined.

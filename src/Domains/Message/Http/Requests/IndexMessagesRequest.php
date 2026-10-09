@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Message\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use RefactorCircus\Foundation\Http\Requests\Request;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
+use RefactorCircus\Keystone\Http\Requests\Request;
 
 final class IndexMessagesRequest extends Request
 {

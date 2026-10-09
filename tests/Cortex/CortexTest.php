@@ -9,10 +9,10 @@ use RefactorCircus\Cortex\Domains\McpServer\Actions\CreateMcpInstructionVersionA
 use RefactorCircus\Cortex\Domains\McpServer\Services\McpServerRegistry;
 use RefactorCircus\Cortex\Domains\Tool\Actions\CreateToolDescriptionVersionAction;
 use RefactorCircus\Cortex\Domains\Tool\Services\ToolRegistry;
-use RefactorCircus\Foundation\Cortex\CortexIntegration;
-use RefactorCircus\Foundation\Packages\PackageRegistry;
 use RefactorCircus\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
 use RefactorCircus\Impex\Mcp\ImpexServer;
+use RefactorCircus\Keystone\Cortex\CortexIntegration;
+use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 it('registers the MCP server with Cortex', function (): void {
     $servers = app(McpServerRegistry::class);

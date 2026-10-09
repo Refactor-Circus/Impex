@@ -6,9 +6,9 @@ namespace RefactorCircus\Impex\Domains\Run\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * An owner is about to be detached from a run.

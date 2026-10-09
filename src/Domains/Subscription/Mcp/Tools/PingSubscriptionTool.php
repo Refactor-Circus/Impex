@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\PingSubscriptionMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Send a signed, empty ping to a subscription\'s endpoint and report how it answered.')]
 final class PingSubscriptionTool extends Tool

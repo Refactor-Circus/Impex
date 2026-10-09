@@ -9,7 +9,6 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
-use RefactorCircus\Foundation\Mcp\Server;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\CreateChannelTool;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\DeleteChannelTool;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\ListChannelsTool;
@@ -46,6 +45,7 @@ use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\UpdateSubscriberTool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\UpdateSubscriptionSubjectsTool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\UpdateSubscriptionTool;
 use RefactorCircus\Impex\Mcp\Tools\ListImpexHistoryTool;
+use RefactorCircus\Keystone\Mcp\Server;
 
 #[Name('Impex')]
 #[Version('1.0.0')]

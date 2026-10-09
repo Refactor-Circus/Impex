@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\DeleteSubscriptionMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Delete a subscription and its pending events. What was sent stays in the ledger.')]
 final class DeleteSubscriptionTool extends Tool

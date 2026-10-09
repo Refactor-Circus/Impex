@@ -6,7 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * The streams are about to be listed.

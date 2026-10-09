@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\RotateChannelSecretMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Give a stored channel a new signing secret, keeping the previous one valid until the next rotation. The new secret is returned once.')]
 final class RotateChannelSecretTool extends Tool

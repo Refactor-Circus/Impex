@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\CreateSubscriptionMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Subscribe a subscriber to a stream. Give endpoint.url to have events pushed, or leave endpoint out to have them pulled from the feed. Topics default to all. The signing secret is returned once.')]
 final class CreateSubscriptionTool extends Tool

@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\DeleteSubscriberMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Delete a subscriber and every subscription it has.')]
 final class DeleteSubscriberTool extends Tool

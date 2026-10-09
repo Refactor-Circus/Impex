@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriptionSubjectsMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Add keys to, or remove them from, a subscription\'s explicit subject list.')]
 final class UpdateSubscriptionSubjectsTool extends Tool

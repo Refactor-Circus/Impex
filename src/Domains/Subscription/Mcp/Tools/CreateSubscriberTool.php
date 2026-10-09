@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\CreateSubscriberMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Register a subscriber. client_id is the OAuth client its systems authenticate as on the subscriber API.')]
 final class CreateSubscriberTool extends Tool

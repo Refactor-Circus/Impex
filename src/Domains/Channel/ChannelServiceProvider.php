@@ -8,7 +8,6 @@ use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Event;
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelDeletedEvent;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelSavedEvent;
 use RefactorCircus\Impex\Domains\Channel\Listeners\RecordSentMail;
@@ -18,6 +17,7 @@ use RefactorCircus\Impex\Domains\Channel\Services\ChannelSender;
 use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
 use RefactorCircus\Impex\Domains\Channel\Support\EndpointGuard;
 use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class ChannelServiceProvider extends ServiceProvider
 {

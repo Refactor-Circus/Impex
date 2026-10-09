@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListDeliveriesMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List a subscription\'s delivery attempts, newest first, with how each went.')]
 final class ListDeliveriesTool extends Tool

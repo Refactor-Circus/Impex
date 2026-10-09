@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Database\Factories\ArtifactFactory;
 use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * @property string $id

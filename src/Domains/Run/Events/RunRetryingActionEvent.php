@@ -6,8 +6,8 @@ namespace RefactorCircus\Impex\Domains\Run\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * A run is about to be retried.

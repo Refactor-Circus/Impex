@@ -7,7 +7,6 @@ namespace RefactorCircus\Impex\Domains\Subscription;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use RefactorCircus\Foundation\Support\ServiceProvider;
 use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletedEvent;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionSavedEvent;
@@ -24,6 +23,7 @@ use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionSweeper;
 use RefactorCircus\Impex\Domains\Subscription\Support\Backoff;
 use RefactorCircus\Impex\Domains\Subscription\Support\OAuthClientResolver;
 use RefactorCircus\Impex\Domains\Subscription\Support\SubscriptionSettings;
+use RefactorCircus\Keystone\Support\ServiceProvider;
 
 class SubscriptionServiceProvider extends ServiceProvider
 {

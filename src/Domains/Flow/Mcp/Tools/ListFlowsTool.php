@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Flow\Mcp\Requests\ListFlowsMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List the workflows this application can run, with whether each is currently enabled and its schedule.')]
 final class ListFlowsTool extends Tool

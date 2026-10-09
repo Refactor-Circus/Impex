@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\DetachRunOwnerMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Remove a model\'s stake in a run.')]
 final class DetachRunOwnerTool extends Tool

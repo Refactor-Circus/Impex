@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Foundation\Mcp\Tool;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\ShowChannelMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one channel by name: its direction, transport, options and body policy. Secrets are never returned.')]
 final class ShowChannelTool extends Tool

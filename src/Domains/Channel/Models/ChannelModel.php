@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 use RefactorCircus\Impex\Database\Factories\ChannelFactory;
 use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
 use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
  * A channel created at runtime rather than in config: the webhook endpoint a
