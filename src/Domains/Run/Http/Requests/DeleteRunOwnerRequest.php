@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\Response;
-use JayI\Impex\Domains\Run\Actions\DetachRunOwnerAction;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Actions\DetachRunOwnerAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 final class DeleteRunOwnerRequest extends RunRequest
 {

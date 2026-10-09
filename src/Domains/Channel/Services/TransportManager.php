@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Services;
+namespace RefactorCircus\Impex\Domains\Channel\Services;
 
 use Illuminate\Support\Manager;
-use JayI\Impex\Domains\Channel\Contracts\Transport;
-use JayI\Impex\Domains\Channel\Transports\FileTransport;
-use JayI\Impex\Domains\Channel\Transports\HttpTransport;
-use JayI\Impex\Domains\Channel\Transports\MailTransport;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Transports\FileTransport;
+use RefactorCircus\Impex\Domains\Channel\Transports\HttpTransport;
+use RefactorCircus\Impex\Domains\Channel\Transports\MailTransport;
 
 /**
  * The transports a channel can name.

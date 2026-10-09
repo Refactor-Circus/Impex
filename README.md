@@ -12,7 +12,7 @@ message, and no local disk, and for catalogues in the tens of millions.
 
 Impex stands alone. Nothing in it depends on a domain package: any Laravel
 application can send through channels, record its mail, receive webhooks, run
-flows and offer subscriptions to its own data. A package such as jayi/keystone
+flows and offer subscriptions to its own data. A package such as refactor-circus/keystone
 uses Impex by registering a stream; Impex does not know it exists.
 
 > **Status: complete through the dashboard.** Everything below is built and
@@ -21,7 +21,7 @@ uses Impex by registering a stream; Impex does not know it exists.
 ## Installation
 
 ```bash
-composer require jayi/impex
+composer require refactor-circus/impex
 php artisan vendor:publish --tag=impex-migrations
 php artisan vendor:publish --tag=impex-config
 php artisan migrate
@@ -49,7 +49,7 @@ On Vapor/Lambda, point the artifact disk at S3 and the lock store at Redis or Dy
 ## Writing a flow
 
 ```php
-use JayI\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {
@@ -97,7 +97,7 @@ final class FetchPricing
 ## Running one
 
 ```php
-use JayI\Impex\Facades\Impex;
+use RefactorCircus\Impex\Facades\Impex;
 
 $run = Impex::run('extract-products', ['drill bits', 50], idempotencyKey: $requestId);
 
@@ -135,7 +135,7 @@ A Lambda timeout cannot be caught, so an action that may run long stops *before*
 the ceiling and checkpoints:
 
 ```php
-use JayI\Impex\Domains\Flow\Support\ResumableAction;
+use RefactorCircus\Impex\Domains\Flow\Support\ResumableAction;
 
 final class SeedProducts extends ResumableAction
 {
@@ -235,7 +235,7 @@ all of them:
 'jobs' => [
     'middleware' => [
         '*' => [\App\Queue\TagWithTenant::class],
-        \JayI\Impex\Jobs\DeliverSubscription::class => [
+        \RefactorCircus\Impex\Jobs\DeliverSubscription::class => [
             [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
         ],
     ],
@@ -243,7 +243,7 @@ all of them:
 ```
 
 An entry is a middleware class, `[class, ...constructor arguments]`, or a
-`JayI\Impex\Contracts\JobMiddlewareFactory` that builds middleware from the job
+`RefactorCircus\Impex\Contracts\JobMiddlewareFactory` that builds middleware from the job
 in hand — a lock keyed by the subscription a delivery is for, say. It is read
 when the job runs, and applies to `DriveRun`, `ExecuteStep`, `SeedBatch`,
 `ProcessBatchItem`, `DetectStream`, `DeliverSubscription` and
@@ -446,7 +446,7 @@ Run listing filters on `status`, `flow`, `trigger`, `owner_type`+`owner_id`,
 Triggering answers `202` with the run — never inline execution. A broken rule
 (a disabled flow, a signal to a finished run) answers `409` with its message.
 `GET impex/history` lists Impex's audit entries, newest first, once
-[jayi/keen](https://github.com/jayjfletcher/Keen) is installed; until then it
+[refactor-circus/keen](https://github.com/Refactor-Circus/Keen) is installed; until then it
 answers `404`.
 
 Every endpoint is one line: validation rules come from an Action's static
@@ -503,7 +503,7 @@ listings, and how channels, streams, subscriptions and deliveries fit together.
 
 ## Cortex
 
-When [`jayi/cortex`](https://github.com/jayjfletcher/cortex) is installed, Impex connects its MCP server to it. Nothing needs registering in your app.
+When [`refactor-circus/cortex`](https://github.com/Refactor-Circus/cortex) is installed, Impex connects its MCP server to it. Nothing needs registering in your app.
 
 - **Agents can run workflows.** Every Impex MCP tool joins Cortex's tool registry under its own name (`list-runs-tool`, `run-flow-tool`, `signal-run-tool`, ...), so an agent can start, inspect and control runs. They are tagged with the server name (`impex`), so they filter together in the Cortex dashboard.
 - **Instructions and descriptions can change without a deploy.** The server is registered with Cortex as `impex`, so its instructions get Cortex's versioned, publishable overrides, and so does each tool's description. Published overrides are served both to MCP clients (for example at `/mcp/impex`) and to agents.
@@ -526,7 +526,7 @@ About how it works:
 
 ## Dashboard
 
-Impex renders its dashboard through [Atrium](https://github.com/jayjfletcher/Atrium), which it requires. Define Atrium's gate and Impex appears in the sidebar:
+Impex renders its dashboard through [Atrium](https://github.com/Refactor-Circus/Atrium), which it requires. Define Atrium's gate and Impex appears in the sidebar:
 
 ```php
 use Illuminate\Support\Facades\Gate;
@@ -538,9 +538,9 @@ Screens: runs filterable by status, flow, trigger, owner and tag; run detail wit
 
 Impex also contributes three dashboard widgets — run status counts, recent failures and message volume. They are **offered** in Atrium's widget picker; none is placed on anyone's dashboard automatically.
 
-The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `JayI\Impex\Atrium\Badges` is the one place that maps states to colours. Impex ships no stylesheet and no Blade components: its screens use Atrium's components (`x-atrium::description-list`, `x-atrium::flash`, `x-atrium::status-dot` and so on) and the utilities Atrium's stylesheet already contains, which a test checks with `JayI\Atrium\Testing\AtriumStyles`.
+The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `RefactorCircus\Impex\Atrium\Badges` is the one place that maps states to colours. Impex ships no stylesheet and no Blade components: its screens use Atrium's components (`x-atrium::description-list`, `x-atrium::flash`, `x-atrium::status-dot` and so on) and the utilities Atrium's stylesheet already contains, which a test checks with `RefactorCircus\Atrium\Testing\AtriumStyles`.
 
-With an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed, the run and message pages end with that record's history and the runs page with the whole of Impex's (`<x-atrium::audit-trail source="impex" />`); without one nothing renders. Run steps stay in the step timeline: they record execution, not changes.
+With an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed, the run and message pages end with that record's history and the runs page with the whole of Impex's (`<x-atrium::audit-trail source="impex" />`); without one nothing renders. Run steps stay in the step timeline: they record execution, not changes.
 
 ### Who sees what
 
@@ -559,7 +559,7 @@ With `impex.authorization` on, the dashboard asks exactly what the JSON API and 
 | `view` the message | message page |
 | `create` a `RunModel` for the flow | a flow's Run form |
 
-Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `JayI\Impex\Atrium\ScreenAccess`, which asks Atrium's shared `JayI\Atrium\Support\ScreenAccess::allows('impex', ...)` once operators (below) are let through.
+Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `RefactorCircus\Impex\Atrium\ScreenAccess`, which asks Atrium's shared `RefactorCircus\Atrium\Support\ScreenAccess::allows('impex', ...)` once operators (below) are let through.
 
 To let some dashboard users see and handle every run — scheduled and channel runs included — make them operators with `impex.atrium.show_all`:
 
@@ -583,16 +583,16 @@ Atrium owns the path, the middleware and the gate, so Impex has two switches:
 'ui' => ['enabled' => true],
 
 'atrium' => [
-    'features' => [\JayI\Impex\Atrium\Features\ImpexSupportFeature::class],
+    'features' => [\RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature::class],
 ],
 ```
 
 Set `ui.enabled` to `false` to keep the JSON API without adding Impex to the dashboard.
 
-`atrium.features` switches Impex in Atrium on and off at runtime: while any feature listed is off, its navigation, widgets, settings and search are hidden and its pages answer 404. With [jayi/pennantplus](https://github.com/jayjfletcher/PennantPlus) installed, `ImpexSupportFeature` is on until its **global** value is set — per-user values are ignored, so who sees what stays with the policies:
+`atrium.features` switches Impex in Atrium on and off at runtime: while any feature listed is off, its navigation, widgets, settings and search are hidden and its pages answer 404. With [refactor-circus/pennantplus](https://github.com/Refactor-Circus/PennantPlus) installed, `ImpexSupportFeature` is on until its **global** value is set — per-user values are ignored, so who sees what stays with the policies:
 
 ```php
-use JayI\Impex\Atrium\Features\ImpexSupportFeature;
+use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
 use Laravel\Pennant\Feature;
 
 Feature::for(null)->deactivate(ImpexSupportFeature::class);
@@ -719,7 +719,7 @@ Impex fires three families of events:
 Every model fires `retrieved`, `creating`, `created`, `updating`, `updated`, `saving`, `saved`, `deleting`, `deleted` and `replicating`:
 
 - **Models:** `RunModel`, `RunStepModel`, `RunOwnerModel`, `ArtifactModel`, `BatchModel`, `BatchItemModel`, `MessageModel`, `SignalModel`, `TimerModel`, `FlowOverrideModel`.
-- **Naming:** they live in their model's domain, `JayI\Impex\Domains\{Domain}\Events`, and are named `{Entity}{Hook}Event` (the model name without its `Model` suffix), e.g. `RunCreatingEvent` or `RunStepCreatedEvent`.
+- **Naming:** they live in their model's domain, `RefactorCircus\Impex\Domains\{Domain}\Events`, and are named `{Entity}{Hook}Event` (the model name without its `Model` suffix), e.g. `RunCreatingEvent` or `RunStepCreatedEvent`.
 - **Payload:** the model is a typed property (`$event->run`, `$event->runStep`, ...) and is also available as `$event->model()`, alongside `$event->hook()`.
 - **Timing:** they fire synchronously, as Eloquent's own do. A `creating`, `updating`, `saving` or `deleting` listener that returns `false` stops the write.
 
@@ -738,7 +738,7 @@ Every action dispatches two events:
 - **Start:** `…ingActionEvent`, before any work. It carries the input.
 - **Finish:** `…edActionEvent`, after the surrounding transaction commits and only on success. It carries the result.
 
-An action that throws fires its start event only. Each action and its two events live in the same domain: `JayI\Impex\Domains\{Domain}\Actions` and `JayI\Impex\Domains\{Domain}\Events`.
+An action that throws fires its start event only. Each action and its two events live in the same domain: `RefactorCircus\Impex\Domains\{Domain}\Actions` and `RefactorCircus\Impex\Domains\{Domain}\Events`.
 
 Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it does not clash with the engine's `RunStarted`. `FlowRan` marks the run being accepted. `RunStarted` marks it actually beginning, later, on the queue.
 
@@ -761,7 +761,7 @@ Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it 
 
 ### Listening to a whole family
 
-Listen to an interface in `JayI\Foundation\Contracts` to receive every event of that family. Every package of the jayi suite implements the same interfaces, so one listener hears them all:
+Listen to an interface in `RefactorCircus\Foundation\Contracts` to receive every event of that family. Every package of the Refactor Circus suite implements the same interfaces, so one listener hears them all:
 
 | Interface | Receives |
 | --- | --- |
@@ -775,7 +775,7 @@ Event::listen(ActionFinishedEvent::class, fn (ActionFinishedEvent $event) => Log
 
 ## Package layout
 
-The code is organised into domain modules under `src/Domains`, each with its own service provider registered by `JayI\Impex\Domains\DomainServiceProvider`:
+The code is organised into domain modules under `src/Domains`, each with its own service provider registered by `RefactorCircus\Impex\Domains\DomainServiceProvider`:
 
 | Domain | Holds |
 | --- | --- |
@@ -790,7 +790,7 @@ The code is organised into domain modules under `src/Domains`, each with its own
 
 Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
 
-Impex stands on [jayi/foundation](https://github.com/jayjfletcher/Foundation), the shared runtime of the jayi suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`JayI\Foundation\...`), so every package of the suite behaves the same way. The queued jobs keep their `JayI\Impex\Jobs` names, because those names are inside job payloads already on a queue.
+Impex stands on [refactor-circus/foundation](https://github.com/Refactor-Circus/Foundation), the shared runtime of the Refactor Circus suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`RefactorCircus\Foundation\...`), so every package of the suite behaves the same way. The queued jobs keep their `RefactorCircus\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
 ## Vapor notes
 

@@ -1,6 +1,6 @@
 # Dashboard
 
-Impex renders its dashboard through [Atrium](https://github.com/jayjfletcher/Atrium),
+Impex renders its dashboard through [Atrium](https://github.com/Refactor-Circus/Atrium),
 which it requires. There is no separate bundle, no build step, and no auth
 mode to choose: the pages are server-rendered Blade behind Atrium's gate.
 
@@ -74,7 +74,7 @@ the [API](09-api.md#subscribers) and [MCP](10-mcp.md). See
 
 ## History
 
-With an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed,
+With an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed,
 the run and message pages end with that record's history, and the runs page
 with the whole of Impex's, through Atrium's audit trail:
 
@@ -92,7 +92,7 @@ With `impex.authorization` on, the screens ask the same policies as the JSON
 API: a nav item, widget, card or button is shown only when its action would be
 allowed, the action is refused (403) otherwise, and lists, counts, widgets and
 search cover only the runs the user owns. Use `@impexCan('cancel', $run)` in
-your own views for the same check; `JayI\Impex\Atrium\ScreenAccess::allows()`
+your own views for the same check; `RefactorCircus\Impex\Atrium\ScreenAccess::allows()`
 lets operators through and otherwise asks Atrium's shared
 `ScreenAccess::allows('impex', ...)`.
 

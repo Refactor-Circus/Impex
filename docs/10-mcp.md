@@ -73,7 +73,7 @@ name through `execute_tools`:
 | `update-subscription-subjects-tool` | Add or remove explicit subject keys |
 | `list-subscription-events-tool` | Read the feed after a cursor |
 | `list-deliveries-tool` | Delivery attempts, newest first |
-| `list-impex-history-tool` | Impex's audit history, newest first. Needs an audit log ([jayi/keen](https://github.com/jayjfletcher/Keen)) installed. |
+| `list-impex-history-tool` | Impex's audit history, newest first. Needs an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed. |
 
 Each name is the tool's class name in kebab case (`ListChannelsTool` is
 `list-channels-tool`), as laravel/mcp derives it. Channel tools name a stored
@@ -123,12 +123,12 @@ arch('every use case is reachable from both the HTTP API and MCP')
 Deliberate omissions go in a `MCP_EXCEPTIONS` map with a reason, so an omission
 is a test failure but an exception is one line. Cortex, for comparison, keeps
 its tool-description endpoints HTTP-only; Impex currently has no exceptions.
-The history tool comes from jayi/foundation rather than an Impex Action, so it
+The history tool comes from refactor-circus/foundation rather than an Impex Action, so it
 sits outside the comparison; `GET impex/history` is its HTTP twin.
 
 ## Errors
 
-An `ImpexException` (a `JayI\Foundation\Exceptions\PackageException`) surfaces its message rather than a generic failure, because
+An `ImpexException` (a `RefactorCircus\Foundation\Exceptions\PackageException`) surfaces its message rather than a generic failure, because
 those messages carry guidance an agent can act on:
 
 ```
@@ -144,7 +144,7 @@ The catalog tools sit behind `execute_tools`, so a test calls them through it â€
 calling `RunFlowTool` directly answers `Tool [run-flow-tool] not found.`:
 
 ```php
-use JayI\Impex\Mcp\ImpexServer;
+use RefactorCircus\Impex\Mcp\ImpexServer;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 

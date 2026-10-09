@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Policies;
+namespace RefactorCircus\Impex\Domains\Batch\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Batch\Models\BatchModel;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * A batch is one step of its run, so reading it needs `view` on the run and

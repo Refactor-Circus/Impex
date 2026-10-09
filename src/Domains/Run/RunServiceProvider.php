@@ -2,22 +2,19 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run;
+namespace RefactorCircus\Impex\Domains\Run;
 
 use Illuminate\Console\Scheduling\Schedule;
-use JayI\Foundation\Support\ServiceProvider;
-use JayI\Impex\Domains\Run\Console\Commands\TickCommand;
-use JayI\Impex\Domains\Run\Contracts\RollbackStrategy;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Services\Children;
-use JayI\Impex\Domains\Run\Services\Engine;
-use JayI\Impex\Domains\Run\Services\EngineOptions;
-use JayI\Impex\Domains\Run\Services\JobRouter;
-use JayI\Impex\Domains\Run\Services\Rollbacks;
-use JayI\Impex\Domains\Run\Services\StepWriter;
-use JayI\Impex\Domains\Run\Services\Sweeper;
+use RefactorCircus\Foundation\Support\ServiceProvider;
+use RefactorCircus\Impex\Domains\Run\Console\Commands\TickCommand;
+use RefactorCircus\Impex\Domains\Run\Contracts\RollbackStrategy;
+use RefactorCircus\Impex\Domains\Run\Services\Children;
+use RefactorCircus\Impex\Domains\Run\Services\Engine;
+use RefactorCircus\Impex\Domains\Run\Services\EngineOptions;
+use RefactorCircus\Impex\Domains\Run\Services\JobRouter;
+use RefactorCircus\Impex\Domains\Run\Services\Rollbacks;
+use RefactorCircus\Impex\Domains\Run\Services\StepWriter;
+use RefactorCircus\Impex\Domains\Run\Services\Sweeper;
 
 class RunServiceProvider extends ServiceProvider
 {
@@ -43,12 +40,6 @@ class RunServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->keepMorphAliases([
-            'JayI\Impex\Models\Run' => RunModel::class,
-            'JayI\Impex\Models\RunOwner' => RunOwnerModel::class,
-            'JayI\Impex\Models\RunStep' => RunStepModel::class,
-        ]);
-
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
 
         if (! $this->app->runningInConsole()) {

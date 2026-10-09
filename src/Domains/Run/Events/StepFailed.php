@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Events;
+namespace RefactorCircus\Impex\Domains\Run\Events;
 
 final readonly class StepFailed
 {

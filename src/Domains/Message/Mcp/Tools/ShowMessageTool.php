@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Message\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Message\Mcp\Requests\ShowMessageMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Message\Mcp\Requests\ShowMessageMcpRequest;
 
 #[Description('Show one ledger message, including its headers and body preview.')]
 final class ShowMessageTool extends Tool

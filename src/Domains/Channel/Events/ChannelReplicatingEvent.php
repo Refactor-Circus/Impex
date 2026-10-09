@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Events;
+namespace RefactorCircus\Impex\Domains\Channel\Events;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 /**
  * The Channel `replicating` Eloquent event.

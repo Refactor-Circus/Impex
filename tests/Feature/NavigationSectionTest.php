@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use JayI\Atrium\Support\Icons;
-use JayI\Impex\Atrium\ImpexPlugin;
+use RefactorCircus\Atrium\Support\Icons;
+use RefactorCircus\Impex\Atrium\ImpexPlugin;
 
 it('gives its sidebar section its own icon', function (): void {
     [$group] = app(ImpexPlugin::class)->navigationGroups();

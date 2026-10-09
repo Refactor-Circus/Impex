@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Database\Factories;
+namespace RefactorCircus\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 /**
  * @extends Factory<MessageModel>

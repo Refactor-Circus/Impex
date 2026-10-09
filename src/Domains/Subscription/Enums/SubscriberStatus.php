@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Enums;
+namespace RefactorCircus\Impex\Domains\Subscription\Enums;
 
 enum SubscriberStatus: string
 {

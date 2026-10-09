@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Exceptions;
+namespace RefactorCircus\Impex\Domains\Signal\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * A signal wait reached its deadline without the signal arriving.

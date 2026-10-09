@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use JayI\Impex\Domains\Subscription\Actions\DeleteSubscriptionAction;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Subscription\Actions\DeleteSubscriptionAction;
 
 final class DeleteSubscriptionMcpRequest extends SubscriptionMcpRequest
 {

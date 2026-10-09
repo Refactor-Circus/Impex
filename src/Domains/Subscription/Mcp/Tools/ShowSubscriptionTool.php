@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriptionMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriptionMcpRequest;
 
 #[Description('Show one subscription: its topics, filter, endpoint, cursor and delivery health. Never its secret.')]
 final class ShowSubscriptionTool extends Tool

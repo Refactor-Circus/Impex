@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Events;
+namespace RefactorCircus\Impex\Domains\Signal\Events;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 
 /**
  * The Signal `deleted` Eloquent event.

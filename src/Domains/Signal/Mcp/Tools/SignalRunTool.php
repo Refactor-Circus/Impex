@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Signal\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Signal\Mcp\Requests\SignalRunMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Signal\Mcp\Requests\SignalRunMcpRequest;
 
 #[Description('Deliver a signal to a run. Accepted by any unfinished run - pending, running, or waiting - and a signal sent before the run reaches its wait is held, not lost. Signalling a finished run is an error unless if_running is set.')]
 final class SignalRunTool extends Tool

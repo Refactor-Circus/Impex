@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Artifact\Enums;
+namespace RefactorCircus\Impex\Domains\Artifact\Enums;
 
 enum ArtifactKind: string
 {

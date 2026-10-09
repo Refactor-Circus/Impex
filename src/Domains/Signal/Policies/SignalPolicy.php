@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Policies;
+namespace RefactorCircus\Impex\Domains\Signal\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * Reading a run's signals needs `view` on the run; delivering one needs

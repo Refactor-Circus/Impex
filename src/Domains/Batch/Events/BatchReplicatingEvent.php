@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Events;
+namespace RefactorCircus\Impex\Domains\Batch\Events;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Domains\Batch\Models\BatchModel;
+use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchModel;
 
 /**
  * The Batch `replicating` Eloquent event.

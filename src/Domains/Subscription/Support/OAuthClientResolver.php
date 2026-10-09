@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Support;
+namespace RefactorCircus\Impex\Domains\Subscription\Support;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
-use JayI\Impex\Domains\Subscription\Enums\SubscriberStatus;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriberStatus;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 /**
  * Finds the subscriber by the OAuth client the request's token was issued

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Run\Actions\CancelRunAction;
-use JayI\Impex\Domains\Run\Resources\RunResource;
+use RefactorCircus\Impex\Domains\Run\Actions\CancelRunAction;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 
 final class CancelRunRequest extends RunRequest
 {

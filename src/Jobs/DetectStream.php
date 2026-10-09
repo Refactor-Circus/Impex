@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Jobs;
+namespace RefactorCircus\Impex\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -10,9 +10,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Domains\Subscription\Services\Detector;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionJobs;
-use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
+use RefactorCircus\Impex\Domains\Subscription\Services\Detector;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionJobs;
+use RefactorCircus\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Works through a stream's backlog of changes, chunk by chunk, until it is

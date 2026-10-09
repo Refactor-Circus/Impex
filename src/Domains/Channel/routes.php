@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Impex\Domains\Channel\Http\Controllers\ChannelController;
+use RefactorCircus\Impex\Domains\Channel\Http\Controllers\ChannelController;
 
 // Operator reads and runtime channel management. Receiving on a channel is a
 // separate, signature-authenticated route group in the Message domain.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Data;
+namespace RefactorCircus\Impex\Domains\Batch\Data;
 
 /**
  * One unit of work yielded by a batch source.

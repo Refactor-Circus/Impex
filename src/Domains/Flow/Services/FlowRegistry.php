@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Services;
+namespace RefactorCircus\Impex\Domains\Flow\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Flow\Exceptions\FlowCollisionException;
-use JayI\Impex\Domains\Flow\Exceptions\UnknownFlowException;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\FlowCollisionException;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\UnknownFlowException;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
 
 /**
  * The catalogue of runnable flows.

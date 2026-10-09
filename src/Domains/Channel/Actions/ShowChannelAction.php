@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Actions;
+namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Events\ChannelShowingActionEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelShownActionEvent;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelShowingActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelShownActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 
 final class ShowChannelAction
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Data;
+namespace RefactorCircus\Impex\Domains\Run\Data;
 
 /**
  * Returned by an action that ran out of time before it ran out of work.

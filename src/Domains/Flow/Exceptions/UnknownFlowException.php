@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Exceptions;
+namespace RefactorCircus\Impex\Domains\Flow\Exceptions;
 
-use JayI\Impex\Domains\Flow\Support\Flow;
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 final class UnknownFlowException extends ImpexException
 {

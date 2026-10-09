@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex;
+namespace RefactorCircus\Impex;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -10,30 +10,30 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\LazyCollection;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Domains\Artifact\Services\PayloadStore;
-use JayI\Impex\Domains\Batch\Models\BatchItemModel;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Channel\Services\ChannelSender;
-use JayI\Impex\Domains\Channel\Services\TransportManager;
-use JayI\Impex\Domains\Flow\Exceptions\DisabledFlowException;
-use JayI\Impex\Domains\Flow\Services\FlowRegistry;
-use JayI\Impex\Domains\Flow\Support\FlowArguments;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
-use JayI\Impex\Domains\Message\Services\OutboundRecorder;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Services\Engine;
-use JayI\Impex\Domains\Run\Support\RunHandle;
-use JayI\Impex\Domains\Run\Support\RunQuery;
-use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Domains\Subscription\Services\Streams;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Domains\Artifact\Services\PayloadStore;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchItemModel;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelSender;
+use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\DisabledFlowException;
+use RefactorCircus\Impex\Domains\Flow\Services\FlowRegistry;
+use RefactorCircus\Impex\Domains\Flow\Support\FlowArguments;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Message\Services\OutboundRecorder;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Services\Engine;
+use RefactorCircus\Impex\Domains\Run\Support\RunHandle;
+use RefactorCircus\Impex\Domains\Run\Support\RunQuery;
+use RefactorCircus\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\Streams;
 
 /**
  * The package's public entry point.

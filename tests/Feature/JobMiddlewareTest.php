@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use JayI\Impex\Contracts\JobMiddlewareFactory;
-use JayI\Impex\Impex;
-use JayI\Impex\Jobs\DeliverSubscription;
-use JayI\Impex\Jobs\DriveRun;
-use JayI\Impex\Jobs\ExecuteStep;
-use JayI\Impex\Tests\Fixtures\Calls;
-use JayI\Impex\Tests\Fixtures\LinearFlow;
+use RefactorCircus\Impex\Contracts\JobMiddlewareFactory;
+use RefactorCircus\Impex\Impex;
+use RefactorCircus\Impex\Jobs\DeliverSubscription;
+use RefactorCircus\Impex\Jobs\DriveRun;
+use RefactorCircus\Impex\Jobs\ExecuteStep;
+use RefactorCircus\Impex\Tests\Fixtures\Calls;
+use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
 
 final class RecordJobMiddleware
 {

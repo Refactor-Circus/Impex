@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use JayI\Impex\Domains\Run\Actions\AttachRunOwnerAction;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
-use JayI\Impex\Domains\Run\Resources\RunOwnerResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Run\Actions\AttachRunOwnerAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunOwnerResource;
 
 final class AttachRunOwnerMcpRequest extends RunRequest
 {

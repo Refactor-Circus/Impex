@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Artifact\Policies;
+namespace RefactorCircus\Impex\Domains\Artifact\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * An artifact is a stored payload of a run, read with it and never edited.

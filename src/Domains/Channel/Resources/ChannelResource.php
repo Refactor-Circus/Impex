@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Resources;
+namespace RefactorCircus\Impex\Domains\Channel\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 /**
  * A channel, configured or stored. Secrets are never part of it.

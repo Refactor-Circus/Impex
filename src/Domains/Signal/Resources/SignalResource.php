@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Resources;
+namespace RefactorCircus\Impex\Domains\Signal\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 
 /**
  * @mixin SignalModel

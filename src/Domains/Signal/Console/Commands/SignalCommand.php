@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Console\Commands;
+namespace RefactorCircus\Impex\Domains\Signal\Console\Commands;
 
 use Illuminate\Console\Command;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
-use JayI\Impex\Impex;
 use JsonException;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
+use RefactorCircus\Impex\Impex;
 
 final class SignalCommand extends Command
 {

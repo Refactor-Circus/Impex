@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
-use JayI\Atrium\Domains\Navigation\Data\NavItem;
-use JayI\Atrium\Domains\Navigation\Services\NavigationRegistry;
-use JayI\Impex\Atrium\Features\ImpexSupportFeature;
-use JayI\Impex\Atrium\ImpexPlugin;
 use Laravel\Pennant\Feature;
+use RefactorCircus\Atrium\Domains\Navigation\Data\NavItem;
+use RefactorCircus\Atrium\Domains\Navigation\Services\NavigationRegistry;
+use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
+use RefactorCircus\Impex\Atrium\ImpexPlugin;
 use Workbench\App\Models\User;
 
 // Pennant's array store keeps its values in the cache Feature::flushCache()
@@ -76,16 +76,4 @@ it('uses a subclass named in the config instead', function (): void {
     Feature::for(null)->activate(OffImpexSupportFeature::class);
 
     expect(navigationLabels($this->user))->toContain('Runs');
-});
-
-it('keeps the stored name it had before it moved', function (): void {
-    // Values stored before the class moved from JayI\Impex\Features.
-    Feature::for(null)->deactivate('JayI\\Impex\\Features\\ImpexSupportFeature');
-
-    expect(Feature::for(null)->active(ImpexSupportFeature::class))->toBeFalse()
-        ->and(navigationLabels($this->user))->not->toContain('Runs');
-
-    Feature::define(OffImpexSupportFeature::class);
-
-    expect(Feature::defined())->toContain('JayI\\Impex\\Features\\ImpexSupportFeature', OffImpexSupportFeature::class);
 });

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Run\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Run\Http\Requests\CancelRunRequest;
-use JayI\Impex\Domains\Run\Http\Requests\IndexRunsRequest;
-use JayI\Impex\Domains\Run\Http\Requests\RetryRunRequest;
-use JayI\Impex\Domains\Run\Http\Requests\ShowRunRequest;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\CancelRunRequest;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\IndexRunsRequest;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\RetryRunRequest;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\ShowRunRequest;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 final class RunController
 {

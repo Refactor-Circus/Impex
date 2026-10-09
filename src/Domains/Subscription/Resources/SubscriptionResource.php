@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Resources;
+namespace RefactorCircus\Impex\Domains\Subscription\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
-use JayI\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
 
 /**
  * A subscription. Never its signing secret: that is returned once, when the

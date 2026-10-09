@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Support;
+namespace RefactorCircus\Impex\Domains\Channel\Support;
 
-use JayI\Impex\Domains\Channel\Exceptions\UnsafeEndpointException;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\UnsafeEndpointException;
 
 /**
  * Keeps an endpoint someone outside the application supplied from reaching

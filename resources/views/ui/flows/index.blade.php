@@ -1,5 +1,5 @@
-@use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Domains\Run\Models\RunModel)
+@use(RefactorCircus\Impex\Atrium\Badges)
+@use(RefactorCircus\Impex\Domains\Run\Models\RunModel)
 
 <x-atrium::layout :title="__('impex::impex.flows')">
     <x-atrium::page-header :title="__('impex::impex.flows')" />

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Exceptions;
+namespace RefactorCircus\Impex\Domains\Subscription\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 final class SubscriptionException extends ImpexException
 {

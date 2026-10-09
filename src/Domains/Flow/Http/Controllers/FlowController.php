@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Flow\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Flow\Http\Requests\IndexFlowsRequest;
-use JayI\Impex\Domains\Flow\Http\Requests\StoreFlowRunRequest;
+use RefactorCircus\Impex\Domains\Flow\Http\Requests\IndexFlowsRequest;
+use RefactorCircus\Impex\Domains\Flow\Http\Requests\StoreFlowRunRequest;
 
 final class FlowController
 {

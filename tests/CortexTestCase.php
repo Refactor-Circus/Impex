@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests;
+namespace RefactorCircus\Impex\Tests;
 
-use JayI\Cortex\CortexServiceProvider;
 use Laravel\Ai\AiServiceProvider;
+use RefactorCircus\Cortex\CortexServiceProvider;
 
 /**
  * The package with Cortex installed and loaded.
@@ -35,6 +35,6 @@ abstract class CortexTestCase extends TestCase
     {
         parent::defineDatabaseMigrations();
 
-        $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/jayi/cortex/database/migrations');
+        $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/cortex/database/migrations');
     }
 }

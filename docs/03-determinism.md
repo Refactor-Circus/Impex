@@ -113,7 +113,7 @@ drive. A loop bounded by an unrecorded value is a divergence.
 ## Reading the exception
 
 ```
-JayI\Impex\Domains\Run\Exceptions\HistoryMismatchException
+RefactorCircus\Impex\Domains\Run\Exceptions\HistoryMismatchException
 
   Replay diverged at sequence 3: history recorded [action:App\Actions\FetchPricing]
   but the flow asked for [action:App\Actions\FetchInventory]. Wrap

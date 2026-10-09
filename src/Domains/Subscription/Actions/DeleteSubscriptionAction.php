@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Database\ConnectionInterface;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDeletedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDeletingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class DeleteSubscriptionAction
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
-use JayI\Impex\Domains\Subscription\Resources\DeliveryResource;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
+use RefactorCircus\Impex\Domains\Subscription\Resources\DeliveryResource;
 
 final class IndexDeliveriesRequest extends SubscriptionRequest
 {

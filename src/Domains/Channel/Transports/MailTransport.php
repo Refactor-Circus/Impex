@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Transports;
+namespace RefactorCircus\Impex\Domains\Channel\Transports;
 
 use Illuminate\Contracts\Mail\Factory as Mail;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Message;
 use Illuminate\Mail\SentMessage;
-use JayI\Impex\Domains\Channel\Contracts\Transport;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
-use JayI\Impex\Domains\Channel\Mail\RecordingMailTransport;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
+use RefactorCircus\Impex\Domains\Channel\Mail\RecordingMailTransport;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use Symfony\Component\Mime\Email;
 use Throwable;
 

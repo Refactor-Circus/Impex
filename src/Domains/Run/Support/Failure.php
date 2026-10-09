@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Support;
+namespace RefactorCircus\Impex\Domains\Run\Support;
 
 use Throwable;
 

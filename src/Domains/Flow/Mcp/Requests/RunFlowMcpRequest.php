@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Flow\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Resources\RunResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 
 final class RunFlowMcpRequest extends Request
 {

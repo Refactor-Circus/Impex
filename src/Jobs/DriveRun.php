@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Jobs;
+namespace RefactorCircus\Impex\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Domains\Run\Services\Engine;
-use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
+use RefactorCircus\Impex\Domains\Run\Services\Engine;
+use RefactorCircus\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Replays a run and schedules whatever it reaches that is not yet recorded.

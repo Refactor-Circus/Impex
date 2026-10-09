@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Jobs;
+namespace RefactorCircus\Impex\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\Interruptible;
@@ -10,8 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Domains\Batch\Services\BatchRunner;
-use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
+use RefactorCircus\Impex\Domains\Batch\Services\BatchRunner;
+use RefactorCircus\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Runs one batch item's action.

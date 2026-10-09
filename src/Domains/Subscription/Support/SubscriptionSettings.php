@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Support;
+namespace RefactorCircus\Impex\Domains\Subscription\Support;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Support\Facades\Validator;
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Enums\Selection;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
 
 /**
  * Turns what a subscriber asked for — topic names, a format, a filter — into

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests\Fixtures;
+namespace RefactorCircus\Impex\Tests\Fixtures;
 
-use JayI\Impex\Domains\Batch\Contracts\BatchSource;
-use JayI\Impex\Domains\Batch\Data\BatchChunk;
-use JayI\Impex\Domains\Batch\Data\BatchChunkItem;
-use JayI\Impex\Domains\Flow\Concerns\CanResume;
-use JayI\Impex\Domains\Flow\Contracts\Resumable;
-use JayI\Impex\Domains\Flow\Support\Flow;
-use JayI\Impex\Domains\Flow\Support\ResumableAction;
-use JayI\Impex\Domains\Run\Data\Resume;
-use JayI\Impex\Domains\Run\Enums\ChildClosePolicy;
-use JayI\Impex\Domains\Run\Enums\RollbackFailure;
+use RefactorCircus\Impex\Domains\Batch\Contracts\BatchSource;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunk;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunkItem;
+use RefactorCircus\Impex\Domains\Flow\Concerns\CanResume;
+use RefactorCircus\Impex\Domains\Flow\Contracts\Resumable;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Support\ResumableAction;
+use RefactorCircus\Impex\Domains\Run\Data\Resume;
+use RefactorCircus\Impex\Domains\Run\Enums\ChildClosePolicy;
+use RefactorCircus\Impex\Domains\Run\Enums\RollbackFailure;
 use RuntimeException;
 
 /**

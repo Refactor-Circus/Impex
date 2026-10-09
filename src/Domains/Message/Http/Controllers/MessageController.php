@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Message\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Message\Http\Requests\IndexMessagesRequest;
-use JayI\Impex\Domains\Message\Http\Requests\ShowMessageRequest;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Http\Requests\IndexMessagesRequest;
+use RefactorCircus\Impex\Domains\Message\Http\Requests\ShowMessageRequest;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 final class MessageController
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use JayI\Impex\Domains\Run\Actions\ListRunStepsAction;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Resources\RunStepResource;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Run\Actions\ListRunStepsAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunStepResource;
 
 final class ListRunStepsMcpRequest extends RunRequest
 {

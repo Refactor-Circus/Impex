@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Workbench\App\Bench;
 
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
-use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Support\AbstractStream;
 
 /**
  * A synthetic catalogue for the benchmark: SKU-{n} in one of fifty

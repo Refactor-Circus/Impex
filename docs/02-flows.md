@@ -2,7 +2,7 @@
 
 ## A flow
 
-A flow is a class extending `JayI\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
+A flow is a class extending `RefactorCircus\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
 Its signature is yours — whatever arguments the flow needs.
 
 ```php
@@ -13,7 +13,7 @@ use App\Flows\Actions\FetchPricing;
 use App\Flows\Actions\RollbackPimWrite;
 use App\Flows\Actions\SearchProducts;
 use App\Flows\Actions\WriteToPim;
-use JayI\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {
@@ -269,8 +269,8 @@ RunModel::query()->where('tags->tenant', 'acme')->get();
 ## Starting a run
 
 ```php
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Facades\Impex;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Facades\Impex;
 
 $run = Impex::run(
     slug: 'extract-products',

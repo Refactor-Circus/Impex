@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Subscription\Enums\SubscriberStatus;
-use JayI\Impex\Domains\Subscription\Events\SubscriberUpdatedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriberUpdatingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriberStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberUpdatedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberUpdatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 final class UpdateSubscriberAction
 {

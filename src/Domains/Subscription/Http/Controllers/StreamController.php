@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Http\Requests\IndexStreamsRequest;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\IndexStreamsRequest;
 
 final class StreamController
 {

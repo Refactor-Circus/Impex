@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Services;
+namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Enums\EventKind;
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
-use JayI\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
 
 /**
  * Where a package reports change. Both entry points are cheap enough for a

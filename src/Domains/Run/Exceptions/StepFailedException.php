@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Exceptions;
+namespace RefactorCircus\Impex\Domains\Run\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * Signals to the engine that a recorded step failed terminally, so the run

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Services;
+namespace RefactorCircus\Impex\Domains\Channel\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Exceptions\UnknownChannelException;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\UnknownChannelException;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 /**
  * The catalogue of named boundaries.

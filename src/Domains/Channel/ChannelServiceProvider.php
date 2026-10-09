@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel;
+namespace RefactorCircus\Impex\Domains\Channel;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Event;
-use JayI\Foundation\Support\ServiceProvider;
-use JayI\Impex\Domains\Channel\Events\ChannelDeletedEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelSavedEvent;
-use JayI\Impex\Domains\Channel\Listeners\RecordSentMail;
-use JayI\Impex\Domains\Channel\Mail\RecordingMailTransport;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Channel\Services\ChannelSender;
-use JayI\Impex\Domains\Channel\Services\TransportManager;
-use JayI\Impex\Domains\Channel\Support\EndpointGuard;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Foundation\Support\ServiceProvider;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelDeletedEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelSavedEvent;
+use RefactorCircus\Impex\Domains\Channel\Listeners\RecordSentMail;
+use RefactorCircus\Impex\Domains\Channel\Mail\RecordingMailTransport;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelSender;
+use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
+use RefactorCircus\Impex\Domains\Channel\Support\EndpointGuard;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 
 class ChannelServiceProvider extends ServiceProvider
 {

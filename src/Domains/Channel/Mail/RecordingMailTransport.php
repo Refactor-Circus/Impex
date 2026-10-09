@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Mail;
+namespace RefactorCircus\Impex\Domains\Channel\Mail;
 
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;

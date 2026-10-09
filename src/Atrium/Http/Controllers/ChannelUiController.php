@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium\Http\Controllers;
+namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use JayI\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
-use JayI\Impex\Atrium\ScreenAccess;
-use JayI\Impex\Domains\Channel\Actions\CreateChannelAction;
-use JayI\Impex\Domains\Channel\Actions\DeleteChannelAction;
-use JayI\Impex\Domains\Channel\Actions\ListChannelsAction;
-use JayI\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
-use JayI\Impex\Domains\Channel\Actions\ShowChannelAction;
-use JayI\Impex\Domains\Channel\Actions\UpdateChannelAction;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Enums\ChannelStatus;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\TransportManager;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
+use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Domains\Channel\Actions\CreateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Actions\DeleteChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
+use RefactorCircus\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
+use RefactorCircus\Impex\Domains\Channel\Actions\ShowChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Actions\UpdateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 /**
  * The channels screens: every channel, configured or stored, and creating,

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Support;
+namespace RefactorCircus\Impex\Domains\Channel\Support;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Channel\Contracts\ChannelProfile;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Contracts\ChannelProfile;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * Turns every authenticated request into a run.

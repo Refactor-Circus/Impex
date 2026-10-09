@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Flows;
 
-use JayI\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
 use Workbench\App\Flows\Actions\PushCustomersToCrm;
 use Workbench\App\Flows\Actions\ReadCustomerFile;
 use Workbench\App\Flows\Actions\RemoveImportedCustomers;

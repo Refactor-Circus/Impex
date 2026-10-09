@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Database\Factories;
+namespace RefactorCircus\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use JayI\Impex\Domains\Run\Enums\StepPhase;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Run\Enums\StepType;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 
 /**
  * @extends Factory<RunStepModel>

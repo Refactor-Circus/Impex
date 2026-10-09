@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Signal\Mcp\Requests;
 
-use JayI\Impex\Domains\Run\Mcp\Requests\RunRequest;
-use JayI\Impex\Domains\Signal\Actions\SignalRunAction;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Domains\Signal\Resources\SignalResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Run\Mcp\Requests\RunRequest;
+use RefactorCircus\Impex\Domains\Signal\Actions\SignalRunAction;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Domains\Signal\Resources\SignalResource;
 
 final class SignalRunMcpRequest extends RunRequest
 {

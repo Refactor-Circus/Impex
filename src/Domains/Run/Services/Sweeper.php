@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Services;
+namespace RefactorCircus\Impex\Domains\Run\Services;
 
-use JayI\Impex\Domains\Batch\Services\BatchRunner;
-use JayI\Impex\Domains\Run\Data\SweepReport;
-use JayI\Impex\Domains\Signal\Services\Waits;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionSweeper;
+use RefactorCircus\Impex\Domains\Batch\Services\BatchRunner;
+use RefactorCircus\Impex\Domains\Run\Data\SweepReport;
+use RefactorCircus\Impex\Domains\Signal\Services\Waits;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionSweeper;
 
 /**
  * The engine's periodic pass.

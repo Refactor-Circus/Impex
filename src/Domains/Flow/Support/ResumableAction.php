@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Support;
+namespace RefactorCircus\Impex\Domains\Flow\Support;
 
-use JayI\Impex\Domains\Flow\Concerns\CanResume;
-use JayI\Impex\Domains\Flow\Contracts\Resumable;
+use RefactorCircus\Impex\Domains\Flow\Concerns\CanResume;
+use RefactorCircus\Impex\Domains\Flow\Contracts\Resumable;
 
 /**
  * Base class for work whose size is not known in advance.

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Policies;
+namespace RefactorCircus\Impex\Domains\Message\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * The ledger is read-only. A message follows the run it belongs to; one with

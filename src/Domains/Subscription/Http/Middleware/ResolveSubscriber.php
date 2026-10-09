@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Middleware;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

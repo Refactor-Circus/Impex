@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Transports;
+namespace RefactorCircus\Impex\Domains\Channel\Transports;
 
 use GuzzleHttp\Psr7\Utils;
 use Illuminate\Contracts\Config\Repository as Config;
@@ -10,15 +10,15 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Channel\Contracts\Signer;
-use JayI\Impex\Domains\Channel\Contracts\Transport;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
-use JayI\Impex\Domains\Channel\Support\EndpointGuard;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Signer;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
+use RefactorCircus\Impex\Domains\Channel\Support\EndpointGuard;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use Throwable;
 
 /**

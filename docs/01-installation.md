@@ -1,7 +1,7 @@
 # Installation
 
 ```bash
-composer require jayi/impex
+composer require refactor-circus/impex
 php artisan vendor:publish --tag=impex-config
 php artisan vendor:publish --tag=impex-migrations
 php artisan migrate
@@ -142,7 +142,7 @@ A first flow, end to end:
 
 ```php
 // app/Flows/PingFlow.php
-final class PingFlow extends \JayI\Impex\Domains\Flow\Support\Flow
+final class PingFlow extends \RefactorCircus\Impex\Domains\Flow\Support\Flow
 {
     public function handle(string $message): array
     {

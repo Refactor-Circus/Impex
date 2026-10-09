@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Data;
+namespace RefactorCircus\Impex\Domains\Run\Data;
 
 use DateTimeInterface;
-use JayI\Impex\Domains\Run\Enums\RollbackFailure;
-use JayI\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Impex\Domains\Run\Enums\RollbackFailure;
+use RefactorCircus\Impex\Domains\Run\Enums\StepType;
 
 /**
  * The immutable description of one operation a flow asked for.

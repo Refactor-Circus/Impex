@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Events;
+namespace RefactorCircus\Impex\Domains\Subscription\Events;
 
 /**
  * A subscription failed too many times in a row and the circuit breaker

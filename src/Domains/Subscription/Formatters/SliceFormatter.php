@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Formatters;
+namespace RefactorCircus\Impex\Domains\Subscription\Formatters;
 
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Data\StreamEvent;
-use JayI\Impex\Domains\Subscription\Enums\EventKind;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Data\StreamEvent;
+use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
 
 /**
  * Only the topics that changed and that the subscriber asked for. A price

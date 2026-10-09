@@ -11,7 +11,7 @@ Subscriptions need nothing but Impex. Any application or package offers its
 own data by writing a stream — a class, usually extending `AbstractStream` —
 and reporting change to it; Impex does the rest: the subscriber API, filters,
 detection, signed batched delivery, retries, the feed, exports, MCP tools and
-the dashboard. jayi/keystone's product stream is one such stream, not a
+the dashboard. refactor-circus/keystone's product stream is one such stream, not a
 requirement.
 
 ## Concepts
@@ -60,9 +60,9 @@ export.
 namespace App\Streams;
 
 use App\Models\Product;
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Support\AbstractStream;
 
 final class ProductStream extends AbstractStream
 {
@@ -148,7 +148,7 @@ each subject against it. **Never load a subscription's whole scope**: at ten
 million subjects, a category subscription is millions of rows.
 
 ```php
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
 
 final class CategoryMatcher implements SubscriptionMatcher
 {
@@ -199,8 +199,8 @@ An append stream needs only a key, its topics and its kind. It loads nothing,
 because each event carries its own payload.
 
 ```php
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Support\AbstractStream;
 
 final class OrderStream extends AbstractStream
 {
@@ -293,9 +293,9 @@ formatter can add it to every entry, read from the product as it is when the
 batch is sent:
 
 ```php
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Formatters\SliceFormatter;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Formatters\SliceFormatter;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class ProductSliceFormatter extends SliceFormatter
 {
@@ -382,7 +382,7 @@ Register each customer as a subscriber, owned by your customer record and
 authenticating as the customer's OAuth client:
 
 ```php
-use JayI\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
 
 app(CreateSubscriberAction::class)->execute(
     ['name' => $customer->name, 'client_id' => $customer->oauth_client_id],
@@ -393,9 +393,9 @@ app(CreateSubscriberAction::class)->execute(
 The stream is an append stream whose payloads carry the customer:
 
 ```php
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Support\AbstractStream;
 
 final class CustomerOrderStream extends AbstractStream
 {
@@ -442,8 +442,8 @@ subscriptions only. Each order is one lookup, however many customers
 subscribe:
 
 ```php
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 final class CustomerOrderMatcher implements SubscriptionMatcher
 {
@@ -499,9 +499,9 @@ per-account stream scoped:
 ```php
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatingActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionUpdatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionUpdatingActionEvent;
 
 // In a service provider's boot().
 $private = ['orders', 'invoices'];
@@ -970,8 +970,8 @@ SQLite numbers are a floor.
   the ledger row of the request it sent.
 
 ```php
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDisabled;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDisabled;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 Event::listen(function (SubscriptionDisabled $event): void {
     $subscription = SubscriptionModel::query()->with('subscriber')->find($event->subscriptionId);

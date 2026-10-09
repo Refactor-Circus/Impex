@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Actions;
+namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
-use JayI\Impex\Domains\Channel\Events\ChannelSecretRotatedActionEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelSecretRotatingActionEvent;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelSecretRotatedActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelSecretRotatingActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 
 final class RotateChannelSecretAction
 {

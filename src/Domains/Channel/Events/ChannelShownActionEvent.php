@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Events;
+namespace RefactorCircus\Impex\Domains\Channel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ActionFinishedEvent;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * A channel was shown.

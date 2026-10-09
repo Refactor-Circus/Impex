@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Contracts;
+namespace RefactorCircus\Impex\Domains\Channel\Contracts;
 
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * Signs an outbound body so the receiver can tell it came from us, unaltered.

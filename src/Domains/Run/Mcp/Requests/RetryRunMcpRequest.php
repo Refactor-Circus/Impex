@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use JayI\Impex\Domains\Run\Actions\RetryRunAction;
-use JayI\Impex\Domains\Run\Resources\RunResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Run\Actions\RetryRunAction;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 
 final class RetryRunMcpRequest extends RunRequest
 {

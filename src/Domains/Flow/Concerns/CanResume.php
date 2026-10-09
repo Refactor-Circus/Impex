@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Concerns;
+namespace RefactorCircus\Impex\Domains\Flow\Concerns;
 
-use JayI\Impex\Domains\Run\Data\Resume;
-use JayI\Impex\Domains\Run\Data\StepDeadline;
+use RefactorCircus\Impex\Domains\Run\Data\Resume;
+use RefactorCircus\Impex\Domains\Run\Data\StepDeadline;
 
 /**
  * The action side of the resume protocol.

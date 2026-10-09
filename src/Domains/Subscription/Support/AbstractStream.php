@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Support;
+namespace RefactorCircus\Impex\Domains\Subscription\Support;
 
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
-use JayI\Impex\Domains\Subscription\Formatters\FullFormatter;
-use JayI\Impex\Domains\Subscription\Formatters\SliceFormatter;
-use JayI\Impex\Domains\Subscription\Formatters\ThinFormatter;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\SubscriptionMatcher;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Formatters\FullFormatter;
+use RefactorCircus\Impex\Domains\Subscription\Formatters\SliceFormatter;
+use RefactorCircus\Impex\Domains\Subscription\Formatters\ThinFormatter;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * The defaults most streams want: snapshot kind, no filters, the three

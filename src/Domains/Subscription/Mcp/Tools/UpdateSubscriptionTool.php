@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriptionMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriptionMcpRequest;
 
 #[Description('Change a subscription. status active resumes a paused or disabled one; replay_from redelivers from that event on.')]
 final class UpdateSubscriptionTool extends Tool

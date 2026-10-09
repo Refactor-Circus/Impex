@@ -1,12 +1,12 @@
 # Impex documentation
 
-`jayi/impex` — a Laravel workflow engine and the application's I/O gateway:
+`refactor-circus/impex` — a Laravel workflow engine and the application's I/O gateway:
 every payload in or out goes through a named channel and lands in one ledger,
 and subscribers follow your data's changes through signed, batched
 subscriptions. Built for Vapor.
 
 Impex stands alone: any Laravel application can use every part of it, and
-domain packages such as jayi/keystone build on it by registering streams.
+domain packages such as refactor-circus/keystone build on it by registering streams.
 
 ## Guides
 
@@ -35,7 +35,7 @@ domain packages such as jayi/keystone build on it by registering streams.
 ## The shape of it in one page
 
 ```php
-use JayI\Impex\Domains\Flow\Support\Flow;
+use RefactorCircus\Impex\Domains\Flow\Support\Flow;
 
 final class ExtractProductsFlow extends Flow
 {

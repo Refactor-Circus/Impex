@@ -32,7 +32,7 @@ RunModel::query()->whereOwnedByAny([$team, $user])->get();
 ```php
 namespace App\Models;
 
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 class Customer extends Model
 {
@@ -100,20 +100,20 @@ With it on, every call acts as the authenticated user:
 
 ```php
 'policies' => [
-    RunModel::class => \JayI\Impex\Domains\Run\Policies\RunPolicy::class,
-    RunStepModel::class => \JayI\Impex\Domains\Run\Policies\RunStepPolicy::class,
-    RunOwnerModel::class => \JayI\Impex\Domains\Run\Policies\RunOwnerPolicy::class,
-    SignalModel::class => \JayI\Impex\Domains\Signal\Policies\SignalPolicy::class,
-    TimerModel::class => \JayI\Impex\Domains\Signal\Policies\TimerPolicy::class,
-    BatchModel::class => \JayI\Impex\Domains\Batch\Policies\BatchPolicy::class,
-    BatchItemModel::class => \JayI\Impex\Domains\Batch\Policies\BatchItemPolicy::class,
-    MessageModel::class => \JayI\Impex\Domains\Message\Policies\MessagePolicy::class,
-    ChannelModel::class => \JayI\Impex\Domains\Channel\Policies\ChannelPolicy::class,
-    SubscriberModel::class => \JayI\Impex\Domains\Subscription\Policies\SubscriberPolicy::class,
-    SubscriptionModel::class => \JayI\Impex\Domains\Subscription\Policies\SubscriptionPolicy::class,
-    DeliveryModel::class => \JayI\Impex\Domains\Subscription\Policies\DeliveryPolicy::class,
-    ArtifactModel::class => \JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy::class,
-    FlowOverrideModel::class => \JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy::class,
+    RunModel::class => \RefactorCircus\Impex\Domains\Run\Policies\RunPolicy::class,
+    RunStepModel::class => \RefactorCircus\Impex\Domains\Run\Policies\RunStepPolicy::class,
+    RunOwnerModel::class => \RefactorCircus\Impex\Domains\Run\Policies\RunOwnerPolicy::class,
+    SignalModel::class => \RefactorCircus\Impex\Domains\Signal\Policies\SignalPolicy::class,
+    TimerModel::class => \RefactorCircus\Impex\Domains\Signal\Policies\TimerPolicy::class,
+    BatchModel::class => \RefactorCircus\Impex\Domains\Batch\Policies\BatchPolicy::class,
+    BatchItemModel::class => \RefactorCircus\Impex\Domains\Batch\Policies\BatchItemPolicy::class,
+    MessageModel::class => \RefactorCircus\Impex\Domains\Message\Policies\MessagePolicy::class,
+    ChannelModel::class => \RefactorCircus\Impex\Domains\Channel\Policies\ChannelPolicy::class,
+    SubscriberModel::class => \RefactorCircus\Impex\Domains\Subscription\Policies\SubscriberPolicy::class,
+    SubscriptionModel::class => \RefactorCircus\Impex\Domains\Subscription\Policies\SubscriptionPolicy::class,
+    DeliveryModel::class => \RefactorCircus\Impex\Domains\Subscription\Policies\DeliveryPolicy::class,
+    ArtifactModel::class => \RefactorCircus\Impex\Domains\Artifact\Policies\ArtifactPolicy::class,
+    FlowOverrideModel::class => \RefactorCircus\Impex\Domains\Flow\Policies\FlowOverridePolicy::class,
 ],
 ```
 

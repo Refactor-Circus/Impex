@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Http\Controllers\ReceiveMessageController;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Http\Controllers\ReceiveMessageController;
 
 // Channels with a custom path get their own named route. Everything else is
 // served by the generic endpoint below, which resolves the channel at request

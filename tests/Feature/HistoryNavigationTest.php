@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use JayI\Atrium\Domains\Navigation\Data\NavItem;
-use JayI\Impex\Atrium\ImpexPlugin;
+use RefactorCircus\Atrium\Domains\Navigation\Data\NavItem;
+use RefactorCircus\Impex\Atrium\ImpexPlugin;
 
 it('links its own audit log from its sidebar group', function (): void {
     $urls = array_map(fn (NavItem $item): ?string => $item->resolveUrl(), app(ImpexPlugin::class)->navigation());

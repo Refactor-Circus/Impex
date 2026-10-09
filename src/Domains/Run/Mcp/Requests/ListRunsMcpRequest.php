@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Run\Actions\ListRunsAction;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Resources\RunResource;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Run\Actions\ListRunsAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 
 final class ListRunsMcpRequest extends Request
 {

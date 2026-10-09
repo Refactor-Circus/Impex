@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Subscription\Enums\DeliveryStatus;
-use JayI\Impex\Domains\Subscription\Events\DeliveriesListedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\DeliveriesListingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\DeliveriesListedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\DeliveriesListingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class ListDeliveriesAction
 {

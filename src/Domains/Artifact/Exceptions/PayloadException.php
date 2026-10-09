@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Artifact\Exceptions;
+namespace RefactorCircus\Impex\Domains\Artifact\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 use Throwable;
 
 final class PayloadException extends ImpexException

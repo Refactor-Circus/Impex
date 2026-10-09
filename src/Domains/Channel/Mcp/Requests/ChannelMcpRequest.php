@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 /**
  * A tool call about one stored channel, named by `channel`.

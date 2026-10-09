@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Contracts;
+namespace RefactorCircus\Impex\Domains\Batch\Contracts;
 
-use JayI\Impex\Domains\Batch\Data\BatchChunk;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunk;
 
 /**
  * Streams work into a batch, one resumable page at a time.

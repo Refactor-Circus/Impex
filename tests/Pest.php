@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Mcp\ImpexServer;
-use JayI\Impex\Tests\CortexTestCase;
-use JayI\Impex\Tests\PennantPlusTestCase;
-use JayI\Impex\Tests\TestCase;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use Laravel\Mcp\Transport\JsonRpcResponse;
+use RefactorCircus\Impex\Mcp\ImpexServer;
+use RefactorCircus\Impex\Tests\CortexTestCase;
+use RefactorCircus\Impex\Tests\PennantPlusTestCase;
+use RefactorCircus\Impex\Tests\TestCase;
 
 uses(TestCase::class)->in('Feature', 'Unit');
 uses(CortexTestCase::class)->in('Cortex');

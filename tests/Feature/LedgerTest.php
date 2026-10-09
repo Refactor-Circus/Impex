@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Impex;
 
 function recordInbound(string $body, ?string $key = null): MessageModel
 {

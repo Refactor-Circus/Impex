@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Data;
+namespace RefactorCircus\Impex\Domains\Subscription\Data;
 
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Subscription\Enums\EventKind;
+use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
 use stdClass;
 
 /**

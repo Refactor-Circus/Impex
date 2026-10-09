@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Console\Commands;
+namespace RefactorCircus\Impex\Domains\Flow\Console\Commands;
 
 use Illuminate\Console\Command;
 use InvalidArgumentException;
-use JayI\Impex\Domains\Flow\Support\FlowArguments;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Flow\Support\FlowArguments;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Impex;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;

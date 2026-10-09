@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Actions;
+namespace RefactorCircus\Impex\Domains\Run\Actions;
 
-use JayI\Impex\Domains\Run\Events\RunOwnerAttachedActionEvent;
-use JayI\Impex\Domains\Run\Events\RunOwnerAttachingActionEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Events\RunOwnerAttachedActionEvent;
+use RefactorCircus\Impex\Domains\Run\Events\RunOwnerAttachingActionEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 final class AttachRunOwnerAction
 {

@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Services;
+namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher as Events;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Channel\Services\ChannelSender;
-use JayI\Impex\Domains\Subscription\Data\StreamEvent;
-use JayI\Impex\Domains\Subscription\Enums\DeliveryStatus;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDisabled;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
-use JayI\Impex\Domains\Subscription\Mail\SubscriptionDigestMail;
-use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Support\Backoff;
-use JayI\Impex\Support\Locks;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelSender;
+use RefactorCircus\Impex\Domains\Subscription\Data\StreamEvent;
+use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDisabled;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Mail\SubscriptionDigestMail;
+use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Support\Backoff;
+use RefactorCircus\Impex\Support\Locks;
 use Throwable;
 
 /**

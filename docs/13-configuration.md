@@ -39,7 +39,7 @@ lanes in `subscriptions.queue`.
 'jobs' => [
     'middleware' => [
         '*' => [\App\Queue\TagWithTenant::class],
-        \JayI\Impex\Jobs\DeliverSubscription::class => [
+        \RefactorCircus\Impex\Jobs\DeliverSubscription::class => [
             [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
         ],
     ],
@@ -51,11 +51,11 @@ lanes in `subscriptions.queue`.
 | `middleware` | `[]` | Queue middleware for Impex's jobs, by job class; `*` applies to all of them, before a class's own. |
 
 An entry is a middleware class, a list of a class and its constructor
-arguments, or a `JayI\Impex\Contracts\JobMiddlewareFactory` that builds
+arguments, or a `RefactorCircus\Impex\Contracts\JobMiddlewareFactory` that builds
 middleware for the job in hand. Read when a job runs, not when it was queued.
 The jobs: `DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
 `DetectStream`, `DeliverSubscription` and `ExportSubscription`, all in
-`JayI\Impex\Jobs`. See [Extending](12-extending.md#job-middleware).
+`RefactorCircus\Impex\Jobs`. See [Extending](12-extending.md#job-middleware).
 
 ## `limits`
 
@@ -218,7 +218,7 @@ Both ship disabled.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `enabled` | `true` | Connect the MCP server and tools to `jayi/cortex` when it is installed. |
+| `enabled` | `true` | Connect the MCP server and tools to `refactor-circus/cortex` when it is installed. |
 | `server` | `'impex'` | The server's name in Cortex. |
 | `tools` | `null` | `null` for every tool, or a list of tool names such as `['list-runs-tool', 'show-run-tool']`. |
 
@@ -260,7 +260,7 @@ See [Dashboard](11-dashboard.md).
 ```
 
 Stream classes subscribers can follow, each implementing
-`JayI\Impex\Domains\Subscription\Contracts\Stream`. Packages register their own
+`RefactorCircus\Impex\Domains\Subscription\Contracts\Stream`. Packages register their own
 with `Impex::streams()->register()`. See [Subscriptions](19-subscriptions.md).
 
 ## `subscriptions`

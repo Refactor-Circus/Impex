@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Data;
+namespace RefactorCircus\Impex\Domains\Channel\Data;
 
 /**
  * What came of one send: whether the other side took it, and the ledger row

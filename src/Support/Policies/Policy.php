@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Support\Policies;
+namespace RefactorCircus\Impex\Support\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Foundation\Policies\Policy as BasePolicy;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Foundation\Policies\Policy as BasePolicy;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 /**
  * Shared checks for the bundled policies, on top of the suite's base policy.

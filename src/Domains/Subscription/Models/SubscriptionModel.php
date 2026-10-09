@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Models;
+namespace RefactorCircus\Impex\Domains\Subscription\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Database\Factories\SubscriptionFactory;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Subscription\Enums\Selection;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Database\Factories\SubscriptionFactory;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 
 /**
  * A subscriber's interest in one stream: which subjects, which topics, in

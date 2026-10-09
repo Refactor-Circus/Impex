@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Services;
+namespace RefactorCircus\Impex\Domains\Channel\Services;
 
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 /**
  * Sends a message through a named outbound channel.

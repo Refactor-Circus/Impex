@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Jobs;
+namespace RefactorCircus\Impex\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -10,8 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use JayI\Impex\Domains\Subscription\Services\Dispatcher;
-use JayI\Impex\Support\Concerns\UsesConfiguredMiddleware;
+use RefactorCircus\Impex\Domains\Subscription\Services\Dispatcher;
+use RefactorCircus\Impex\Support\Concerns\UsesConfiguredMiddleware;
 
 /**
  * Delivers one subscription's pending events. Carries the subscription's id

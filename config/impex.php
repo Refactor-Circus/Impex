@@ -2,37 +2,37 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Atrium\Features\ImpexSupportFeature;
-use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
-use JayI\Impex\Domains\Artifact\Policies\ArtifactPolicy;
-use JayI\Impex\Domains\Batch\Models\BatchItemModel;
-use JayI\Impex\Domains\Batch\Models\BatchModel;
-use JayI\Impex\Domains\Batch\Policies\BatchItemPolicy;
-use JayI\Impex\Domains\Batch\Policies\BatchPolicy;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Policies\ChannelPolicy;
-use JayI\Impex\Domains\Channel\Support\StandardWebhooksSigner;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Domains\Flow\Policies\FlowOverridePolicy;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Policies\MessagePolicy;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Policies\RunOwnerPolicy;
-use JayI\Impex\Domains\Run\Policies\RunPolicy;
-use JayI\Impex\Domains\Run\Policies\RunStepPolicy;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Domains\Signal\Models\TimerModel;
-use JayI\Impex\Domains\Signal\Policies\SignalPolicy;
-use JayI\Impex\Domains\Signal\Policies\TimerPolicy;
-use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Policies\DeliveryPolicy;
-use JayI\Impex\Domains\Subscription\Policies\SubscriberPolicy;
-use JayI\Impex\Domains\Subscription\Policies\SubscriptionPolicy;
-use JayI\Impex\Domains\Subscription\Support\OAuthClientResolver;
+use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
+use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Impex\Domains\Artifact\Policies\ArtifactPolicy;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchItemModel;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchModel;
+use RefactorCircus\Impex\Domains\Batch\Policies\BatchItemPolicy;
+use RefactorCircus\Impex\Domains\Batch\Policies\BatchPolicy;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Policies\ChannelPolicy;
+use RefactorCircus\Impex\Domains\Channel\Support\StandardWebhooksSigner;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Impex\Domains\Flow\Policies\FlowOverridePolicy;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Policies\MessagePolicy;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Policies\RunOwnerPolicy;
+use RefactorCircus\Impex\Domains\Run\Policies\RunPolicy;
+use RefactorCircus\Impex\Domains\Run\Policies\RunStepPolicy;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Domains\Signal\Models\TimerModel;
+use RefactorCircus\Impex\Domains\Signal\Policies\SignalPolicy;
+use RefactorCircus\Impex\Domains\Signal\Policies\TimerPolicy;
+use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Policies\DeliveryPolicy;
+use RefactorCircus\Impex\Domains\Subscription\Policies\SubscriberPolicy;
+use RefactorCircus\Impex\Domains\Subscription\Policies\SubscriptionPolicy;
+use RefactorCircus\Impex\Domains\Subscription\Support\OAuthClientResolver;
 
 return [
 
@@ -96,9 +96,9 @@ return [
     |
     | The jobs: DriveRun and ExecuteStep (runs), SeedBatch and
     | ProcessBatchItem (batches), DetectStream, DeliverSubscription and
-    | ExportSubscription (subscriptions), all in JayI\Impex\Jobs.
+    | ExportSubscription (subscriptions), all in RefactorCircus\Impex\Jobs.
     |
-    |     \JayI\Impex\Jobs\DeliverSubscription::class => [
+    |     \RefactorCircus\Impex\Jobs\DeliverSubscription::class => [
     |         [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
     |     ],
     |     '*' => [\App\Queue\TagWithTenant::class],
@@ -435,7 +435,7 @@ return [
     | Cortex
     |--------------------------------------------------------------------------
     |
-    | When jayi/cortex is installed, the MCP server is registered with it, so
+    | When refactor-circus/cortex is installed, the MCP server is registered with it, so
     | its instructions can be overridden, and the tools join its registry,
     | so Cortex agents can run and inspect workflows. Set `tools` to a list
     | of tool names, such as ['list-runs-tool', 'show-run-tool'], to offer
@@ -477,7 +477,7 @@ return [
     |
     | Features that switch Impex in Atrium on and off as a whole: while any is
     | off its navigation, widgets, settings and search are hidden and its
-    | pages answer 404. With jayi/pennantplus installed, ImpexSupportFeature
+    | pages answer 404. With refactor-circus/pennantplus installed, ImpexSupportFeature
     | is on until its global value is set; per-user values are ignored, so
     | who sees what stays with the policies above. Without PennantPlus the
     | class is skipped and nothing is checked. Name a subclass, or your own

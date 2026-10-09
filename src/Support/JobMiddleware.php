@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Support;
+namespace RefactorCircus\Impex\Support;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository as Config;
 use InvalidArgumentException;
-use JayI\Impex\Contracts\JobMiddlewareFactory;
+use RefactorCircus\Impex\Contracts\JobMiddlewareFactory;
 
 /**
  * The queue middleware `impex.jobs.middleware` gives each Impex job: those

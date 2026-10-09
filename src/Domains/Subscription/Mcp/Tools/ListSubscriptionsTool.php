@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Subscription\Mcp\Requests\ListSubscriptionsMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListSubscriptionsMcpRequest;
 
 #[Description('List subscriptions, optionally by stream, status or subscriber.')]
 final class ListSubscriptionsTool extends Tool

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Actions;
+namespace RefactorCircus\Impex\Domains\Signal\Actions;
 
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Events\RunSignalledActionEvent;
-use JayI\Impex\Domains\Signal\Events\RunSignallingActionEvent;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Events\RunSignalledActionEvent;
+use RefactorCircus\Impex\Domains\Signal\Events\RunSignallingActionEvent;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Impex;
 
 final class SignalRunAction
 {

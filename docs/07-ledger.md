@@ -65,8 +65,8 @@ An inbound channel is a named way in.
         'direction' => 'inbound',
         'signing_secret' => env('IMPEX_SUPPLIER_SECRET'),
         'signature_header' => 'X-Signature',
-        'signature_validator' => \JayI\Impex\Domains\Channel\Support\HmacSha256Validator::class,
-        'profile' => \JayI\Impex\Domains\Channel\Support\ProcessEverything::class,
+        'signature_validator' => \RefactorCircus\Impex\Domains\Channel\Support\HmacSha256Validator::class,
+        'profile' => \RefactorCircus\Impex\Domains\Channel\Support\ProcessEverything::class,
         'idempotency_header' => 'X-Request-Id',
         'flow' => 'extract-products',
         'store_headers' => ['content-type', 'x-request-id'],
@@ -120,8 +120,8 @@ sender can rotate without a gap. See
 namespace App\Impex;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Channel\Contracts\SignatureValidator;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Contracts\SignatureValidator;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 final class StripeSignatureValidator implements SignatureValidator
 {
@@ -158,8 +158,8 @@ Fail closed: a channel with no secret should accept nothing.
 namespace App\Impex;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Channel\Contracts\ChannelProfile;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Contracts\ChannelProfile;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 final class OnlyProductEvents implements ChannelProfile
 {
@@ -224,7 +224,7 @@ transport. See [Channels](18-channels.md#mail).
 ## Reading the ledger
 
 ```php
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 MessageModel::query()->where('direction', Direction::Inbound)->latest('occurred_at')->get();
 MessageModel::query()->where('delivery_id', $deliveryId)->first();   // what a subscription delivery sent

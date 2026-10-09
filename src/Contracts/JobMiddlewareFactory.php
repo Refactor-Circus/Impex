@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Contracts;
+namespace RefactorCircus\Impex\Contracts;
 
 /**
  * Builds queue middleware for one job, for middleware that needs something

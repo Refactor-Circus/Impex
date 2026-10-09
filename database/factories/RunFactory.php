@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Database\Factories;
+namespace RefactorCircus\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 /**
  * @extends Factory<RunModel>

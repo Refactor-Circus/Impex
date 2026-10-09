@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Exceptions;
+namespace RefactorCircus\Impex\Domains\Run\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * Thrown when a replay diverges from the history already recorded for a run.

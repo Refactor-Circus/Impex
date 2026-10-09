@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Actions;
+namespace RefactorCircus\Impex\Domains\Run\Actions;
 
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Domains\Run\Events\RunsListedActionEvent;
-use JayI\Impex\Domains\Run\Events\RunsListingActionEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Events\RunsListedActionEvent;
+use RefactorCircus\Impex\Domains\Run\Events\RunsListingActionEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 final class ListRunsAction
 {

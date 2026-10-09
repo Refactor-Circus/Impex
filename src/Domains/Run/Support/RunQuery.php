@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Support;
+namespace RefactorCircus\Impex\Domains\Run\Support;
 
 use DateTimeInterface;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as SupportCollection;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 /**
  * A readable way to ask for runs.

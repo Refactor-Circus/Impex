@@ -1,7 +1,7 @@
 ---
 name: impex-development
 description: >
-  Build and operate workflows with the jayi/impex package in Laravel
+  Build and operate workflows with the refactor-circus/impex package in Laravel
   applications: writing flows and actions, making them safe to replay, keeping
   them inside serverless execution limits, and triggering them from the API,
   console, or scheduler.
@@ -12,7 +12,7 @@ metadata:
 
 # Impex
 
-Use this skill when a Laravel application runs multi-step work with `jayi/impex`
+Use this skill when a Laravel application runs multi-step work with `refactor-circus/impex`
 — writing a flow, adding an action, making long or large work survive a
 serverless timeout, or tracking data crossing the application boundary.
 
@@ -26,7 +26,7 @@ serverless timeout, or tracking data crossing the application boundary.
 
 ### 1. Confirm the package is wired
 
-- `jayi/impex` is in `composer.json`
+- `refactor-circus/impex` is in `composer.json`
 - migrations are published: `php artisan vendor:publish --tag=impex-migrations`
 - **`impex:tick` is on the schedule.** Without it, any run that sleeps or waits
   on a signal past the queue's delay ceiling never wakes. This is not optional.
@@ -38,7 +38,7 @@ serverless timeout, or tracking data crossing the application boundary.
 
 ### 2. Write the flow
 
-A flow is a class extending `JayI\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
+A flow is a class extending `RefactorCircus\Impex\Domains\Flow\Support\Flow` with a public `handle()`.
 Register it in `config/impex.php` under `flows`, keyed by slug.
 
 ```php
@@ -156,7 +156,7 @@ endpoints are signature-authenticated, never user-authorized.
 
 ### 8. Test it
 
-The package ships assertions: `JayI\Impex\Testing\Flows`. `Flows::run()` drives
+The package ships assertions: `RefactorCircus\Impex\Testing\Flows`. `Flows::run()` drives
 a run to completion in-process with no worker; `Flows::travelTo()` moves the
 clock and runs the sweep, which is how you test a timeout, a sleep, or a
 deadline. Write `Flows::redeliverSteps()` for any flow touching a
@@ -174,20 +174,20 @@ action would be allowed (`@impexCan('cancel', $run)` in Blade, `ScreenAccess`
 in PHP), and lists cover only the user's own runs. `impex.atrium.show_all`
 (`true`, or a Gate ability name) makes users dashboard operators, who see every
 run (unowned ones included) and may use every Impex control — on the Atrium
-screens only, never the API or MCP. With `jayi/pennantplus`,
+screens only, never the API or MCP. With `refactor-circus/pennantplus`,
 `Feature::for(null)->deactivate(ImpexSupportFeature::class)` hides Impex in
 Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
-`JayI\Impex\Atrium\Badges` (`info` only for pending/waiting, through the
+`RefactorCircus\Impex\Atrium\Badges` (`info` only for pending/waiting, through the
 `impex::ui.partials.status-dot` partial); actions are icon buttons. Impex ships
 no stylesheet and no components: views use `x-atrium::*` components and Atrium's
 safelisted utilities only, never `<style>` or `style=` (a test runs
 `AtriumStyles::missingClasses()` / `inlineStyles()`). The run and message pages
 show `<x-atrium::audit-trail source="impex" :subject="..." />`, the runs page the
-package-wide trail; they render nothing until jayi/keen is installed. Over MCP the tools sit behind `search_tools` and
+package-wide trail; they render nothing until refactor-circus/keen is installed. Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
 check the steps with phase `rollback` to see what was rolled back. With an audit
-log (jayi/keen) installed, `GET impex/history` and `list-impex-history-tool`
+log (refactor-circus/keen) installed, `GET impex/history` and `list-impex-history-tool`
 show who changed what; without one they answer "not installed".
 
 ## Rules, References, and Templates
@@ -208,13 +208,13 @@ subscriptions (`19-subscriptions.md`).
 
 Give Impex's jobs (`DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
 `DetectStream`, `DeliverSubscription`, `ExportSubscription`, in
-`JayI\Impex\Jobs`) queue middleware through config, never by subclassing them:
+`RefactorCircus\Impex\Jobs`) queue middleware through config, never by subclassing them:
 
 ```php
 'jobs' => [
     'middleware' => [
         '*' => [\App\Queue\TagWithTenant::class],                      // every job
-        \JayI\Impex\Jobs\DeliverSubscription::class => [
+        \RefactorCircus\Impex\Jobs\DeliverSubscription::class => [
             [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'], // [class, ...args]
             \App\Queue\SubscriptionLocks::class,                       // a JobMiddlewareFactory
         ],
@@ -222,7 +222,7 @@ Give Impex's jobs (`DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
 ],
 ```
 
-A `JayI\Impex\Contracts\JobMiddlewareFactory` implements
+A `RefactorCircus\Impex\Contracts\JobMiddlewareFactory` implements
 `middleware(object $job): array` to build middleware from the job in hand.
 Entries are class names or arrays only, so the config caches; they are read
 when the job runs.
@@ -312,7 +312,7 @@ Atrium Channels screens. Measure the subscription pipeline with
   on resume
 - **do not** subclass an Impex job to add queue middleware — use
   `impex.jobs.middleware`
-- **do not** catch `JayI\Impex\Domains\Run\Support\Suspended` in flow code; it is the
+- **do not** catch `RefactorCircus\Impex\Domains\Run\Support\Suspended` in flow code; it is the
   engine's control flow, and catching it corrupts the run
 - **do not** put business logic in `handle()` — it belongs in an action, because
   `handle()` re-runs on every drive while an action runs once

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Services;
+namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 
 /**
  * The subscriptions' share of `impex:tick`: the safety net under the jobs

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Services;
+namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
 use Illuminate\Contracts\Bus\Dispatcher as Bus;
 use Illuminate\Contracts\Config\Repository as Config;
-use JayI\Impex\Jobs\DeliverSubscription;
-use JayI\Impex\Jobs\DetectStream;
-use JayI\Impex\Jobs\ExportSubscription;
+use RefactorCircus\Impex\Jobs\DeliverSubscription;
+use RefactorCircus\Impex\Jobs\DetectStream;
+use RefactorCircus\Impex\Jobs\ExportSubscription;
 
 /**
  * Queues subscription work on the queues `impex.subscriptions.queue` names.

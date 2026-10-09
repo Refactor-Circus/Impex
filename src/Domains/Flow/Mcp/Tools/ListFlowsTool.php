@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Flow\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Flow\Mcp\Requests\ListFlowsMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Flow\Mcp\Requests\ListFlowsMcpRequest;
 
 #[Description('List the workflows this application can run, with whether each is currently enabled and its schedule.')]
 final class ListFlowsTool extends Tool

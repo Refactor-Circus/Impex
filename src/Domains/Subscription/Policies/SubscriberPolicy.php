@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Policies;
+namespace RefactorCircus\Impex\Domains\Subscription\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * A subscriber belongs to whoever created it on the operator API — the user

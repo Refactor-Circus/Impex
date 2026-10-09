@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Impex\Domains\Subscription\Http\Controllers\StreamController;
-use JayI\Impex\Domains\Subscription\Http\Controllers\SubscriberController;
-use JayI\Impex\Domains\Subscription\Http\Controllers\SubscriptionController;
+use RefactorCircus\Impex\Domains\Subscription\Http\Controllers\StreamController;
+use RefactorCircus\Impex\Domains\Subscription\Http\Controllers\SubscriberController;
+use RefactorCircus\Impex\Domains\Subscription\Http\Controllers\SubscriptionController;
 
 // The operator API: managing subscribers and their subscriptions on their
 // behalf. Subscribers manage their own through routes/subscriber.php.

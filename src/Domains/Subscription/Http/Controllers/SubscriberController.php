@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Http\Requests\DestroySubscriberRequest;
-use JayI\Impex\Domains\Subscription\Http\Requests\IndexSubscribersRequest;
-use JayI\Impex\Domains\Subscription\Http\Requests\ShowSubscriberRequest;
-use JayI\Impex\Domains\Subscription\Http\Requests\StoreSubscriberRequest;
-use JayI\Impex\Domains\Subscription\Http\Requests\UpdateSubscriberRequest;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\DestroySubscriberRequest;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\IndexSubscribersRequest;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\ShowSubscriberRequest;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\StoreSubscriberRequest;
+use RefactorCircus\Impex\Domains\Subscription\Http\Requests\UpdateSubscriberRequest;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 final class SubscriberController
 {

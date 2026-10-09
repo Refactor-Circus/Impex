@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Channel\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Foundation\Http\Requests\Request;
-use JayI\Impex\Domains\Channel\Actions\ListChannelsAction;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Foundation\Http\Requests\Request;
+use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 final class IndexChannelsRequest extends Request
 {

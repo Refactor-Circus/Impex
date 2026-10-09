@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Models;
+namespace RefactorCircus\Impex\Domains\Subscription\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Database\Factories\SubscriberFactory;
-use JayI\Impex\Domains\Subscription\Enums\SubscriberStatus;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Database\Factories\SubscriberFactory;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriberStatus;
 
 /**
  * Someone outside the application who receives its changes: a vendor, a

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Message\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Channel\Contracts\ChannelProfile;
-use JayI\Impex\Domains\Channel\Contracts\SignatureValidator;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Flow\Exceptions\DisabledFlowException;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
-use JayI\Impex\Domains\Run\Enums\RunTrigger;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Channel\Contracts\ChannelProfile;
+use RefactorCircus\Impex\Domains\Channel\Contracts\SignatureValidator;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\DisabledFlowException;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Impex;
 
 /**
  * Receives inbound traffic on a named channel.

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Database\Factories;
+namespace RefactorCircus\Impex\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use JayI\Impex\Domains\Subscription\Enums\Selection;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * @extends Factory<SubscriptionModel>

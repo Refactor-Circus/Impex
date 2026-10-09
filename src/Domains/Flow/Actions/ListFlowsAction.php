@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Actions;
+namespace RefactorCircus\Impex\Domains\Flow\Actions;
 
-use JayI\Impex\Domains\Flow\Events\FlowsListedActionEvent;
-use JayI\Impex\Domains\Flow\Events\FlowsListingActionEvent;
-use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use RefactorCircus\Impex\Domains\Flow\Events\FlowsListedActionEvent;
+use RefactorCircus\Impex\Domains\Flow\Events\FlowsListingActionEvent;
+use RefactorCircus\Impex\Domains\Flow\Services\FlowRegistry;
 
 final class ListFlowsAction
 {

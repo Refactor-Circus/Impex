@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests;
+namespace RefactorCircus\Impex\Tests;
 
-use JayI\PennantPlus\PennantPlusServiceProvider;
 use Laravel\Pennant\PennantServiceProvider;
+use RefactorCircus\PennantPlus\PennantPlusServiceProvider;
 
 /**
- * Impex booted with jayi/pennantplus answering Atrium's feature checks.
+ * Impex booted with refactor-circus/pennantplus answering Atrium's feature checks.
  */
 abstract class PennantPlusTestCase extends TestCase
 {

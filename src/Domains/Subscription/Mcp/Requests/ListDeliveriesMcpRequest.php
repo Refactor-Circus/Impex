@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use JayI\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
-use JayI\Impex\Domains\Subscription\Resources\DeliveryResource;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
+use RefactorCircus\Impex\Domains\Subscription\Resources\DeliveryResource;
 
 final class ListDeliveriesMcpRequest extends SubscriptionMcpRequest
 {

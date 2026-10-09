@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Models;
+namespace RefactorCircus\Impex\Domains\Flow\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
 
 /**
  * A runtime override for a registered flow.

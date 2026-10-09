@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Flow\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Foundation\Http\Requests\Request;
-use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Foundation\Http\Requests\Request;
+use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
 
 final class IndexFlowsRequest extends Request
 {

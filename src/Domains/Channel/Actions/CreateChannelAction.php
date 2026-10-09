@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Actions;
+namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Enums\ChannelStatus;
-use JayI\Impex\Domains\Channel\Events\ChannelCreatedActionEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelCreatingActionEvent;
-use JayI\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Channel\Services\TransportManager;
-use JayI\Impex\Domains\Channel\Support\EndpointGuard;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelCreatedActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelCreatingActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
+use RefactorCircus\Impex\Domains\Channel\Support\EndpointGuard;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 final class CreateChannelAction
 {

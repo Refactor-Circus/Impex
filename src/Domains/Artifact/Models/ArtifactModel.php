@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Artifact\Models;
+namespace RefactorCircus\Impex\Domains\Artifact\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Database\Factories\ArtifactFactory;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Database\Factories\ArtifactFactory;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
 
 /**
  * @property string $id

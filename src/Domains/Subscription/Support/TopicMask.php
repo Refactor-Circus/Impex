@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Support;
+namespace RefactorCircus\Impex\Domains\Subscription\Support;
 
 /**
  * Topics as bits, so matching an event to a subscription is one AND.

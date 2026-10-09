@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Enums;
+namespace RefactorCircus\Impex\Domains\Run\Enums;
 
 enum ChildClosePolicy: string
 {

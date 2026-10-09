@@ -2,28 +2,28 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Services;
+namespace RefactorCircus\Impex\Domains\Batch\Services;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Domains\Artifact\Services\PayloadStore;
-use JayI\Impex\Domains\Batch\Contracts\BatchSource;
-use JayI\Impex\Domains\Batch\Data\BatchChunkItem;
-use JayI\Impex\Domains\Batch\Exceptions\BatchFailedException;
-use JayI\Impex\Domains\Batch\Exceptions\BatchItemAbandonedException;
-use JayI\Impex\Domains\Batch\Models\BatchItemModel;
-use JayI\Impex\Domains\Batch\Models\BatchModel;
-use JayI\Impex\Domains\Run\Data\StepDeadline;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Services\Engine;
-use JayI\Impex\Domains\Run\Services\EngineOptions;
-use JayI\Impex\Domains\Run\Services\JobRouter;
-use JayI\Impex\Support\Locks;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Domains\Artifact\Services\PayloadStore;
+use RefactorCircus\Impex\Domains\Batch\Contracts\BatchSource;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunkItem;
+use RefactorCircus\Impex\Domains\Batch\Exceptions\BatchFailedException;
+use RefactorCircus\Impex\Domains\Batch\Exceptions\BatchItemAbandonedException;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchItemModel;
+use RefactorCircus\Impex\Domains\Batch\Models\BatchModel;
+use RefactorCircus\Impex\Domains\Run\Data\StepDeadline;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Services\Engine;
+use RefactorCircus\Impex\Domains\Run\Services\EngineOptions;
+use RefactorCircus\Impex\Domains\Run\Services\JobRouter;
+use RefactorCircus\Impex\Support\Locks;
 use ReflectionClass;
 use ReflectionMethod;
 use RuntimeException;

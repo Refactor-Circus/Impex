@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Support;
+namespace RefactorCircus\Impex\Domains\Flow\Support;
 
 use DateTimeInterface;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Run\Support\Context;
+use RefactorCircus\Impex\Domains\Run\Support\Context;
 
 /**
  * Waits for an externally delivered signal.

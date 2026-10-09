@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Artifact\Services;
+namespace RefactorCircus\Impex\Domains\Artifact\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Domains\Artifact\Exceptions\PayloadException;
-use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Domains\Artifact\Exceptions\PayloadException;
+use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
 use Throwable;
 
 /**

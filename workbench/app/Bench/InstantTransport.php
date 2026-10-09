@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Workbench\App\Bench;
 
-use JayI\Impex\Domains\Channel\Contracts\Transport;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 
 /**
  * An endpoint that accepts everything at once, still recorded in the ledger,

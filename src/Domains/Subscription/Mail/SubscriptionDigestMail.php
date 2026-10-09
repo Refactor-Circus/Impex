@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mail;
+namespace RefactorCircus\Impex\Domains\Subscription\Mail;
 
 use Illuminate\Mail\Mailable;
 

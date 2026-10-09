@@ -9,7 +9,7 @@
 namespace VendorName\Catalogue;
 
 use Illuminate\Support\ServiceProvider;
-use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use RefactorCircus\Impex\Domains\Flow\Services\FlowRegistry;
 
 final class CatalogueServiceProvider extends ServiceProvider
 {
@@ -53,7 +53,7 @@ Impex::flows()->class('catalogue:sync');          // the app's class
 Two packages claiming the same slug is an **error**, not a silent shadowing:
 
 ```
-JayI\Impex\Domains\Flow\Exceptions\FlowCollisionException
+RefactorCircus\Impex\Domains\Flow\Exceptions\FlowCollisionException
 
   The flow slug [sync] is already registered to [VendorA\SyncFlow], and
   [VendorB\SyncFlow] tried to claim it. Prefix the slug with the package name,
@@ -150,12 +150,12 @@ actually exists.
 | `Subscription\Contracts\SubscriptionMatcher` | Which filtered subscriptions a changed subject falls into |
 | `Subscription\Contracts\Formatter` | What a subscriber receives for a batch of events |
 | `Subscription\Contracts\ResolvesSubscriber` | Which subscriber a subscriber-API request is |
-| `JayI\Impex\Contracts\JobMiddlewareFactory` | Queue middleware built for the job in hand |
+| `RefactorCircus\Impex\Contracts\JobMiddlewareFactory` | Queue middleware built for the job in hand |
 | `BatchSource` | Streaming resumable pages of work into a batch |
 | `RollbackStrategy` | What a failed run unwinds, and in what order |
 | `Resumable` | An action that checkpoints and resumes (via `ResumableAction`) |
 
-The domain contracts live under `JayI\Impex\Domains\…`. Most are resolved at the
+The domain contracts live under `RefactorCircus\Impex\Domains\…`. Most are resolved at the
 point of use from a config value, so swapping one is a config change:
 
 ```php
@@ -171,7 +171,7 @@ the rest. See [Subscriptions](19-subscriptions.md#writing-a-stream) for writing
 one.
 
 ```php
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
 
 public function boot(): void
 {
@@ -194,12 +194,12 @@ subscription and never changes.
 ## Custom transports
 
 ```php
-use JayI\Impex\Domains\Channel\Contracts\Transport;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use Throwable;
 
 final class SqsTransport implements Transport
@@ -275,9 +275,9 @@ instead:
 
 ```php
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
-use JayI\Impex\Domains\Subscription\Enums\SubscriberStatus;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriberStatus;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 final class VendorUserResolver implements ResolvesSubscriber
 {
@@ -305,14 +305,14 @@ Return `null` and the request is refused with `403`.
 
 Every Impex job — `DriveRun`, `ExecuteStep`, `SeedBatch`, `ProcessBatchItem`,
 `DetectStream`, `DeliverSubscription`, `ExportSubscription`, all in
-`JayI\Impex\Jobs` — reads its queue middleware from `impex.jobs.middleware`
+`RefactorCircus\Impex\Jobs` — reads its queue middleware from `impex.jobs.middleware`
 when it runs: entries under `*` for every job, then those under the job's class.
 
 ```php
 'jobs' => [
     'middleware' => [
         '*' => [\App\Queue\TagWithTenant::class],
-        \JayI\Impex\Jobs\DeliverSubscription::class => [
+        \RefactorCircus\Impex\Jobs\DeliverSubscription::class => [
             [\Illuminate\Queue\Middleware\RateLimited::class, 'impex-deliveries'],
         ],
     ],
@@ -326,8 +326,8 @@ itself — a lock keyed by the subscription a delivery is for, say:
 
 ```php
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use JayI\Impex\Contracts\JobMiddlewareFactory;
-use JayI\Impex\Jobs\DeliverSubscription;
+use RefactorCircus\Impex\Contracts\JobMiddlewareFactory;
+use RefactorCircus\Impex\Jobs\DeliverSubscription;
 
 final class OneDeliveryPerSubscriber implements JobMiddlewareFactory
 {
@@ -360,8 +360,8 @@ Every state transition emits one.
 
 ```php
 use Illuminate\Support\Facades\Event;
-use JayI\Impex\Domains\Run\Events\RunFailed;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Events\RunFailed;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 Event::listen(function (RunFailed $event): void {
     $run = RunModel::query()->find($event->runId);
@@ -382,8 +382,8 @@ failing — the subscription stays off, collecting events, until someone resumes
 it:
 
 ```php
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDisabled;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDisabled;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 Event::listen(function (SubscriptionDisabled $event): void {
     $subscription = SubscriptionModel::query()->with('subscriber')->find($event->subscriptionId);
@@ -394,10 +394,10 @@ Event::listen(function (SubscriptionDisabled $event): void {
 ```
 
 Alongside these engine events, every model fires a class-based event per
-Eloquent hook (`JayI\Impex\Domains\Run\Events\RunCreatedEvent`, ...) and every
-action fires a start and a finish event (`JayI\Impex\Domains\Flow\Events\FlowRanActionEvent`,
+Eloquent hook (`RefactorCircus\Impex\Domains\Run\Events\RunCreatedEvent`, ...) and every
+action fires a start and a finish event (`RefactorCircus\Impex\Domains\Flow\Events\FlowRanActionEvent`,
 ...). Listen to `ModelLifecycleEvent`, `ActionStartingEvent` or
-`ActionFinishedEvent` in `JayI\Foundation\Contracts` to receive a whole family. See
+`ActionFinishedEvent` in `RefactorCircus\Foundation\Contracts` to receive a whole family. See
 the [README](../README.md#events) for the full list.
 
 ## Registering channels from a package

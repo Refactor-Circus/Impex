@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use JayI\Impex\Domains\Subscription\Actions\ListSubscriptionEventsAction;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscriptionEventsAction;
 
 final class ListSubscriptionEventsMcpRequest extends SubscriptionMcpRequest
 {

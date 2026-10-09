@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Channel\Data\Receipt;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionPingedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionPingingActionEvent;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\Dispatcher;
+use RefactorCircus\Impex\Domains\Channel\Data\Receipt;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionPingedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionPingingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\Dispatcher;
 
 final class PingSubscriptionAction
 {

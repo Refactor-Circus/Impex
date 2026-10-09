@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Database\ConnectionInterface;
-use JayI\Impex\Domains\Subscription\Enums\Selection;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionSubjectsUpdatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class UpdateSubscriptionSubjectsAction
 {

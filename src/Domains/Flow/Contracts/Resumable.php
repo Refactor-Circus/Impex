@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Contracts;
+namespace RefactorCircus\Impex\Domains\Flow\Contracts;
 
-use JayI\Impex\Domains\Run\Data\StepDeadline;
+use RefactorCircus\Impex\Domains\Run\Data\StepDeadline;
 
 /**
  * An action that can stop partway and be resumed from a checkpoint.

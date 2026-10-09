@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Enums\ChannelStatus;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 beforeEach(function (): void {
     ValidateCsrfToken::except(['*']);

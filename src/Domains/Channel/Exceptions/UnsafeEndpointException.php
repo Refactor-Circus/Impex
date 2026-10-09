@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Exceptions;
+namespace RefactorCircus\Impex\Domains\Channel\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 final class UnsafeEndpointException extends ImpexException
 {

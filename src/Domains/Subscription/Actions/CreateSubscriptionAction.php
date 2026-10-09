@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Channel\Actions\CreateChannelAction;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionCreatedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
-use JayI\Impex\Domains\Subscription\Support\SubscriptionSettings;
+use RefactorCircus\Impex\Domains\Channel\Actions\CreateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionCreatedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Support\SubscriptionSettings;
 
 final class CreateSubscriptionAction
 {

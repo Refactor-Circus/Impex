@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Actions;
+namespace RefactorCircus\Impex\Domains\Run\Actions;
 
-use JayI\Impex\Domains\Run\Events\RunCancelledActionEvent;
-use JayI\Impex\Domains\Run\Events\RunCancellingActionEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Run\Events\RunCancelledActionEvent;
+use RefactorCircus\Impex\Domains\Run\Events\RunCancellingActionEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Impex;
 
 final class CancelRunAction
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Support;
+namespace RefactorCircus\Impex\Domains\Subscription\Support;
 
 use Illuminate\Contracts\Config\Repository as Config;
 

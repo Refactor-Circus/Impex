@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Models;
+namespace RefactorCircus\Impex\Domains\Run\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Database\Factories\RunStepFactory;
-use JayI\Impex\Domains\Run\Enums\StepPhase;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Database\Factories\RunStepFactory;
+use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepType;
 
 /**
  * @property string $id

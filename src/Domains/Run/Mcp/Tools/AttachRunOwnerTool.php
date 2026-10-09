@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Run\Mcp\Requests\AttachRunOwnerMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Run\Mcp\Requests\AttachRunOwnerMcpRequest;
 
 #[Description('Give a model a stake in a run. The host application decides what customers, teams and users are; this only records the link.')]
 final class AttachRunOwnerTool extends Tool

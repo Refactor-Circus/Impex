@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium;
+namespace RefactorCircus\Impex\Atrium;
 
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Subscription\Enums\DeliveryStatus;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 
 /**
  * Maps Impex's states onto Atrium colours.

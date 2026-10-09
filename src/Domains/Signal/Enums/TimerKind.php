@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Enums;
+namespace RefactorCircus\Impex\Domains\Signal\Enums;
 
 enum TimerKind: string
 {

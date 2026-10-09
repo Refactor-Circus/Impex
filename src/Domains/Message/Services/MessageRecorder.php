@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Services;
+namespace RefactorCircus\Impex\Domains\Message\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Events\Dispatcher as Events;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Domains\Artifact\Services\PayloadStore;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Events\MessageRecorded;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Domains\Artifact\Services\PayloadStore;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Events\MessageRecorded;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 /**
  * Writes the ledger.

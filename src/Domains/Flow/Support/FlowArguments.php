@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Support;
+namespace RefactorCircus\Impex\Domains\Flow\Support;
 
 use InvalidArgumentException;
 use ReflectionMethod;

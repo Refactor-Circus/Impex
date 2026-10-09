@@ -1,5 +1,5 @@
-@use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus)
+@use(RefactorCircus\Impex\Atrium\Badges)
+@use(RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus)
 
 <x-atrium::layout :title="$subscription->stream">
     <x-atrium::page-header :title="$subscription->stream" :description="$subscription->subscriber->name">

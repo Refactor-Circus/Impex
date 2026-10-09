@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Message\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Message\Actions\ShowMessageAction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Resources\MessageResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Message\Actions\ShowMessageAction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
 
 final class ShowMessageMcpRequest extends Request
 {

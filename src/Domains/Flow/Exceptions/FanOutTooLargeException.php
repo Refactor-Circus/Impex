@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Exceptions;
+namespace RefactorCircus\Impex\Domains\Flow\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * A fan-out was handed more items than per-item replay can carry.

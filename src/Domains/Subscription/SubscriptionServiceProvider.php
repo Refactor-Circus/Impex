@@ -2,28 +2,28 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription;
+namespace RefactorCircus\Impex\Domains\Subscription;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
-use JayI\Foundation\Support\ServiceProvider;
-use JayI\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionDeletedEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionSavedEvent;
-use JayI\Impex\Domains\Subscription\Http\Middleware\ResolveSubscriber;
-use JayI\Impex\Domains\Subscription\Services\Detector;
-use JayI\Impex\Domains\Subscription\Services\Dispatcher;
-use JayI\Impex\Domains\Subscription\Services\EventReader;
-use JayI\Impex\Domains\Subscription\Services\Exporter;
-use JayI\Impex\Domains\Subscription\Services\FanOut;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
-use JayI\Impex\Domains\Subscription\Services\Streams;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionJobs;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionSweeper;
-use JayI\Impex\Domains\Subscription\Support\Backoff;
-use JayI\Impex\Domains\Subscription\Support\OAuthClientResolver;
-use JayI\Impex\Domains\Subscription\Support\SubscriptionSettings;
+use RefactorCircus\Foundation\Support\ServiceProvider;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletedEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionSavedEvent;
+use RefactorCircus\Impex\Domains\Subscription\Http\Middleware\ResolveSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Services\Detector;
+use RefactorCircus\Impex\Domains\Subscription\Services\Dispatcher;
+use RefactorCircus\Impex\Domains\Subscription\Services\EventReader;
+use RefactorCircus\Impex\Domains\Subscription\Services\Exporter;
+use RefactorCircus\Impex\Domains\Subscription\Services\FanOut;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Services\Streams;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionJobs;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionSweeper;
+use RefactorCircus\Impex\Domains\Subscription\Support\Backoff;
+use RefactorCircus\Impex\Domains\Subscription\Support\OAuthClientResolver;
+use RefactorCircus\Impex\Domains\Subscription\Support\SubscriptionSettings;
 
 class SubscriptionServiceProvider extends ServiceProvider
 {

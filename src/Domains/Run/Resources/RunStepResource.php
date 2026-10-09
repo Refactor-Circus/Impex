@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Resources;
+namespace RefactorCircus\Impex\Domains\Run\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 
 /**
  * @mixin RunStepModel

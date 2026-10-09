@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Support;
+namespace RefactorCircus\Impex\Domains\Channel\Support;
 
-use JayI\Impex\Domains\Channel\Contracts\Signer;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Signer;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * The common, simpler shape: a hex HMAC-SHA256 of the raw body under the

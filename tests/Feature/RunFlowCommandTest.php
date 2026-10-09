@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Facades\Impex;
-use JayI\Impex\Tests\Fixtures\TypedArgumentsFlow;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Facades\Impex;
+use RefactorCircus\Impex\Tests\Fixtures\TypedArgumentsFlow;
 
 beforeEach(function (): void {
     config()->set('queue.default', 'sync');

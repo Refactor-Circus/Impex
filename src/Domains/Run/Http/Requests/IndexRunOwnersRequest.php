@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Run\Actions\ListRunOwnersAction;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
-use JayI\Impex\Domains\Run\Resources\RunOwnerResource;
+use RefactorCircus\Impex\Domains\Run\Actions\ListRunOwnersAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunOwnerResource;
 
 final class IndexRunOwnersRequest extends RunRequest
 {

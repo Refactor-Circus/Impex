@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use JayI\Foundation\Contracts\ActionFinishedEvent;
-use JayI\Foundation\Contracts\ActionStartingEvent;
-use JayI\Foundation\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
-use JayI\Impex\Domains\Flow\Actions\RunFlowAction;
-use JayI\Impex\Domains\Flow\Events\FlowRanActionEvent;
-use JayI\Impex\Domains\Flow\Events\FlowRunningActionEvent;
-use JayI\Impex\Domains\Flow\Exceptions\UnknownFlowException;
-use JayI\Impex\Domains\Run\Actions\ShowRunAction;
-use JayI\Impex\Domains\Run\Events\RunCreatingEvent;
-use JayI\Impex\Domains\Run\Events\RunShownActionEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Tests\Fixtures\Calls;
-use JayI\Impex\Tests\Fixtures\LinearFlow;
+use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
+use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
+use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
+use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
+use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Events\FlowRanActionEvent;
+use RefactorCircus\Impex\Domains\Flow\Events\FlowRunningActionEvent;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\UnknownFlowException;
+use RefactorCircus\Impex\Domains\Run\Actions\ShowRunAction;
+use RefactorCircus\Impex\Domains\Run\Events\RunCreatingEvent;
+use RefactorCircus\Impex\Domains\Run\Events\RunShownActionEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Tests\Fixtures\Calls;
+use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
 
 beforeEach(function (): void {
     Calls::reset();
@@ -47,7 +47,7 @@ it('maps every Eloquent hook of every model to its own event', function (): void
     $hooks = ['retrieved', 'creating', 'created', 'updating', 'updated', 'saving', 'saved', 'deleting', 'deleted', 'replicating'];
 
     $models = array_map(
-        fn (string $path): string => 'JayI\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Models\\'.basename($path, '.php'),
+        fn (string $path): string => 'RefactorCircus\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Models\\'.basename($path, '.php'),
         glob(dirname(__DIR__, 2).'/src/Domains/*/Models/*.php') ?: [],
     );
 
@@ -95,7 +95,7 @@ it('gives every action exactly one start and one finish event', function (): voi
 
         $kinds = array_map(
             // Each action's events live in its domain's Events namespace.
-            fn (string $event): string => is_subclass_of('JayI\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Events\\'.$event, ActionStartingEvent::class) ? 'start' : 'finish',
+            fn (string $event): string => is_subclass_of('RefactorCircus\\Impex\\Domains\\'.basename(dirname($path, 2)).'\\Events\\'.$event, ActionStartingEvent::class) ? 'start' : 'finish',
             $matches[1],
         );
 

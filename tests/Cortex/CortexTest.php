@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use JayI\Cortex\Domains\McpServer\Actions\CreateMcpInstructionVersionAction;
-use JayI\Cortex\Domains\McpServer\Services\McpServerRegistry;
-use JayI\Cortex\Domains\Tool\Actions\CreateToolDescriptionVersionAction;
-use JayI\Cortex\Domains\Tool\Services\ToolRegistry;
-use JayI\Foundation\Cortex\CortexIntegration;
-use JayI\Foundation\Packages\PackageRegistry;
-use JayI\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
-use JayI\Impex\Mcp\ImpexServer;
 use Laravel\Ai\Contracts\Tool as AgentTool;
 use Laravel\Ai\Tools\Request;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
+use RefactorCircus\Cortex\Domains\McpServer\Actions\CreateMcpInstructionVersionAction;
+use RefactorCircus\Cortex\Domains\McpServer\Services\McpServerRegistry;
+use RefactorCircus\Cortex\Domains\Tool\Actions\CreateToolDescriptionVersionAction;
+use RefactorCircus\Cortex\Domains\Tool\Services\ToolRegistry;
+use RefactorCircus\Foundation\Cortex\CortexIntegration;
+use RefactorCircus\Foundation\Packages\PackageRegistry;
+use RefactorCircus\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
+use RefactorCircus\Impex\Mcp\ImpexServer;
 
 it('registers the MCP server with Cortex', function (): void {
     $servers = app(McpServerRegistry::class);

@@ -39,7 +39,7 @@ individually and results come back in key order.
 Above `impex.limits.fan_out_max` (default 100) it refuses:
 
 ```
-JayI\Impex\Domains\Flow\Exceptions\FanOutTooLargeException
+RefactorCircus\Impex\Domains\Flow\Exceptions\FanOutTooLargeException
 
   fanOut() received 5000 items, above the configured cap of 100
   (impex.limits.fan_out_max). Replay is O(history) per drive, so 5000 per-item
@@ -91,9 +91,9 @@ large source will span more of them than any one may live for.
 namespace App\Flows\Sources;
 
 use App\Models\Product;
-use JayI\Impex\Domains\Batch\Contracts\BatchSource;
-use JayI\Impex\Domains\Batch\Data\BatchChunk;
-use JayI\Impex\Domains\Batch\Data\BatchChunkItem;
+use RefactorCircus\Impex\Domains\Batch\Contracts\BatchSource;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunk;
+use RefactorCircus\Impex\Domains\Batch\Data\BatchChunkItem;
 
 final class ProductSearchSource implements BatchSource
 {
@@ -238,7 +238,7 @@ decide to stop *before* the ceiling:
 ```php
 namespace App\Flows\Actions;
 
-use JayI\Impex\Domains\Flow\Support\ResumableAction;
+use RefactorCircus\Impex\Domains\Flow\Support\ResumableAction;
 
 final class ImportCatalogueFile extends ResumableAction
 {

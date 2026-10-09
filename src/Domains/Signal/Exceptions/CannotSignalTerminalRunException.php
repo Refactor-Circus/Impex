@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Exceptions;
+namespace RefactorCircus\Impex\Domains\Signal\Exceptions;
 
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * A signal was delivered to a run that has already finished.

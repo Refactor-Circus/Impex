@@ -1,16 +1,16 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "jayi/impex",
+    "name": "refactor-circus/impex",
     "description": "Workflow engine and data-flow ledger for Laravel, built for Vapor",
     "keywords": [
         "laravel",
-        "jayi",
+        "refactor-circus",
         "impex",
         "workflow",
         "saga",
         "vapor"
     ],
-    "homepage": "https://github.com/jayi/impex",
+    "homepage": "https://github.com/refactor-circus/impex",
     "license": "MIT",
     "authors": [
         {
@@ -21,14 +21,14 @@
     ],
     "require": {
         "php": "^8.4",
-        "jayi/atrium": "dev-main",
-        "jayi/foundation": "dev-main",
+        "refactor-circus/atrium": "dev-main",
+        "refactor-circus/foundation": "dev-main",
         "laravel/framework": "^13.34",
         "laravel/mcp": "^1.0"
     },
     "require-dev": {
-        "jayi/cortex": "dev-main",
-        "jayi/pennantplus": "dev-main",
+        "refactor-circus/cortex": "dev-main",
+        "refactor-circus/pennantplus": "dev-main",
         "larastan/larastan": "^3.12",
         "laravel/pao": "^1.0",
         "laravel/pint": "^1.29",
@@ -39,18 +39,18 @@
         "phpstan/extension-installer": "^1.4"
     },
     "suggest": {
-        "jayi/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main).",
-        "jayi/pennantplus": "Switch Impex in Atrium on and off with the ImpexSupportFeature Pennant feature (dev-main)."
+        "refactor-circus/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main).",
+        "refactor-circus/pennantplus": "Switch Impex in Atrium on and off with the ImpexSupportFeature Pennant feature (dev-main)."
     },
     "autoload": {
         "psr-4": {
-            "JayI\\Impex\\": "src/"
+            "RefactorCircus\\Impex\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "JayI\\Impex\\Database\\Factories\\": "database/factories/",
-            "JayI\\Impex\\Tests\\": "tests/",
+            "RefactorCircus\\Impex\\Database\\Factories\\": "database/factories/",
+            "RefactorCircus\\Impex\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
@@ -104,15 +104,15 @@
     "extra": {
         "laravel": {
             "providers": [
-                "JayI\\Impex\\ImpexServiceProvider"
+                "RefactorCircus\\Impex\\ImpexServiceProvider"
             ],
             "aliases": {
-                "Impex": "JayI\\Impex\\Facades\\Impex"
+                "Impex": "RefactorCircus\\Impex\\Facades\\Impex"
             }
         },
         "atrium": {
             "plugins": [
-                "JayI\\Impex\\Atrium\\ImpexPlugin"
+                "RefactorCircus\\Impex\\Atrium\\ImpexPlugin"
             ]
         }
     },
@@ -128,19 +128,19 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/jayjfletcher/Atrium.git"
+            "url": "https://github.com/Refactor-Circus/Atrium.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/jayjfletcher/cortex.git"
+            "url": "https://github.com/Refactor-Circus/Cortex.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/jayjfletcher/PennantPlus.git"
+            "url": "https://github.com/Refactor-Circus/PennantPlus.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/jayjfletcher/Foundation.git"
+            "url": "https://github.com/Refactor-Circus/Foundation.git"
         }
     ]
 }

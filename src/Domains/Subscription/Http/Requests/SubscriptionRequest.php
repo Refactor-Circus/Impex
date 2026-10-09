@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
-use JayI\Foundation\Http\Requests\Request;
-use JayI\Impex\Domains\Subscription\Http\Middleware\ResolveSubscriber;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Foundation\Http\Requests\Request;
+use RefactorCircus\Impex\Domains\Subscription\Http\Middleware\ResolveSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * A request served on both surfaces: the operator API, checked against the

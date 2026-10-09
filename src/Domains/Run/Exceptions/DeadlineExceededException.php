@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Exceptions;
+namespace RefactorCircus\Impex\Domains\Run\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * A step or run passed the deadline it was given.

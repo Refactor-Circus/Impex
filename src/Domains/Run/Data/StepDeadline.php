@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Data;
+namespace RefactorCircus\Impex\Domains\Run\Data;
 
 use Illuminate\Support\Carbon;
 

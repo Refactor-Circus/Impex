@@ -3,7 +3,7 @@
 ## The shipped helpers
 
 ```php
-use JayI\Impex\Testing\Flows;
+use RefactorCircus\Impex\Testing\Flows;
 
 it('extracts products', function (): void {
     $run = Flows::run('extract-products', ['drill bits', 5]);

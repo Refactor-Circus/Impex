@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Flows\Actions;
 
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Impex;
 
 /**
  * Drops the export on the partner's SFTP server and records the file in the

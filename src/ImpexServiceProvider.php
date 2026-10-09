@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex;
+namespace RefactorCircus\Impex;
 
 use Illuminate\Support\Facades\Blade;
-use JayI\Foundation\Packages\Package;
-use JayI\Foundation\Support\PackageServiceProvider;
-use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Atrium\ScreenAccess;
-use JayI\Impex\Console\Commands\PruneCommand;
-use JayI\Impex\Domains\DomainServiceProvider;
-use JayI\Impex\Mcp\ImpexServer;
-use JayI\Impex\Support\Locks;
+use RefactorCircus\Foundation\Packages\Package;
+use RefactorCircus\Foundation\Support\PackageServiceProvider;
+use RefactorCircus\Impex\Atrium\ImpexPlugin;
+use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Console\Commands\PruneCommand;
+use RefactorCircus\Impex\Domains\DomainServiceProvider;
+use RefactorCircus\Impex\Mcp\ImpexServer;
+use RefactorCircus\Impex\Support\Locks;
 
 class ImpexServiceProvider extends PackageServiceProvider
 {
@@ -61,7 +61,7 @@ class ImpexServiceProvider extends PackageServiceProvider
 
         $this->registerMcpServer();
 
-        // GET impex/history: Impex's audit entries, once jayi/keen is installed.
+        // GET impex/history: Impex's audit entries, once refactor-circus/keen is installed.
         $this->loadHistoryRoutes();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'impex');

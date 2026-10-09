@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Exceptions;
+namespace RefactorCircus\Impex\Domains\Batch\Exceptions;
 
-use JayI\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Exceptions\ImpexException;
 
 /**
  * A batch item's attempt ended without the item saying how: its worker died,

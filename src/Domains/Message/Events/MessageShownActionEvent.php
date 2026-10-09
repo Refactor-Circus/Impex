@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Events;
+namespace RefactorCircus\Impex\Domains\Message\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ActionFinishedEvent;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Foundation\Contracts\ActionFinishedEvent;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 /**
  * A ledger message was shown.

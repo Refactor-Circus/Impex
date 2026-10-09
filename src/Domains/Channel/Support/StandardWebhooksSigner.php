@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Support;
+namespace RefactorCircus\Impex\Domains\Channel\Support;
 
-use JayI\Impex\Domains\Channel\Contracts\Signer;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Signer;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * Signs per the Standard Webhooks specification (standardwebhooks.com).

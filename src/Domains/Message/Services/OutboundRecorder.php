@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Services;
+namespace RefactorCircus\Impex\Domains\Message\Services;
 
 use Closure;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Http\Client\PendingRequest;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Message\Enums\Direction;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 use Throwable;
 
 /**

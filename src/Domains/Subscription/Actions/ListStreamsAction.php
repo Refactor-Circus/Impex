@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
-use JayI\Impex\Domains\Subscription\Contracts\Stream;
-use JayI\Impex\Domains\Subscription\Events\StreamsListedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\StreamsListingActionEvent;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
+use RefactorCircus\Impex\Domains\Subscription\Events\StreamsListedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\StreamsListingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
 
 final class ListStreamsAction
 {

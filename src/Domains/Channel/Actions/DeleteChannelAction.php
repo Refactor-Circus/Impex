@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Actions;
+namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
-use JayI\Impex\Domains\Channel\Events\ChannelDeletedActionEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelDeletingActionEvent;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelDeletedActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelDeletingActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 
 final class DeleteChannelAction
 {

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Run\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use JayI\Impex\Domains\Run\Http\Requests\DeleteRunOwnerRequest;
-use JayI\Impex\Domains\Run\Http\Requests\IndexRunOwnersRequest;
-use JayI\Impex\Domains\Run\Http\Requests\StoreRunOwnerRequest;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\DeleteRunOwnerRequest;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\IndexRunOwnersRequest;
+use RefactorCircus\Impex\Domains\Run\Http\Requests\StoreRunOwnerRequest;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 final class RunOwnerController
 {

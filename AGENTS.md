@@ -5,32 +5,32 @@ This repository is a Laravel package. Keep the package focused, idiomatic, and e
 ## Package Conventions
 
 - Use Laravel-native package APIs and the existing service provider shape before adding abstractions.
-- Keep package names, namespaces, Composer metadata, publish tags, documentation, and examples aligned with `jayi/impex`.
+- Keep package names, namespaces, Composer metadata, publish tags, documentation, and examples aligned with `refactor-circus/impex`.
 - Add only the files and dependencies needed for the package behavior being implemented.
 - Prefer explicit Laravel package code over helper abstractions unless the extension point is real.
 - Keep tests focused on observable package behavior through public APIs, service provider wiring, commands, routes, published resources, and documentation promises.
 
 ## Layout
 
-The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/agent-os/standards/architecture/domain-modules.md`). Code lives in `src/Domains/{Run,Flow,Signal,Batch,Channel,Message,Subscription,Artifact}` (namespace `JayI\Impex\Domains\{Domain}`), each with its own `{Domain}ServiceProvider` registered by `Domains\DomainServiceProvider`; the domain providers extend `JayI\Foundation\Support\ServiceProvider`, whose `loadApiRoutesFrom()` loads their routes into the shared `impex.` API group (the inbound channel routes keep their own middleware group in `MessageServiceProvider`). Models are named `{Entity}Model` and keep their old class names as morph aliases. The engine and its collaborators live in `Domains\Run\Services`; the flow base classes and DSL builders in `Domains\Flow\Support`. The Atrium screens span every domain and live in `src/Atrium`; package-wide pieces (`Impex`, the facade, `ImpexException`, `Mcp\ImpexServer` and `Mcp\Tools\ListImpexHistoryTool`, `Support\`, `Testing\Flows`, `impex:prune`) stay at the top level. The queued jobs stay in `src/Jobs` because their class names are inside queued payloads. `config/impex.php` stays one file.
+The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/agent-os/standards/architecture/domain-modules.md`). Code lives in `src/Domains/{Run,Flow,Signal,Batch,Channel,Message,Subscription,Artifact}` (namespace `RefactorCircus\Impex\Domains\{Domain}`), each with its own `{Domain}ServiceProvider` registered by `Domains\DomainServiceProvider`; the domain providers extend `RefactorCircus\Foundation\Support\ServiceProvider`, whose `loadApiRoutesFrom()` loads their routes into the shared `impex.` API group (the inbound channel routes keep their own middleware group in `MessageServiceProvider`). Models are named `{Entity}Model` and keep their old class names as morph aliases. The engine and its collaborators live in `Domains\Run\Services`; the flow base classes and DSL builders in `Domains\Flow\Support`. The Atrium screens span every domain and live in `src/Atrium`; package-wide pieces (`Impex`, the facade, `ImpexException`, `Mcp\ImpexServer` and `Mcp\Tools\ListImpexHistoryTool`, `Support\`, `Testing\Flows`, `impex:prune`) stay at the top level. The queued jobs stay in `src/Jobs` because their class names are inside queued payloads. `config/impex.php` stays one file.
 
 ## Foundation
 
-Impex stands on `jayi/foundation`, the suite's shared runtime. Use its classes rather than adding local copies:
+Impex stands on `refactor-circus/foundation`, the suite's shared runtime. Use its classes rather than adding local copies:
 
-- `ImpexServiceProvider` extends `JayI\Foundation\Support\PackageServiceProvider`: `definition()` describes the package (`impex`, `JayI\Impex`, `ImpexServer`, Gate authorization by default), `registerPackage()` runs right after `mergeConfigFrom()` and before the domain providers, and `boot()` uses `registerCortex()`, `registerPolicies()`, `registerAtriumPlugin()`, `registerMcpServer()` and `loadHistoryRoutes()` (`GET impex/history`, `impex.history.index`).
+- `ImpexServiceProvider` extends `RefactorCircus\Foundation\Support\PackageServiceProvider`: `definition()` describes the package (`impex`, `RefactorCircus\Impex`, `ImpexServer`, Gate authorization by default), `registerPackage()` runs right after `mergeConfigFrom()` and before the domain providers, and `boot()` uses `registerCortex()`, `registerPolicies()`, `registerAtriumPlugin()`, `registerMcpServer()` and `loadHistoryRoutes()` (`GET impex/history`, `impex.history.index`).
 
 ## Atrium screens
 
 - Atrium owns every component and style. Impex ships no `resources/css`, no `Atrium::css()` call and no Blade components: views use `x-atrium::*` components and Atrium's safelisted utilities only, never `<style>` or `style=`. `tests/Feature/Ui/StylesTest.php` asserts `AtriumStyles::missingClasses()` and `inlineStyles()` are empty; when a class is missing, use the closest safelisted one and ask for it in Atrium.
 - Details are `x-atrium::description-list`, the post-action status and error `x-atrium::flash`, states the `impex::ui.partials.status-dot` partial (colours from `Atrium\Badges`).
 - Show screens end with `<x-atrium::audit-trail source="impex" :subject="$model" />`, the runs index with the package-wide trail. Run steps are execution, not changes, and stay out of it.
-- `ImpexPlugin::features()` is `featuresFromConfig('impex.atrium.features')`; `key()`/`label()` come from the base. `Atrium\ScreenAccess::allows()` lets operators (`impex.atrium.show_all`) through and otherwise delegates to `JayI\Atrium\Support\ScreenAccess::allows('impex', ...)`; calls with policy arguments go to the authorizer directly. Impex keeps its own `AuthorizesScreens` because it passes those arguments and honours operators.
-- Events implement `JayI\Foundation\Contracts\{ActionStartingEvent,ActionFinishedEvent,ModelLifecycleEvent}`; models use `JayI\Foundation\Models\Concerns\DispatchesModelEvents`.
-- HTTP requests extend `JayI\Foundation\Http\Requests\Request`, MCP requests `JayI\Foundation\Mcp\Requests\Request`, tools `JayI\Foundation\Mcp\Tool`; `ImpexServer` extends `JayI\Foundation\Mcp\Server` and lists `ListImpexHistoryTool`.
+- `ImpexPlugin::features()` is `featuresFromConfig('impex.atrium.features')`; `key()`/`label()` come from the base. `Atrium\ScreenAccess::allows()` lets operators (`impex.atrium.show_all`) through and otherwise delegates to `RefactorCircus\Atrium\Support\ScreenAccess::allows('impex', ...)`; calls with policy arguments go to the authorizer directly. Impex keeps its own `AuthorizesScreens` because it passes those arguments and honours operators.
+- Events implement `RefactorCircus\Foundation\Contracts\{ActionStartingEvent,ActionFinishedEvent,ModelLifecycleEvent}`; models use `RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents`.
+- HTTP requests extend `RefactorCircus\Foundation\Http\Requests\Request`, MCP requests `RefactorCircus\Foundation\Mcp\Requests\Request`, tools `RefactorCircus\Foundation\Mcp\Tool`; `ImpexServer` extends `RefactorCircus\Foundation\Mcp\Server` and lists `ListImpexHistoryTool`.
 - Outside a request, get the authorizer with `Authorizer::for(app(PackageRegistry::class)->get('impex'))`, and the Cortex bridge with `CortexIntegration::for(...)`.
-- `ImpexException` extends `JayI\Foundation\Exceptions\PackageException`, so every Impex exception answers `409` with its message over HTTP and returns its message over MCP.
-- `Support\Policies\Policy` extends `JayI\Foundation\Policies\Policy`; use `allowsOn()` for a child model and `allowsOnRun()` for a model that may have no run.
+- `ImpexException` extends `RefactorCircus\Foundation\Exceptions\PackageException`, so every Impex exception answers `409` with its message over HTTP and returns its message over MCP.
+- `Support\Policies\Policy` extends `RefactorCircus\Foundation\Policies\Policy`; use `allowsOn()` for a child model and `allowsOnRun()` for a model that may have no run.
 - `Domains\Flow\Support\ResumableAction` is Impex's own flow primitive, not a Foundation action.
 
 ## Quick Commands

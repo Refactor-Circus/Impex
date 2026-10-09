@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Policies;
+namespace RefactorCircus\Impex\Domains\Channel\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * A stored channel belongs to whoever created it: a subscriber manages their

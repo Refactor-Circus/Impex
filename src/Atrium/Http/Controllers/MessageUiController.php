@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium\Http\Controllers;
+namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use JayI\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
-use JayI\Impex\Atrium\ScreenAccess;
-use JayI\Impex\Domains\Message\Actions\ListMessagesAction;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
+use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 final class MessageUiController
 {

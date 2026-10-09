@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Console\Commands;
+namespace RefactorCircus\Impex\Console\Commands;
 
 use Illuminate\Console\Command;
-use JayI\Impex\Domains\Artifact\Models\ArtifactModel;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
-use JayI\Impex\Domains\Subscription\Services\EventPruner;
+use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\EventPruner;
 
 /**
  * Prunes Impex history in dependency order.

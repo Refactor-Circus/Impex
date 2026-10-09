@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
-use JayI\Impex\Domains\Subscription\Events\SubscriptionExportedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionExportingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionJobs;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionExportedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionExportingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionJobs;
 
 final class ExportSubscriptionAction
 {

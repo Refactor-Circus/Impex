@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Services;
+namespace RefactorCircus\Impex\Domains\Run\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Support\Carbon;

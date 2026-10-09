@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests\Fixtures;
+namespace RefactorCircus\Impex\Tests\Fixtures;
 
 /**
  * An in-memory catalogue the fixture product stream reads, with a count of

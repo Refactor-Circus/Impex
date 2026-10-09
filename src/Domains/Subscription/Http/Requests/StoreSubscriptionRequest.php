@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Resources\SubscriptionResource;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
 final class StoreSubscriptionRequest extends SubscriptionRequest
 {

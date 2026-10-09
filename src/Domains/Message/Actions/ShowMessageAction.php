@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Actions;
+namespace RefactorCircus\Impex\Domains\Message\Actions;
 
-use JayI\Impex\Domains\Message\Events\MessageShowingActionEvent;
-use JayI\Impex\Domains\Message\Events\MessageShownActionEvent;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Events\MessageShowingActionEvent;
+use RefactorCircus\Impex\Domains\Message\Events\MessageShownActionEvent;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 final class ShowMessageAction
 {

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Config\Repository as Config;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionEventsListedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionEventsListingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\EventReader;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionEventsListedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionEventsListingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\EventReader;
 
 final class ListSubscriptionEventsAction
 {

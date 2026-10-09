@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
-use JayI\Impex\Domains\Channel\Actions\UpdateChannelAction;
-use JayI\Impex\Domains\Channel\Resources\ChannelResource;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Impex\Domains\Channel\Actions\UpdateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 
 final class UpdateChannelMcpRequest extends ChannelMcpRequest
 {

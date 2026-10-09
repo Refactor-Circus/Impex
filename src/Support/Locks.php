@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Support;
+namespace RefactorCircus\Impex\Support;
 
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;

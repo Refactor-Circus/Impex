@@ -6,14 +6,14 @@ namespace Workbench\App\Bench;
 
 use Closure;
 use Illuminate\Support\Facades\DB;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
-use JayI\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\Detector;
-use JayI\Impex\Domains\Subscription\Services\Dispatcher;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\Detector;
+use RefactorCircus\Impex\Domains\Subscription\Services\Dispatcher;
+use RefactorCircus\Impex\Impex;
 
 /**
  * Measures the subscription pipeline end to end on synthetic data: touching,

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Contracts;
+namespace RefactorCircus\Impex\Domains\Channel\Contracts;
 
 use Illuminate\Http\Request;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 
 /**
  * Decides whether an inbound request really came from the sender it claims.

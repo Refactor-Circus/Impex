@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Models;
+namespace RefactorCircus\Impex\Domains\Signal\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Domains\Run\Enums\StepPhase;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Enums\TimerKind;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Enums\TimerKind;
 
 /**
  * @property string $id

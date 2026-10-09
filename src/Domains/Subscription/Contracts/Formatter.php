@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Contracts;
+namespace RefactorCircus\Impex\Domains\Subscription\Contracts;
 
-use JayI\Impex\Domains\Subscription\Data\StreamEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Data\StreamEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * Turns events into what a subscriber receives.

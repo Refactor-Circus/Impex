@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Policies;
+namespace RefactorCircus\Impex\Domains\Flow\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * Flow overrides are application-wide settings with no owner. Anyone signed

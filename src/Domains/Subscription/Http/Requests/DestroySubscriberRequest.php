@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Foundation\Http\Requests\Request;
-use JayI\Impex\Domains\Subscription\Actions\DeleteSubscriberAction;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Foundation\Http\Requests\Request;
+use RefactorCircus\Impex\Domains\Subscription\Actions\DeleteSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 
 final class DestroySubscriberRequest extends Request
 {

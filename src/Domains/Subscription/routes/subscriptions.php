@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Impex\Domains\Subscription\Http\Controllers\SubscriptionController;
+use RefactorCircus\Impex\Domains\Subscription\Http\Controllers\SubscriptionController;
 
 // Shared by the operator and subscriber APIs: the same paths under each
 // surface's prefix and middleware.

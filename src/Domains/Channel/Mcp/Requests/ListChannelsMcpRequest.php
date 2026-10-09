@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Channel\Actions\ListChannelsAction;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 final class ListChannelsMcpRequest extends Request
 {

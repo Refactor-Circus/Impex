@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
-use JayI\Impex\Domains\Subscription\Events\SubscriberDeletedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriberDeletingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberDeletedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberDeletingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class DeleteSubscriberAction
 {

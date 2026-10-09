@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Run\Mcp\Requests\ListRunsMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ListRunsMcpRequest;
 
 #[Description('List workflow runs, newest first. Filter by status, flow, trigger, owner, tag, or date range. Cursor paginated.')]
 final class ListRunsTool extends Tool

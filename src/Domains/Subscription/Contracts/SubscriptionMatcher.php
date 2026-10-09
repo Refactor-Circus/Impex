@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Contracts;
+namespace RefactorCircus\Impex\Domains\Subscription\Contracts;
 
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * Decides which filtered subscriptions a set of changed subjects falls into.

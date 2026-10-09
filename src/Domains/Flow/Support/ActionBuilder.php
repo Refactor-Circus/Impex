@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Support;
+namespace RefactorCircus\Impex\Domains\Flow\Support;
 
 use DateTimeInterface;
-use JayI\Impex\Domains\Run\Data\StepDescriptor;
-use JayI\Impex\Domains\Run\Enums\RollbackFailure;
-use JayI\Impex\Domains\Run\Enums\StepType;
-use JayI\Impex\Domains\Run\Support\Context;
+use RefactorCircus\Impex\Domains\Run\Data\StepDescriptor;
+use RefactorCircus\Impex\Domains\Run\Enums\RollbackFailure;
+use RefactorCircus\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Impex\Domains\Run\Support\Context;
 
 /**
  * Describes one action, and runs it as a recorded step.

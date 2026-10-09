@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium\Http\Controllers\Concerns;
+namespace RefactorCircus\Impex\Atrium\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\ScreenAccess;
 
 /**
  * The same checks the JSON API and MCP tools make, for the Atrium screens.

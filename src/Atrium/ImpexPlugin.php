@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium;
+namespace RefactorCircus\Impex\Atrium;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use JayI\Atrium\Domains\Navigation\Data\NavGroup;
-use JayI\Atrium\Domains\Navigation\Data\NavItem;
-use JayI\Atrium\Domains\Plugins\Support\Plugin;
-use JayI\Atrium\Domains\Search\Data\SearchResult;
-use JayI\Atrium\Domains\Search\Data\SearchSource;
-use JayI\Atrium\Domains\Settings\Data\SettingsPanel;
-use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
-use JayI\Atrium\Support\Icons;
-use JayI\Impex\Atrium\Http\Controllers\ChannelUiController;
-use JayI\Impex\Atrium\Http\Controllers\FlowUiController;
-use JayI\Impex\Atrium\Http\Controllers\MessageUiController;
-use JayI\Impex\Atrium\Http\Controllers\RunUiController;
-use JayI\Impex\Atrium\Http\Controllers\SubscriptionUiController;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Atrium\Domains\Navigation\Data\NavGroup;
+use RefactorCircus\Atrium\Domains\Navigation\Data\NavItem;
+use RefactorCircus\Atrium\Domains\Plugins\Support\Plugin;
+use RefactorCircus\Atrium\Domains\Search\Data\SearchResult;
+use RefactorCircus\Atrium\Domains\Search\Data\SearchSource;
+use RefactorCircus\Atrium\Domains\Settings\Data\SettingsPanel;
+use RefactorCircus\Atrium\Domains\Widgets\Data\WidgetDefinition;
+use RefactorCircus\Atrium\Support\Icons;
+use RefactorCircus\Impex\Atrium\Http\Controllers\ChannelUiController;
+use RefactorCircus\Impex\Atrium\Http\Controllers\FlowUiController;
+use RefactorCircus\Impex\Atrium\Http\Controllers\MessageUiController;
+use RefactorCircus\Impex\Atrium\Http\Controllers\RunUiController;
+use RefactorCircus\Impex\Atrium\Http\Controllers\SubscriptionUiController;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * Registers Impex inside the Atrium dashboard.
@@ -45,7 +45,7 @@ class ImpexPlugin extends Plugin
     /**
      * Features from `impex.atrium.features` that switch Impex in Atrium on
      * and off as a whole. A feature class that is not installed, such as
-     * ImpexSupportFeature without jayi/pennantplus, is skipped.
+     * ImpexSupportFeature without refactor-circus/pennantplus, is skipped.
      *
      * @return array<int, string>
      */

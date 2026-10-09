@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Data;
+namespace RefactorCircus\Impex\Domains\Channel\Data;
 
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Enums\ChannelStatus;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Support\HmacSha256Validator;
-use JayI\Impex\Domains\Channel\Support\ProcessEverything;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Support\HmacSha256Validator;
+use RefactorCircus\Impex\Domains\Channel\Support\ProcessEverything;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 /**
  * One named boundary: a way in, or a way out.

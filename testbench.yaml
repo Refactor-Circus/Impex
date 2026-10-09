@@ -1,19 +1,19 @@
 laravel: '@testbench'
 
 providers:
-  - JayI\Atrium\AtriumServiceProvider
-  - JayI\Impex\ImpexServiceProvider
+  - RefactorCircus\Atrium\AtriumServiceProvider
+  - RefactorCircus\Impex\ImpexServiceProvider
   - Workbench\App\Providers\WorkbenchServiceProvider
 
 migrations:
   - database/migrations
   - workbench/database/migrations
-  # jayi/pennantplus (dev dependency, auto-discovered) decides ImpexSupportFeature
+  # refactor-circus/pennantplus (dev dependency, auto-discovered) decides ImpexSupportFeature
   # through Pennant, whose features table lives here.
   - vendor/laravel/pennant/database/migrations
-  # jayi/cortex (dev dependency, auto-discovered) adds its own dashboard
+  # refactor-circus/cortex (dev dependency, auto-discovered) adds its own dashboard
   # screens, whose tables live here.
-  - vendor/jayi/cortex/database/migrations
+  - vendor/refactor-circus/cortex/database/migrations
 
 seeders:
   - Workbench\Database\Seeders\DatabaseSeeder

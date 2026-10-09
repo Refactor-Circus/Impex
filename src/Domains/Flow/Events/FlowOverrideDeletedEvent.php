@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Events;
+namespace RefactorCircus\Impex\Domains\Flow\Events;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ModelLifecycleEvent;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
+use RefactorCircus\Foundation\Contracts\ModelLifecycleEvent;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
 
 /**
  * The FlowOverride `deleted` Eloquent event.

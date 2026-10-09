@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use JayI\Impex\Domains\Run\Actions\DetachRunOwnerAction;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
 use Laravel\Mcp\Response;
+use RefactorCircus\Impex\Domains\Run\Actions\DetachRunOwnerAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 final class DetachRunOwnerMcpRequest extends RunRequest
 {

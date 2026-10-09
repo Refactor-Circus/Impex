@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use JayI\Impex\Domains\Flow\Exceptions\FlowCollisionException;
-use JayI\Impex\Domains\Flow\Exceptions\UnknownFlowException;
-use JayI\Impex\Domains\Flow\Services\FlowRegistry;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Impex;
-use JayI\Impex\Tests\Fixtures\LinearFlow;
-use JayI\Impex\Tests\Fixtures\ParallelFlow;
-use JayI\Impex\Tests\Fixtures\SignalFlow;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\FlowCollisionException;
+use RefactorCircus\Impex\Domains\Flow\Exceptions\UnknownFlowException;
+use RefactorCircus\Impex\Domains\Flow\Services\FlowRegistry;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Impex;
+use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
+use RefactorCircus\Impex\Tests\Fixtures\ParallelFlow;
+use RefactorCircus\Impex\Tests\Fixtures\SignalFlow;
 
 it('lets a package register a flow at runtime', function (): void {
     $registry = app(FlowRegistry::class);

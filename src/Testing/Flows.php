@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Testing;
+namespace RefactorCircus\Impex\Testing;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\StepPhase;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Services\Engine;
-use JayI\Impex\Impex;
 use PHPUnit\Framework\Assert;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Services\Engine;
+use RefactorCircus\Impex\Impex;
 
 /**
  * Test helpers for applications that build on Impex.
@@ -22,7 +22,7 @@ use PHPUnit\Framework\Assert;
  * reads as the behaviour it is checking, and so the failure messages say what
  * went wrong rather than "false is not true".
  *
- *   use JayI\Impex\Testing\Flows;
+ *   use RefactorCircus\Impex\Testing\Flows;
  *
  *   $run = Flows::run('extract-products', ['drill bits']);
  *

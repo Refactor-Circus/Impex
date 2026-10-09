@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionsListedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionsListingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionsListedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionsListingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class ListSubscriptionsAction
 {

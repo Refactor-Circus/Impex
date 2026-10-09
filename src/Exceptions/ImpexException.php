@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Exceptions;
+namespace RefactorCircus\Impex\Exceptions;
 
-use JayI\Foundation\Exceptions\PackageException;
+use RefactorCircus\Foundation\Exceptions\PackageException;
 
 /**
  * A rule of Impex that the caller broke.

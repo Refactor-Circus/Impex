@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium;
+namespace RefactorCircus\Impex\Atrium;
 
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use JayI\Atrium\Support\ScreenAccess as AtriumScreenAccess;
-use JayI\Foundation\Auth\Authorizer;
-use JayI\Foundation\Packages\PackageRegistry;
+use RefactorCircus\Atrium\Support\ScreenAccess as AtriumScreenAccess;
+use RefactorCircus\Foundation\Auth\Authorizer;
+use RefactorCircus\Foundation\Packages\PackageRegistry;
 
 /**
  * Whether the signed-in user may perform an ability, asked exactly as the
@@ -115,7 +115,7 @@ final class ScreenAccess
         $class = is_string($subject) ? $subject : $subject::class;
 
         // Each domain keeps its models in its own Models namespace.
-        return preg_match('/^JayI\\\\Impex\\\\Domains\\\\\\w+\\\\Models\\\\/', ltrim($class, '\\')) === 1;
+        return preg_match('/^RefactorCircus\\\\Impex\\\\Domains\\\\\\w+\\\\Models\\\\/', ltrim($class, '\\')) === 1;
     }
 
     private static function authorizer(): Authorizer

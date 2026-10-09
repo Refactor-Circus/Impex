@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use JayI\Atrium\Domains\Navigation\Data\NavItem;
-use JayI\Atrium\Domains\Plugins\Services\PluginRegistry;
-use JayI\Atrium\Domains\Widgets\Data\WidgetDefinition;
-use JayI\Atrium\Domains\Widgets\Services\WidgetRegistry;
-use JayI\Impex\Atrium\Badges;
-use JayI\Impex\Atrium\Features\ImpexSupportFeature;
-use JayI\Impex\Atrium\ImpexPlugin;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Tests\Fixtures\Features\OrphanedSupportFeature;
+use RefactorCircus\Atrium\Domains\Navigation\Data\NavItem;
+use RefactorCircus\Atrium\Domains\Plugins\Services\PluginRegistry;
+use RefactorCircus\Atrium\Domains\Widgets\Data\WidgetDefinition;
+use RefactorCircus\Atrium\Domains\Widgets\Services\WidgetRegistry;
+use RefactorCircus\Impex\Atrium\Badges;
+use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
+use RefactorCircus\Impex\Atrium\ImpexPlugin;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Tests\Fixtures\Features\OrphanedSupportFeature;
 
 it('registers itself with atrium', function (): void {
     expect(app(PluginRegistry::class)->has('impex'))->toBeTrue();

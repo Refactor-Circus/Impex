@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Policies;
+namespace RefactorCircus\Impex\Domains\Subscription\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Subscription\Models\DeliveryModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * Deliveries are read-only, and follow their subscription.

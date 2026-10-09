@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Models;
+namespace RefactorCircus\Impex\Domains\Channel\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use JayI\Foundation\Models\Concerns\DispatchesModelEvents;
-use JayI\Impex\Database\Factories\ChannelFactory;
-use JayI\Impex\Domains\Channel\Enums\BodyPolicy;
-use JayI\Impex\Domains\Channel\Enums\ChannelStatus;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Foundation\Models\Concerns\DispatchesModelEvents;
+use RefactorCircus\Impex\Database\Factories\ChannelFactory;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
+use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 /**
  * A channel created at runtime rather than in config: the webhook endpoint a

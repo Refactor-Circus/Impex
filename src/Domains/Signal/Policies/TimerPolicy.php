@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Policies;
+namespace RefactorCircus\Impex\Domains\Signal\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Models\TimerModel;
-use JayI\Impex\Support\Policies\Policy;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Models\TimerModel;
+use RefactorCircus\Impex\Support\Policies\Policy;
 
 /**
  * Timers are engine state, so reading them needs `view` on the run and no

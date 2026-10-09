@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Channel\Actions\UpdateChannelAction;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionUpdatedActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionUpdatingActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
-use JayI\Impex\Domains\Subscription\Services\SubscriptionJobs;
-use JayI\Impex\Domains\Subscription\Support\SubscriptionSettings;
+use RefactorCircus\Impex\Domains\Channel\Actions\UpdateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionUpdatedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionUpdatingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Services\SubscriptionJobs;
+use RefactorCircus\Impex\Domains\Subscription\Support\SubscriptionSettings;
 
 final class UpdateSubscriptionAction
 {

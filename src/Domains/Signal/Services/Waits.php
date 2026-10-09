@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Services;
+namespace RefactorCircus\Impex\Domains\Signal\Services;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use JayI\Impex\Domains\Artifact\Enums\ArtifactKind;
-use JayI\Impex\Domains\Artifact\Services\PayloadStore;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Domains\Run\Enums\StepPhase;
-use JayI\Impex\Domains\Run\Enums\StepStatus;
-use JayI\Impex\Domains\Run\Enums\StepType;
-use JayI\Impex\Domains\Run\Exceptions\DeadlineExceededException;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Services\EngineOptions;
-use JayI\Impex\Domains\Run\Services\JobRouter;
-use JayI\Impex\Domains\Run\Services\StepWriter;
-use JayI\Impex\Domains\Run\Support\Failure;
-use JayI\Impex\Domains\Signal\Enums\TimerKind;
-use JayI\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Domains\Signal\Models\TimerModel;
+use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Domains\Artifact\Services\PayloadStore;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
+use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Impex\Domains\Run\Exceptions\DeadlineExceededException;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Services\EngineOptions;
+use RefactorCircus\Impex\Domains\Run\Services\JobRouter;
+use RefactorCircus\Impex\Domains\Run\Services\StepWriter;
+use RefactorCircus\Impex\Domains\Run\Support\Failure;
+use RefactorCircus\Impex\Domains\Signal\Enums\TimerKind;
+use RefactorCircus\Impex\Domains\Signal\Exceptions\CannotSignalTerminalRunException;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Domains\Signal\Models\TimerModel;
 
 /**
  * Everything a run waits on: signals, sleeps, and deadlines.

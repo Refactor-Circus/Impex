@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Subscription\Exceptions\SubscriptionException;
-use JayI\Impex\Domains\Subscription\Resources\SubscriptionResource;
+use RefactorCircus\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
 final class RotateSubscriptionSecretRequest extends SubscriptionRequest
 {

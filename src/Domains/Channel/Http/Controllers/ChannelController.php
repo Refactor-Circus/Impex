@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Channel\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Channel\Http\Requests\DestroyChannelRequest;
-use JayI\Impex\Domains\Channel\Http\Requests\IndexChannelsRequest;
-use JayI\Impex\Domains\Channel\Http\Requests\RotateChannelSecretRequest;
-use JayI\Impex\Domains\Channel\Http\Requests\ShowChannelRequest;
-use JayI\Impex\Domains\Channel\Http\Requests\StoreChannelRequest;
-use JayI\Impex\Domains\Channel\Http\Requests\UpdateChannelRequest;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\DestroyChannelRequest;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\IndexChannelsRequest;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\RotateChannelSecretRequest;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\ShowChannelRequest;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\StoreChannelRequest;
+use RefactorCircus\Impex\Domains\Channel\Http\Requests\UpdateChannelRequest;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 
 final class ChannelController
 {

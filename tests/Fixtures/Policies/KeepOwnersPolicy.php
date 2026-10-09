@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests\Fixtures\Policies;
+namespace RefactorCircus\Impex\Tests\Fixtures\Policies;
 
 use Illuminate\Database\Eloquent\Model;
-use JayI\Impex\Domains\Run\Models\RunOwnerModel;
-use JayI\Impex\Domains\Run\Policies\RunOwnerPolicy;
+use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
+use RefactorCircus\Impex\Domains\Run\Policies\RunOwnerPolicy;
 
 /**
  * Owners may be attached but never detached.

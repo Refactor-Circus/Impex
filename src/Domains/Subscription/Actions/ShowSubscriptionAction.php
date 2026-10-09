@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Actions;
+namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
-use JayI\Impex\Domains\Subscription\Events\SubscriptionShowingActionEvent;
-use JayI\Impex\Domains\Subscription\Events\SubscriptionShownActionEvent;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionShowingActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionShownActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class ShowSubscriptionAction
 {

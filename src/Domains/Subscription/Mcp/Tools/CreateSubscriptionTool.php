@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Subscription\Mcp\Requests\CreateSubscriptionMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\CreateSubscriptionMcpRequest;
 
 #[Description('Subscribe a subscriber to a stream. Give endpoint.url to have events pushed, or leave endpoint out to have them pulled from the feed. Topics default to all. The signing secret is returned once.')]
 final class CreateSubscriptionTool extends Tool

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Channel\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Channel\Mcp\Requests\ShowChannelMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\ShowChannelMcpRequest;
 
 #[Description('Show one channel by name: its direction, transport, options and body policy. Secrets are never returned.')]
 final class ShowChannelTool extends Tool

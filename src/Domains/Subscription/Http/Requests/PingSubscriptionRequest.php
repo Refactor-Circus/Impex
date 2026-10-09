@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
 
 final class PingSubscriptionRequest extends SubscriptionRequest
 {

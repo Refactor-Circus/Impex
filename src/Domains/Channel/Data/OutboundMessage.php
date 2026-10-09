@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Data;
+namespace RefactorCircus\Impex\Domains\Channel\Data;
 
 use Illuminate\Contracts\Mail\Mailable;
 use JsonException;

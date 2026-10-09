@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Contracts;
+namespace RefactorCircus\Impex\Domains\Run\Contracts;
 
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 
 /**
  * Decides what a failed run unwinds, and in what order.

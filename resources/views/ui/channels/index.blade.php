@@ -1,5 +1,5 @@
-@use(JayI\Impex\Atrium\Badges)
-@use(JayI\Impex\Domains\Channel\Models\ChannelModel)
+@use(RefactorCircus\Impex\Atrium\Badges)
+@use(RefactorCircus\Impex\Domains\Channel\Models\ChannelModel)
 
 <x-atrium::layout :title="__('impex::impex.channels')">
     <x-atrium::page-header :title="__('impex::impex.channels')">

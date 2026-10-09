@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Actions;
+namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Channel\Data\ChannelConfig;
-use JayI\Impex\Domains\Channel\Events\ChannelsListedActionEvent;
-use JayI\Impex\Domains\Channel\Events\ChannelsListingActionEvent;
-use JayI\Impex\Domains\Channel\Services\ChannelRegistry;
-use JayI\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelsListedActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Events\ChannelsListingActionEvent;
+use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 final class ListChannelsAction
 {

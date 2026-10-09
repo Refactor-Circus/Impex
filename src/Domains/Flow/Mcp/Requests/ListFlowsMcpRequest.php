@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Mcp\Requests;
+namespace RefactorCircus\Impex\Domains\Flow\Mcp\Requests;
 
-use JayI\Foundation\Mcp\Requests\Request;
-use JayI\Impex\Domains\Flow\Actions\ListFlowsAction;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
 use Laravel\Mcp\ResponseFactory;
+use RefactorCircus\Foundation\Mcp\Requests\Request;
+use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
+use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
 
 final class ListFlowsMcpRequest extends Request
 {

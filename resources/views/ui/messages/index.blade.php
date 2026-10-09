@@ -1,4 +1,4 @@
-@use(JayI\Impex\Atrium\Badges)
+@use(RefactorCircus\Impex\Atrium\Badges)
 
 <x-atrium::layout :title="__('impex::impex.messages')">
     <x-atrium::page-header :title="__('impex::impex.messages')" />

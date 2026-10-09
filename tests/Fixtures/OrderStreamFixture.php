@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests\Fixtures;
+namespace RefactorCircus\Impex\Tests\Fixtures;
 
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Support\AbstractStream;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Support\AbstractStream;
 
 /**
  * An append stream: orders placed and shipped, each delivered as it is.

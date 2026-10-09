@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains;
+namespace RefactorCircus\Impex\Domains;
 
 use Illuminate\Support\ServiceProvider;
-use JayI\Impex\Domains\Artifact\ArtifactServiceProvider;
-use JayI\Impex\Domains\Batch\BatchServiceProvider;
-use JayI\Impex\Domains\Channel\ChannelServiceProvider;
-use JayI\Impex\Domains\Flow\FlowServiceProvider;
-use JayI\Impex\Domains\Message\MessageServiceProvider;
-use JayI\Impex\Domains\Run\RunServiceProvider;
-use JayI\Impex\Domains\Signal\SignalServiceProvider;
-use JayI\Impex\Domains\Subscription\SubscriptionServiceProvider;
+use RefactorCircus\Impex\Domains\Artifact\ArtifactServiceProvider;
+use RefactorCircus\Impex\Domains\Batch\BatchServiceProvider;
+use RefactorCircus\Impex\Domains\Channel\ChannelServiceProvider;
+use RefactorCircus\Impex\Domains\Flow\FlowServiceProvider;
+use RefactorCircus\Impex\Domains\Message\MessageServiceProvider;
+use RefactorCircus\Impex\Domains\Run\RunServiceProvider;
+use RefactorCircus\Impex\Domains\Signal\SignalServiceProvider;
+use RefactorCircus\Impex\Domains\Subscription\SubscriptionServiceProvider;
 
 class DomainServiceProvider extends ServiceProvider
 {

@@ -82,7 +82,7 @@ nothing.
 'partner-hooks' => [
     'direction' => 'inbound',
     'credentials' => ['signing_secret' => env('PARTNER_SECRET')],
-    'signature_validator' => \JayI\Impex\Domains\Channel\Support\StandardWebhooksValidator::class,
+    'signature_validator' => \RefactorCircus\Impex\Domains\Channel\Support\StandardWebhooksValidator::class,
     'options' => ['tolerance_seconds' => 600],
     'flow' => 'partner-event',
 ],
@@ -95,7 +95,7 @@ deliveries are refused.
 ## Outbound
 
 ```php
-use JayI\Impex\Domains\Channel\Data\OutboundMessage;
+use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
 
 $receipt = Impex::send('carrier-api', ['zip' => '90210']);            // an array is JSON
 $receipt = Impex::send('carrier-api', $rawXml);                        // a string as it is
@@ -188,7 +188,7 @@ endpoint as `{disk}://{path}`.
 point a channel's `transport` at it:
 
 ```php
-use JayI\Impex\Domains\Channel\Contracts\Transport;
+use RefactorCircus\Impex\Domains\Channel\Contracts\Transport;
 
 Impex::transports()->extend('sqs', fn ($app) => $app->make(SqsTransport::class));
 ```
@@ -229,7 +229,7 @@ A `whsec_`-prefixed secret is the Standard Webhooks base64 encoding of the key
 and is decoded first; any other secret is used as it is. Signing under the id
 and timestamp means a captured delivery cannot be replayed under a new id or
 after the receiver's tolerance window. Write your own by implementing
-`JayI\Impex\Domains\Channel\Contracts\Signer`.
+`RefactorCircus\Impex\Domains\Channel\Contracts\Signer`.
 
 ### Rotating a secret
 

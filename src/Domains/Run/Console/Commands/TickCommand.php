@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Console\Commands;
+namespace RefactorCircus\Impex\Domains\Run\Console\Commands;
 
 use Illuminate\Console\Command;
-use JayI\Impex\Domains\Run\Services\Sweeper;
+use RefactorCircus\Impex\Domains\Run\Services\Sweeper;
 
 /**
  * Runs the engine's periodic pass.

@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message;
+namespace RefactorCircus\Impex\Domains\Message;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Route;
-use JayI\Foundation\Support\ServiceProvider;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
-use JayI\Impex\Domains\Message\Services\OutboundRecorder;
+use RefactorCircus\Foundation\Support\ServiceProvider;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Message\Services\OutboundRecorder;
 
 class MessageServiceProvider extends ServiceProvider
 {
@@ -22,10 +21,6 @@ class MessageServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->keepMorphAliases([
-            'JayI\Impex\Models\Message' => MessageModel::class,
-        ]);
-
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
 
         $this->loadChannelRoutesFrom(__DIR__.'/routes/channels.php');

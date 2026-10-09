@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Contracts;
+namespace RefactorCircus\Impex\Domains\Subscription\Contracts;
 
-use JayI\Impex\Domains\Subscription\Enums\StreamKind;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
  * A source of changes subscribers can follow: products, orders,

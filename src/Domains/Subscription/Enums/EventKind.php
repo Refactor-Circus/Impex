@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Enums;
+namespace RefactorCircus\Impex\Domains\Subscription\Enums;
 
 /**
  * What happened to a subject. Removed covers a subject that is gone and

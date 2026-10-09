@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Resources;
+namespace RefactorCircus\Impex\Domains\Message\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JayI\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 /**
  * @mixin MessageModel

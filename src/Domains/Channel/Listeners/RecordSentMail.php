@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Listeners;
+namespace RefactorCircus\Impex\Domains\Channel\Listeners;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Mail\Events\MessageSent;
-use JayI\Impex\Domains\Channel\Mail\RecordingMailTransport;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Services\MessageRecorder;
+use RefactorCircus\Impex\Domains\Channel\Mail\RecordingMailTransport;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Services\MessageRecorder;
 use Symfony\Component\Mime\Address;
 
 /**

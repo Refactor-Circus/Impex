@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Run\Enums\RunStatus;
-use JayI\Impex\Impex;
-use JayI\Impex\Tests\Fixtures\Calls;
-use JayI\Impex\Tests\Fixtures\PayloadFlow;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
+use RefactorCircus\Impex\Impex;
+use RefactorCircus\Impex\Tests\Fixtures\Calls;
+use RefactorCircus\Impex\Tests\Fixtures\PayloadFlow;
 
 beforeEach(function (): void {
     Calls::reset();

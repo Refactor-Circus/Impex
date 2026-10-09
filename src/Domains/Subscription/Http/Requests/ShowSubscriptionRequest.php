@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Resources\SubscriptionResource;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
 final class ShowSubscriptionRequest extends SubscriptionRequest
 {

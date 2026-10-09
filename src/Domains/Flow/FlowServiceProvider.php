@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow;
+namespace RefactorCircus\Impex\Domains\Flow;
 
 use Illuminate\Console\Scheduling\Schedule;
-use JayI\Foundation\Support\ServiceProvider;
-use JayI\Impex\Domains\Flow\Console\Commands\RunFlowCommand;
-use JayI\Impex\Domains\Flow\Models\FlowOverrideModel;
-use JayI\Impex\Domains\Flow\Services\FlowRegistry;
+use RefactorCircus\Foundation\Support\ServiceProvider;
+use RefactorCircus\Impex\Domains\Flow\Console\Commands\RunFlowCommand;
+use RefactorCircus\Impex\Domains\Flow\Services\FlowRegistry;
 
 class FlowServiceProvider extends ServiceProvider
 {
@@ -19,10 +18,6 @@ class FlowServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->keepMorphAliases([
-            'JayI\Impex\Models\FlowOverride' => FlowOverrideModel::class,
-        ]);
-
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
 
         if (! $this->app->runningInConsole()) {

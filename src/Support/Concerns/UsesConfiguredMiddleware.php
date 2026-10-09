@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Support\Concerns;
+namespace RefactorCircus\Impex\Support\Concerns;
 
-use JayI\Impex\Support\JobMiddleware;
+use RefactorCircus\Impex\Support\JobMiddleware;
 
 /**
  * Gives an Impex job the queue middleware `impex.jobs.middleware` names for

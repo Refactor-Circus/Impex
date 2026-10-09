@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use JayI\Atrium\Testing\AtriumStyles;
+use RefactorCircus\Atrium\Testing\AtriumStyles;
 
 /**
  * Atrium owns every component and style of the suite, and Impex ships none:

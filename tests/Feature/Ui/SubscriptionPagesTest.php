@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use JayI\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Tests\Fixtures\FakeCatalog;
-use JayI\Impex\Tests\Fixtures\ProductStreamFixture;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Tests\Fixtures\FakeCatalog;
+use RefactorCircus\Impex\Tests\Fixtures\ProductStreamFixture;
 
 beforeEach(function (): void {
     ValidateCsrfToken::except(['*']);

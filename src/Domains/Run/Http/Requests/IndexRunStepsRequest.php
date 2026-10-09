@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Http\Requests;
+namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Run\Actions\ListRunStepsAction;
-use JayI\Impex\Domains\Run\Models\RunStepModel;
-use JayI\Impex\Domains\Run\Resources\RunStepResource;
+use RefactorCircus\Impex\Domains\Run\Actions\ListRunStepsAction;
+use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
+use RefactorCircus\Impex\Domains\Run\Resources\RunStepResource;
 
 final class IndexRunStepsRequest extends RunRequest
 {

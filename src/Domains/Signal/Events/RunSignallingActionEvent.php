@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Events;
+namespace RefactorCircus\Impex\Domains\Signal\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use JayI\Foundation\Contracts\ActionStartingEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Foundation\Contracts\ActionStartingEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 /**
  * A signal is about to be sent to a run.

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Subscription\Mcp\Tools;
+namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use JayI\Foundation\Mcp\Tool;
-use JayI\Impex\Domains\Subscription\Mcp\Requests\ListDeliveriesMcpRequest;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Foundation\Mcp\Tool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListDeliveriesMcpRequest;
 
 #[Description('List a subscription\'s delivery attempts, newest first, with how each went.')]
 final class ListDeliveriesTool extends Tool

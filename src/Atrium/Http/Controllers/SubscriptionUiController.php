@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Atrium\Http\Controllers;
+namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use JayI\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
-use JayI\Impex\Atrium\ScreenAccess;
-use JayI\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
-use JayI\Impex\Domains\Subscription\Actions\ListSubscriptionsAction;
-use JayI\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Actions\UpdateSubscriptionAction;
-use JayI\Impex\Domains\Subscription\Enums\SubscriptionStatus;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Services\StreamRegistry;
-use JayI\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
+use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscriptionsAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Actions\UpdateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
+use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
 
 final class SubscriptionUiController
 {

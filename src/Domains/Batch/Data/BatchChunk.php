@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Batch\Data;
+namespace RefactorCircus\Impex\Domains\Batch\Data;
 
 /**
  * A page of work from a batch source, plus the cursor to resume after it.

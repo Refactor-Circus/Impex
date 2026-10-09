@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Channel\Enums;
+namespace RefactorCircus\Impex\Domains\Channel\Enums;
 
 /**
  * Which bodies a channel keeps in the ledger.

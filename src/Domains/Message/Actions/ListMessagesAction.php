@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Message\Actions;
+namespace RefactorCircus\Impex\Domains\Message\Actions;
 
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
-use JayI\Impex\Domains\Message\Enums\Direction;
-use JayI\Impex\Domains\Message\Events\MessagesListedActionEvent;
-use JayI\Impex\Domains\Message\Events\MessagesListingActionEvent;
-use JayI\Impex\Domains\Message\Models\MessageModel;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Events\MessagesListedActionEvent;
+use RefactorCircus\Impex\Domains\Message\Events\MessagesListingActionEvent;
+use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 final class ListMessagesAction
 {

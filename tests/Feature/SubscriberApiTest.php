@@ -5,16 +5,16 @@ declare(strict_types=1);
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use JayI\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
-use JayI\Impex\Domains\Subscription\Mcp\Tools\CreateSubscriberTool;
-use JayI\Impex\Domains\Subscription\Mcp\Tools\CreateSubscriptionTool;
-use JayI\Impex\Domains\Subscription\Mcp\Tools\ListStreamsTool;
-use JayI\Impex\Domains\Subscription\Mcp\Tools\ListSubscriptionsTool;
-use JayI\Impex\Domains\Subscription\Models\SubscriberModel;
-use JayI\Impex\Domains\Subscription\Models\SubscriptionModel;
-use JayI\Impex\Domains\Subscription\Support\OAuthClientResolver;
-use JayI\Impex\Tests\Fixtures\FakeCatalog;
-use JayI\Impex\Tests\Fixtures\ProductStreamFixture;
+use RefactorCircus\Impex\Domains\Subscription\Contracts\ResolvesSubscriber;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\CreateSubscriberTool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\CreateSubscriptionTool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\ListStreamsTool;
+use RefactorCircus\Impex\Domains\Subscription\Mcp\Tools\ListSubscriptionsTool;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Domains\Subscription\Support\OAuthClientResolver;
+use RefactorCircus\Impex\Tests\Fixtures\FakeCatalog;
+use RefactorCircus\Impex\Tests\Fixtures\ProductStreamFixture;
 
 beforeEach(function (): void {
     FakeCatalog::reset();

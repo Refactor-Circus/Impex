@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Http;
-use JayI\Impex\Domains\Channel\Mcp\Tools\CreateChannelTool;
-use JayI\Impex\Domains\Channel\Mcp\Tools\ListChannelsTool;
-use JayI\Impex\Domains\Channel\Mcp\Tools\RotateChannelSecretTool;
-use JayI\Impex\Domains\Channel\Models\ChannelModel;
-use JayI\Impex\Domains\Channel\Support\StandardWebhooksSigner;
-use JayI\Impex\Domains\Channel\Support\StandardWebhooksValidator;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Impex;
-use JayI\Impex\Tests\Fixtures\Calls;
-use JayI\Impex\Tests\Fixtures\PayloadFlow;
+use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\CreateChannelTool;
+use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\ListChannelsTool;
+use RefactorCircus\Impex\Domains\Channel\Mcp\Tools\RotateChannelSecretTool;
+use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Channel\Support\StandardWebhooksSigner;
+use RefactorCircus\Impex\Domains\Channel\Support\StandardWebhooksValidator;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Impex;
+use RefactorCircus\Impex\Tests\Fixtures\Calls;
+use RefactorCircus\Impex\Tests\Fixtures\PayloadFlow;
 
 beforeEach(function (): void {
     Calls::reset();

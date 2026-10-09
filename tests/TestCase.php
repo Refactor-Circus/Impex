@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Tests;
+namespace RefactorCircus\Impex\Tests;
 
-use JayI\Atrium\AtriumServiceProvider;
-use JayI\Impex\ImpexServiceProvider;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use RefactorCircus\Atrium\AtriumServiceProvider;
+use RefactorCircus\Impex\ImpexServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -25,7 +25,7 @@ abstract class TestCase extends Orchestra
 
     protected function defineEnvironment($app): void
     {
-        // jayi/cortex is a dev dependency, so Atrium discovers its plugin here
+        // refactor-circus/cortex is a dev dependency, so Atrium discovers its plugin here
         // without its migrations; its navigation would query missing tables.
         $app['config']->set('atrium.disabled', ['cortex']);
 

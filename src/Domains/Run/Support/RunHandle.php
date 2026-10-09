@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Support;
+namespace RefactorCircus\Impex\Domains\Run\Support;
 
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Models\SignalModel;
-use JayI\Impex\Impex;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
+use RefactorCircus\Impex\Impex;
 
 /**
  * A run you can act on, rather than one you have to look things up about.

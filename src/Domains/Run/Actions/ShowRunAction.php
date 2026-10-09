@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Run\Actions;
+namespace RefactorCircus\Impex\Domains\Run\Actions;
 
-use JayI\Impex\Domains\Run\Events\RunShowingActionEvent;
-use JayI\Impex\Domains\Run\Events\RunShownActionEvent;
-use JayI\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Run\Events\RunShowingActionEvent;
+use RefactorCircus\Impex\Domains\Run\Events\RunShownActionEvent;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 final class ShowRunAction
 {

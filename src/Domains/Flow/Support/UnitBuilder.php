@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Flow\Support;
+namespace RefactorCircus\Impex\Domains\Flow\Support;
 
-use JayI\Impex\Domains\Run\Enums\RollbackFailure;
-use JayI\Impex\Domains\Run\Support\Context;
+use RefactorCircus\Impex\Domains\Run\Enums\RollbackFailure;
+use RefactorCircus\Impex\Domains\Run\Support\Context;
 
 /**
  * Groups steps under one rollback policy.

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JayI\Impex\Domains\Signal\Http\Controllers;
+namespace RefactorCircus\Impex\Domains\Signal\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use JayI\Impex\Domains\Run\Models\RunModel;
-use JayI\Impex\Domains\Signal\Http\Requests\StoreRunSignalRequest;
+use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Http\Requests\StoreRunSignalRequest;
 
 final class RunSignalController
 {
