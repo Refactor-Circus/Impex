@@ -24,20 +24,35 @@ final class EventReader
     ) {}
 
     /**
-     * Up to $limit events after $after, oldest first. One range scan on the
-     * subscription's own rows, however long the stream.
+     * Up to $limit events after $after, oldest first.
+     *
+     * Two queries, each a primary-key read, rather than one join: a planner
+     * free to choose may drive a join from the events table instead, scanning
+     * every event after the cursor — every subscription's — to keep this
+     * one's hundred. MySQL does exactly that near the start of a cursor, and
+     * the cost grows with the whole stream.
      *
      * @return list<StreamEvent>
      */
     public function read(SubscriptionModel $subscription, int $after, int $limit): array
     {
-        return array_values($this->db->table('impex_subscription_events as se')
-            ->join('impex_events as e', 'e.id', '=', 'se.event_id')
-            ->where('se.subscription_id', $subscription->id)
-            ->where('se.event_id', '>', $after)
-            ->orderBy('se.event_id')
+        $ids = $this->db->table('impex_subscription_events')
+            ->where('subscription_id', $subscription->id)
+            ->where('event_id', '>', $after)
+            ->orderBy('event_id')
             ->limit($limit)
-            ->get(['e.id', 'e.stream', 'e.subject_key', 'e.kind', 'e.name', 'e.topics', 'e.payload', 'e.occurred_at'])
+            ->pluck('event_id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        if ($ids === []) {
+            return [];
+        }
+
+        return array_values($this->db->table('impex_events')
+            ->whereIn('id', $ids)
+            ->orderBy('id')
+            ->get(['id', 'stream', 'subject_key', 'kind', 'name', 'topics', 'payload', 'occurred_at'])
             ->map(function (mixed $row): StreamEvent {
                 /** @var stdClass $row */
                 return StreamEvent::fromRow($row);

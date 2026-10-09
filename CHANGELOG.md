@@ -4,6 +4,8 @@
 
 ### Added
 
+- **Faster, steadier delivery.** A subscription's next batch is read with two primary-key queries instead of one join: on MySQL the join could be planned from the events table, scanning every event after the cursor — every subscription's — for each batch of one, so a batch's cost grew with the whole stream. Fan-out's history lookup is split the same way. A delivered batch's record and cursor commit in one transaction, and a delivery lock that cannot be released is reported instead of failing a finished job.
+
 - **Channel screens.** Create, change, rotate the secret of, and delete stored channels from Atrium; configured channels are shown read-only.
 - **A paused flow is paused everywhere.** `Impex::run()` refuses a disabled flow from any trigger, not only the API; an inbound channel bound to one answers `503` with `Retry-After`.
 - **Flow overrides route and default runs.** `impex_flows.queue` and `queue_connection` now apply to new runs (an inbound channel's own `queue` wins), and `defaults` fills the `handle()` parameters a caller left out, by name — a nightly sweep's batch size, say, retuned without a deploy.

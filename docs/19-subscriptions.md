@@ -939,6 +939,11 @@ everything, the rest filtered or listed):
 | Re-detect, 10% changed | 8.4s | ~24,000 subjects/s | 87 MB |
 | Deliver (111,780 batched requests) | 255s | ~44,000 events/s | 87 MB |
 
+On a laptop's MySQL 8.4 (full durability, default 128 MB buffer pool), 20,000
+subjects and 100 subscriptions detect at ~1,800 subjects/s and deliver at
+~11,000 events/s from one process; production hardware and more workers move
+both up.
+
 Time grows linearly with volume and memory stays flat. The first look is
 dominated by writing a row per match; a new subscriber starts from an export
 instead. Run it against the database you deploy on, and raise

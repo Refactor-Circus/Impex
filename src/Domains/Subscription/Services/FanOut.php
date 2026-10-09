@@ -259,22 +259,37 @@ final class FanOut
     {
         $latest = [];
 
+        // Two indexed reads rather than a join whose order a planner could
+        // flip into scanning a subscription's whole history: the keys' events
+        // first, then which of these subscriptions were sent them.
         foreach (array_chunk($keys, 500) as $chunk) {
-            foreach (array_chunk($subscriptions, 500) as $ids) {
-                $rows = $this->db->table('impex_events as e')
-                    ->join('impex_subscription_events as se', 'se.event_id', '=', 'e.id')
-                    ->where('e.stream', $stream)
-                    ->whereIn('e.subject_key', $chunk)
-                    ->whereIn('se.subscription_id', $ids)
-                    ->where('e.id', '<', $before)
-                    ->get(['se.subscription_id', 'e.subject_key', 'e.id', 'e.kind']);
+            $events = [];
 
-                foreach ($rows as $row) {
-                    /** @var stdClass $row */
-                    $pair = (string) $row->subject_key."\0".(string) $row->subscription_id;
+            foreach ($this->db->table('impex_events')
+                ->where('stream', $stream)
+                ->whereIn('subject_key', $chunk)
+                ->where('id', '<', $before)
+                ->get(['id', 'subject_key', 'kind']) as $event) {
+                /** @var stdClass $event */
+                $events[(int) $event->id] = [(string) $event->subject_key, (string) $event->kind];
+            }
 
-                    if (! isset($latest[$pair]) || (int) $row->id > $latest[$pair][0]) {
-                        $latest[$pair] = [(int) $row->id, (string) $row->kind];
+            foreach (array_chunk(array_keys($events), 1000) as $eventIds) {
+                foreach (array_chunk($subscriptions, 500) as $ids) {
+                    $rows = $this->db->table('impex_subscription_events')
+                        ->whereIn('event_id', $eventIds)
+                        ->whereIn('subscription_id', $ids)
+                        ->get(['subscription_id', 'event_id']);
+
+                    foreach ($rows as $row) {
+                        /** @var stdClass $row */
+                        $id = (int) $row->event_id;
+                        [$key, $kind] = $events[$id];
+                        $pair = $key."\0".(string) $row->subscription_id;
+
+                        if (! isset($latest[$pair]) || $id > $latest[$pair][0]) {
+                            $latest[$pair] = [$id, $kind];
+                        }
                     }
                 }
             }
