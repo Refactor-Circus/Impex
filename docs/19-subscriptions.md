@@ -11,7 +11,7 @@ Subscriptions need nothing but Impex. Any application or package offers its
 own data by writing a stream — a class, usually extending `AbstractStream` —
 and reporting change to it; Impex does the rest: the subscriber API, filters,
 detection, signed batched delivery, retries, the feed, exports, MCP tools and
-the dashboard. refactor-circus/keystone's product stream is one such stream, not a
+the dashboard. refactor-circus/showroom's product stream is one such stream, not a
 requirement.
 
 ## Concepts

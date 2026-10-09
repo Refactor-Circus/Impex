@@ -259,7 +259,7 @@ A subscriber following several streams holds one subscription per stream:
 
 ```php
 Impex::streams()->register(ProductStream::class);       // extends AbstractStream
-Impex::streams()->touch('keystone.products', $identifiers);   // snapshot stream
+Impex::streams()->touch('showroom.products', $identifiers);   // snapshot stream
 Impex::streams()->publish('orders', $number, 'order.shipped', $payload); // append stream
 ```
 

@@ -18,7 +18,7 @@ use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 interface Stream
 {
     /**
-     * The stream's name, such as `keystone.products`. Stored on every event
+     * The stream's name, such as `showroom.products`. Stored on every event
      * and subscription, so it never changes.
      */
     public function key(): string;

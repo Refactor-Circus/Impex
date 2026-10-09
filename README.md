@@ -12,7 +12,7 @@ message, and no local disk, and for catalogues in the tens of millions.
 
 Impex stands alone. Nothing in it depends on a domain package: any Laravel
 application can send through channels, record its mail, receive webhooks, run
-flows and offer subscriptions to its own data. A package such as refactor-circus/keystone
+flows and offer subscriptions to its own data. A package such as refactor-circus/showroom
 uses Impex by registering a stream; Impex does not know it exists.
 
 > **Status: complete through the dashboard.** Everything below is built and
@@ -387,7 +387,7 @@ middleware; the subscriber is found by the token's client):
 
 ```http
 POST /impex/subscriber/subscriptions
-{"stream": "keystone.products", "topics": ["pricing", "assets"],
+{"stream": "showroom.products", "topics": ["pricing", "assets"],
  "filter": {"categories": ["power-tools"]}, "format": "slice",
  "endpoint": {"url": "https://vendor.example.com/hooks"}}
 ```

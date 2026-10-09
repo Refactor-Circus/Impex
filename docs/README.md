@@ -6,7 +6,7 @@ and subscribers follow your data's changes through signed, batched
 subscriptions. Built for Vapor.
 
 Impex stands alone: any Laravel application can use every part of it, and
-domain packages such as refactor-circus/keystone build on it by registering streams.
+domain packages such as refactor-circus/showroom build on it by registering streams.
 
 ## Guides
 
