@@ -7,7 +7,7 @@ php artisan vendor:publish --tag=impex-migrations
 php artisan migrate
 ```
 
-Impex needs PHP 8.4 and Laravel `^13.34`. Install the `pcntl` extension on
+Impex needs PHP 8.5 and Laravel `^13.35`. Install the `pcntl` extension on
 your queue workers: it is what lets a worker time a job out, and since 13.34
 Laravel tells the job first, so a batch item about to be killed gives itself up
 for an immediate retry. See [Scale](06-scale.md#batch-items-whose-worker-dies).

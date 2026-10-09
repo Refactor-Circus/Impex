@@ -375,6 +375,7 @@
 
 ### Changed
 
+- Requires PHP 8.5 (was PHP 8.4), with dependency lower bounds raised to the latest releases (`laravel/framework` ^13.35, `orchestra/testbench` ^11.3, `pestphp/pest` ^5.3.1, `larastan/larastan` ^3.13).
 - `ImpexPlugin::features()` uses Atrium's `featuresFromConfig('impex.atrium.features')`, and the plugin's `key()` and `label()` come from Atrium's base derivation (`impex`, `Impex`).
 - With `impex.authorization` on, the Atrium screens now authorize every page and action against `impex.policies` (403 when refused), list and count only the runs the user owns (and their messages) as the API does, and make the user who starts a flow from the dashboard its owner. Previously every Atrium user could see and act on every run. Turn `impex.authorization` off, or register your own policies, for an operator dashboard.
 - Status colours: running is now `primary` and pending/waiting `info`; inbound messages are `neutral` rather than `info`.
