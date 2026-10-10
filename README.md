@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="art/icon.png" width="160" alt="Impex icon">
+</p>
+
 # Impex
 
 Workflow engine and data-flow ledger for Laravel.
