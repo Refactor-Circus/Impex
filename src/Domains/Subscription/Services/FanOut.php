@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use RefactorCircus\Impex\Domains\Subscription\Contracts\Stream;
@@ -15,6 +16,7 @@ use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
 use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Support\Tables;
 use stdClass;
 
 /**
@@ -32,6 +34,8 @@ use stdClass;
  */
 final class FanOut
 {
+    private const int PENDING_REFRESH_SECONDS = 5;
+
     /**
      * @var array<string, array{at: float, subscriptions: list<SubscriptionModel>}>
      */
@@ -41,6 +45,7 @@ final class FanOut
         private readonly ConnectionInterface $db,
         private readonly Config $config,
         private readonly SubscriptionJobs $jobs,
+        private readonly Holdings $holdings,
     ) {}
 
     /**
@@ -81,8 +86,10 @@ final class FanOut
         }
 
         $prior = $snapshot && $scoped !== []
-            ? $this->priorRecipients($stream->key(), $keys, $events === [] ? PHP_INT_MAX : min(array_map(fn (StreamEvent $e): int => $e->id, $events)), array_keys($scoped))
+            ? $this->holdings->of($keys, array_map('strval', array_keys($scoped)))
             : [];
+        $held = [];
+        $released = [];
 
         $rows = [];
         $entering = [];
@@ -100,6 +107,10 @@ final class FanOut
                     $rows[] = ['subscription_id' => $id, 'event_id' => $event->id];
                 }
 
+                foreach (array_keys($known) as $id) {
+                    $released[$id][] = $key;
+                }
+
                 continue;
             }
 
@@ -109,6 +120,10 @@ final class FanOut
                 if (($event->topics & $byId[$id]->topics) !== 0) {
                     $rows[] = ['subscription_id' => $id, 'event_id' => $event->id];
                     $routed[$id] = true;
+
+                    if ($snapshot && isset($scoped[$id])) {
+                        $held[$id][] = $key;
+                    }
                 }
             }
 
@@ -126,6 +141,22 @@ final class FanOut
             ...$this->targeted($stream, EventKind::Changed, 'entered_scope', $entering),
             ...$this->targeted($stream, EventKind::Removed, 'left_scope', $leaving),
         ];
+
+        foreach ($entering as $key => $ids) {
+            foreach ($ids as $id) {
+                $held[$id][] = (string) $key;
+            }
+        }
+
+        foreach ($leaving as $key => $ids) {
+            foreach ($ids as $id) {
+                $released[$id][] = (string) $key;
+            }
+        }
+
+        if ($held !== [] || $released !== []) {
+            $this->holdings->apply($held, $released);
+        }
 
         return $this->write($rows);
     }
@@ -232,7 +263,7 @@ final class FanOut
             $present = array_values(array_intersect($keys, array_map('strval', array_keys($snapshots))));
 
             foreach (array_chunk($present, 1000) as $chunk) {
-                $this->db->table('impex_subscription_subjects')
+                $this->db->table(Tables::name('subscription_subjects'))
                     ->whereIn('subscription_id', $listed)
                     ->whereIn('subject_key', $chunk)
                     ->get(['subscription_id', 'subject_key'])
@@ -244,67 +275,6 @@ final class FanOut
         }
 
         return $scope;
-    }
-
-    /**
-     * The filtered and listed subscriptions that currently have each key:
-     * those sent it before whose latest word on it was not "removed". Read
-     * from the event history, which covers the retention window.
-     *
-     * @param  list<string>  $keys
-     * @param  list<string>  $subscriptions
-     * @return array<string, array<string, true>>
-     */
-    private function priorRecipients(string $stream, array $keys, int $before, array $subscriptions): array
-    {
-        $latest = [];
-
-        // Two indexed reads rather than a join whose order a planner could
-        // flip into scanning a subscription's whole history: the keys' events
-        // first, then which of these subscriptions were sent them.
-        foreach (array_chunk($keys, 500) as $chunk) {
-            $events = [];
-
-            foreach ($this->db->table('impex_events')
-                ->where('stream', $stream)
-                ->whereIn('subject_key', $chunk)
-                ->where('id', '<', $before)
-                ->get(['id', 'subject_key', 'kind']) as $event) {
-                /** @var stdClass $event */
-                $events[(int) $event->id] = [(string) $event->subject_key, (string) $event->kind];
-            }
-
-            foreach (array_chunk(array_keys($events), 1000) as $eventIds) {
-                foreach (array_chunk($subscriptions, 500) as $ids) {
-                    $rows = $this->db->table('impex_subscription_events')
-                        ->whereIn('event_id', $eventIds)
-                        ->whereIn('subscription_id', $ids)
-                        ->get(['subscription_id', 'event_id']);
-
-                    foreach ($rows as $row) {
-                        /** @var stdClass $row */
-                        $id = (int) $row->event_id;
-                        [$key, $kind] = $events[$id];
-                        $pair = $key."\0".(string) $row->subscription_id;
-
-                        if (! isset($latest[$pair]) || $id > $latest[$pair][0]) {
-                            $latest[$pair] = [$id, $kind];
-                        }
-                    }
-                }
-            }
-        }
-
-        $prior = [];
-
-        foreach ($latest as $pair => [, $kind]) {
-            if ($kind !== EventKind::Removed->value) {
-                [$key, $id] = explode("\0", $pair, 2);
-                $prior[$key][$id] = true;
-            }
-        }
-
-        return $prior;
     }
 
     /**
@@ -324,7 +294,7 @@ final class FanOut
         $token = strtolower((string) Str::ulid());
         $now = Carbon::now();
 
-        $this->db->table('impex_events')->insert(array_map(fn (string $key): array => [
+        $this->db->table(Tables::name('events'))->insert(array_map(fn (string $key): array => [
             'stream' => $stream->key(),
             'subject_key' => $key,
             'kind' => $kind->value,
@@ -337,7 +307,7 @@ final class FanOut
         ], array_map('strval', array_keys($targets))));
 
         /** @var iterable<int, stdClass> $events */
-        $events = $this->db->table('impex_events')->where('batch', $token)->get(['id', 'subject_key']);
+        $events = $this->db->table(Tables::name('events'))->where('batch', $token)->get(['id', 'subject_key']);
 
         $rows = [];
 
@@ -361,13 +331,23 @@ final class FanOut
         }
 
         foreach (array_chunk($rows, 1000) as $chunk) {
-            $this->db->table('impex_subscription_events')->insertOrIgnore($chunk);
+            $this->db->table(Tables::name('subscription_events'))->insertOrIgnore($chunk);
         }
 
         $ids = array_values(array_unique(array_column($rows, 'subscription_id')));
 
+        // Marked only when unmarked or marked a while ago: a backlog fanned
+        // out chunk after chunk would otherwise rewrite every subscription's
+        // row each time. A delivery pass clears a mark only once nothing is
+        // left past its cursor, so a fresh mark is never lost to one.
+        $now = Carbon::now();
+        $stale = $now->copy()->subSeconds(self::PENDING_REFRESH_SECONDS);
+
         foreach (array_chunk($ids, 1000) as $chunk) {
-            $this->db->table('impex_subscriptions')->whereIn('id', $chunk)->update(['pending_at' => Carbon::now()]);
+            $this->db->table(Tables::name('subscriptions'))
+                ->whereIn('id', $chunk)
+                ->where(fn (Builder $q) => $q->whereNull('pending_at')->orWhere('pending_at', '<', $stale))
+                ->update(['pending_at' => $now]);
         }
 
         foreach ($ids as $id) {

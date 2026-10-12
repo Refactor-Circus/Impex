@@ -13,14 +13,6 @@ final class RetryRunAction
 {
     public function __construct(private readonly Impex $impex) {}
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
     public function execute(RunModel $run): RunModel
     {
         RunRetryingActionEvent::dispatch($run);

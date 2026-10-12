@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscriptionEventsAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscriptionEventsData;
 
 final class ListSubscriptionEventsMcpRequest extends SubscriptionMcpRequest
 {
@@ -16,16 +17,14 @@ final class ListSubscriptionEventsMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return ListSubscriptionEventsAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
-        ];
+        ] + ListSubscriptionEventsData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        unset($validated['subscription']);
-
-        $page = app(ListSubscriptionEventsAction::class)->execute($this->subscription(), $validated);
+        $page = app(ListSubscriptionEventsAction::class)->execute($this->subscription(), ListSubscriptionEventsData::fromValidated($validated));
 
         return $this->structuredCollection($page['events'], ['cursor' => $page['cursor'], 'has_more' => $page['has_more']]);
     }

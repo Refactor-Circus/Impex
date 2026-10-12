@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\CancelRunMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Cancel a run that has not finished. Already-finished runs are returned unchanged.')]
@@ -25,5 +26,10 @@ final class CancelRunTool extends Tool
             'run' => $schema->string()->description('The run id.')->required(),
             'reason' => $schema->string()->description('Why the run was cancelled, recorded on the run.'),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunResource::structuredSchema($schema);
     }
 }

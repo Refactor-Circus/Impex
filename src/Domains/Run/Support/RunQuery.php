@@ -28,7 +28,7 @@ final class RunQuery
 
     public function __construct()
     {
-        $this->query = RunModel::query()->latest('created_at');
+        $this->query = RunModel::query()->latest('created_at')->latest('id');
     }
 
     public function whereFlow(string $slug): self

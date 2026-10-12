@@ -4,15 +4,38 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Resources;
 
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\JsonSchema\Types\Type;
+use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
 use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
+use RefactorCircus\Keystone\Http\Resources\JsonResource;
 
 /**
  * @mixin DeliveryModel
  */
 final class DeliveryResource extends JsonResource
 {
+    /**
+     * @return array<string, Type>
+     */
+    public static function schema(JsonSchema $schema): array
+    {
+        return [
+            'id' => $schema->string()->required(),
+            'subscription_id' => $schema->string()->required(),
+            'first_event_id' => $schema->string()->required(),
+            'last_event_id' => $schema->string()->required(),
+            'events' => $schema->integer()->required(),
+            'status' => $schema->string()->enum(array_column(DeliveryStatus::cases(), 'value'))->required(),
+            'message_id' => $schema->string()->nullable()->required(),
+            'status_code' => $schema->integer()->nullable()->required(),
+            'duration_ms' => $schema->integer()->nullable()->required(),
+            'error' => $schema->object()->nullable()->required(),
+            'attempted_at' => $schema->string()->required(),
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */

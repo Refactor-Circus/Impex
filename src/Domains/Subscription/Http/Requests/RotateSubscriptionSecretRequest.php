@@ -12,11 +12,6 @@ use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
 final class RotateSubscriptionSecretRequest extends SubscriptionRequest
 {
-    public function rules(): array
-    {
-        return RotateChannelSecretAction::rules();
-    }
-
     /**
      * A new signing secret for the subscription's endpoint. Deliveries carry
      * a signature under both until the next rotation, so the receiver can

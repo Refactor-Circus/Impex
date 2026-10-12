@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
@@ -19,20 +19,17 @@ final class CreateSubscriptionMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return CreateSubscriptionAction::rules() + [
+        return [
             'subscriber' => ['required', 'string', 'max:26'],
-        ];
+        ] + CreateSubscriptionData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        unset($validated['subscriber']);
+        $created = app(CreateSubscriptionAction::class)->execute($this->subscriber(), CreateSubscriptionData::fromValidated($validated));
 
-        $created = app(CreateSubscriptionAction::class)->execute($this->subscriber(), $validated);
-
-        return Response::structured([
-            ...(new SubscriptionResource($created['subscription']))->resolve(),
-            'secret' => $created['secret'],
-        ]);
+        return (new SubscriptionResource($created['subscription']))
+            ->additional(['secret' => $created['secret']])
+            ->toStructuredResponse();
     }
 }

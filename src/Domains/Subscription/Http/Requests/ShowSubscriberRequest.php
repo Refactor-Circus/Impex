@@ -17,11 +17,6 @@ final class ShowSubscriberRequest extends Request
         return parent::authorize() && $this->allows('view', $this->subscriber());
     }
 
-    public function rules(): array
-    {
-        return ShowSubscriberAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         return (new SubscriberResource(app(ShowSubscriberAction::class)->execute($this->subscriber())))->response();

@@ -13,14 +13,6 @@ final class ListFlowsAction
     public function __construct(private readonly FlowRegistry $flows) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
-    /**
      * @return array<int, array<string, mixed>>
      */
     public function execute(): array

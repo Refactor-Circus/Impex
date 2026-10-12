@@ -7,9 +7,7 @@ namespace RefactorCircus\Impex\Domains\Run\Actions;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Validation\Rule;
-use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
-use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunsData;
 use RefactorCircus\Impex\Domains\Run\Events\RunsListedActionEvent;
 use RefactorCircus\Impex\Domains\Run\Events\RunsListingActionEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
@@ -17,31 +15,10 @@ use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 final class ListRunsAction
 {
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'status' => ['sometimes', Rule::enum(RunStatus::class)],
-            'flow' => ['sometimes', 'string', 'max:191'],
-            'trigger' => ['sometimes', Rule::enum(RunTrigger::class)],
-            'owner_type' => ['sometimes', 'string', 'max:191', 'required_with:owner_id'],
-            'owner_id' => ['sometimes', 'string', 'max:64', 'required_with:owner_type'],
-            'tag' => ['sometimes', 'array'],
-            'since' => ['sometimes', 'date'],
-            'until' => ['sometimes', 'date'],
-            'parent' => ['sometimes', 'string', 'max:26'],
-            'cursor' => ['sometimes', 'nullable', 'string'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:200'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
      * @param  Model|null  $viewer  When given, only the runs they own.
      * @return CursorPaginator<int, RunModel>
      */
-    public function execute(array $filters = [], ?Model $viewer = null): CursorPaginator
+    public function execute(ListRunsData $filters = new ListRunsData, ?Model $viewer = null): CursorPaginator
     {
         RunsListingActionEvent::dispatch($filters, $viewer);
 
@@ -53,61 +30,56 @@ final class ListRunsAction
     }
 
     /**
-     * @param  array<string, mixed>  $filters
      * @param  Model|null  $viewer  When given, only the runs they own.
      * @return CursorPaginator<int, RunModel>
      */
-    private function perform(array $filters = [], ?Model $viewer = null): CursorPaginator
+    private function perform(ListRunsData $filters, ?Model $viewer): CursorPaginator
     {
-        $query = RunModel::query()->latest('created_at');
+        // Newest first, with the id breaking ties: runs started in the same
+        // second would otherwise be skipped or repeated across cursor pages.
+        $query = RunModel::query()->latest('created_at')->latest('id');
 
         if ($viewer !== null) {
             $query->whereOwnedBy($viewer);
         }
 
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if ($filters->status !== null) {
+            $query->where('status', $filters->status);
         }
 
-        if (isset($filters['flow'])) {
-            $query->where('flow', $filters['flow']);
+        if ($filters->flow !== null) {
+            $query->where('flow', $filters->flow);
         }
 
-        if (isset($filters['trigger'])) {
-            $query->where('trigger', $filters['trigger']);
+        if ($filters->trigger !== null) {
+            $query->where('trigger', $filters->trigger);
         }
 
-        if (isset($filters['owner_type'], $filters['owner_id'])) {
+        if ($filters->ownerType !== null && $filters->ownerId !== null) {
             $query->whereHas('owners', function (Builder $owners) use ($filters): void {
-                $owners->where('owner_type', $filters['owner_type'])
-                    ->where('owner_id', $filters['owner_id']);
+                $owners->where('owner_type', $filters->ownerType)
+                    ->where('owner_id', $filters->ownerId);
             });
         }
 
-        if (isset($filters['parent'])) {
-            $query->where('parent_run_id', $filters['parent']);
+        if ($filters->parent !== null) {
+            $query->where('parent_run_id', $filters->parent);
         }
 
-        if (isset($filters['since'])) {
-            $query->where('created_at', '>=', $filters['since']);
+        if ($filters->since !== null) {
+            $query->where('created_at', '>=', $filters->since);
         }
 
-        if (isset($filters['until'])) {
-            $query->where('created_at', '<=', $filters['until']);
+        if ($filters->until !== null) {
+            $query->where('created_at', '<=', $filters->until);
         }
 
-        /** @var array<string, string> $tags */
-        $tags = $filters['tag'] ?? [];
-
-        foreach ($tags as $key => $value) {
+        foreach ($filters->tag as $key => $value) {
             $query->where('tags->'.$key, $value);
         }
 
         // Cursor, not offset: a ledger only grows, and deep offset pagination
         // degrades badly once it does.
-        return $query->cursorPaginate(
-            perPage: isset($filters['per_page']) ? (int) $filters['per_page'] : 25,
-            cursor: is_string($filters['cursor'] ?? null) ? $filters['cursor'] : null,
-        );
+        return $query->cursorPaginate(perPage: $filters->perPage, cursor: $filters->cursor);
     }
 }

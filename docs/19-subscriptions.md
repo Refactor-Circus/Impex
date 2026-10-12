@@ -383,9 +383,10 @@ authenticating as the customer's OAuth client:
 
 ```php
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriberData;
 
 app(CreateSubscriberAction::class)->execute(
-    ['name' => $customer->name, 'client_id' => $customer->oauth_client_id],
+    new CreateSubscriberData(name: $customer->name, clientId: $customer->oauth_client_id),
     owner: $customer,
 );
 ```
@@ -909,13 +910,21 @@ outside every topic. Impex keeps a hash of the whole snapshot beside the
 per-topic ones, so a subject whose topics are unchanged but whose snapshot
 moved is still checked against every subscription's scope.
 
-Who "was sent the subject before" is read from the event history, which covers
-the retention window. A subscriber last sent a subject before then, or whose
-latest word on it was already `removed`, is not told again. Only filtered and
-listed subscriptions can gain or lose a subject, so only their history is read:
-a subscription that takes everything never enters or leaves scope, and at
-catalogue scale reading its history for every change would be most of the
-work.
+Who "was sent the subject before" is kept in `impex_subscription_holdings`:
+one row per filtered or listed subscription and subject it has, added when the
+subject is sent and dropped when its latest word is `removed`. A subscriber
+whose latest word on a subject was already `removed` is not told again. The
+holdings outlive event pruning, so a subscriber sent a subject long ago is
+still told when it leaves. Only filtered and listed subscriptions can gain or
+lose a subject, so only they keep holdings: a subscription that takes
+everything never enters or leaves scope, and at catalogue scale tracking it
+would be most of the work. When one that took everything is given a filter or
+a list, its holdings are rebuilt once from the events it was sent, which
+cover the retention window.
+
+Upgrading: the migration that adds the table fills it the same way for every
+existing filtered or listed subscription. It reads each one's delivered
+history once; on a very large history, run it in a maintenance window.
 
 ## Measuring it
 
@@ -993,14 +1002,20 @@ Nothing here grows with catalogue size times subscriber count.
   the new hashes and the fan-out in **one transaction** — so a worker killed
   halfway leaves the chunk to be claimed again rather than half-sent. A
   subject touched again while it was being looked at keeps its touch for the
-  next pass. `detection.concurrency` jobs share a backlog through the leases;
-  each runs for up to `detection.time_budget` seconds, then queues itself
-  again.
+  next pass. `detection.concurrency` jobs share a backlog through the leases,
+  each shard starting a chunk further in, and one that loses a chunk to
+  another looks again past it; each runs for up to `detection.time_budget`
+  seconds, then queues itself again. An append stream is fanned out by one
+  shard, oldest first, so a later event never overtakes an earlier one. Its
+  events are claimed by tagging; a fan-out that fails hands them straight
+  back, and a tag left by a worker that died is taken back once
+  `detection.lease_seconds` passes.
 - **Filters are matched as rules, not expanded.** A subscription to a
   category of two million products costs nothing until one of them changes.
 - **Fan-out writes one narrow row per match** — `(subscription_id, event_id)`
-  in `impex_subscription_events` — and nothing else. A change is one event
-  row however many subscribers hear of it.
+  in `impex_subscription_events` — and, for a filtered or listed
+  subscription, keeps its row in `impex_subscription_holdings`. A change is
+  one event row however many subscribers hear of it.
 - **Delivery reads one range** of a subscription's own rows forward from its
   cursor, however long the stream.
 - **Payloads are built at send time**, from current state, never copied per
@@ -1008,7 +1023,10 @@ Nothing here grows with catalogue size times subscriber count.
 - **Detection and delivery queue separately** (`subscriptions.queue.detect`,
   `subscriptions.queue.deliver`), so a big import cannot hold up deliveries
   behind it. At most one `DetectStream` waits per stream and shard, and one
-  `DeliverSubscription` per subscription.
+  `DeliverSubscription` per subscription: a touch or a fan-out that finds one
+  waiting costs a cache lock check, not a queued job. A waiting job holds its
+  place for `detection.lease_seconds` (five minutes for a delivery), so one
+  lost on the way to a worker is replaced by the next `impex:tick`.
 - **Pruning deletes by id range**, ten thousand events a slice, rather than one
   long delete on a table with hundreds of millions of rows.
 - **`impex:tick` is the safety net**: it queues detection a lost job never ran,

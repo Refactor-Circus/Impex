@@ -8,6 +8,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\RunRequest;
 use RefactorCircus\Impex\Domains\Signal\Actions\SignalRunAction;
+use RefactorCircus\Impex\Domains\Signal\Data\SignalRunData;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 use RefactorCircus\Impex\Domains\Signal\Resources\SignalResource;
 
@@ -20,19 +21,19 @@ final class SignalRunMcpRequest extends RunRequest
 
     protected function rules(): array
     {
-        return SignalRunAction::rules() + [
+        return [
             'run' => ['required', 'string', 'max:26'],
-        ];
+        ] + SignalRunData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        $signal = app(SignalRunAction::class)->execute($this->run(), $validated);
+        $signal = app(SignalRunAction::class)->execute($this->run(), SignalRunData::fromValidated($validated));
 
         if (! $signal instanceof SignalModel) {
-            return Response::structured(['delivered' => false, 'reason' => 'The run has finished.']);
+            return Response::structured(['data' => null, 'delivered' => false, 'reason' => 'The run has finished.']);
         }
 
-        return Response::structured((new SignalResource($signal))->resolve() + ['delivered' => true]);
+        return (new SignalResource($signal))->additional(['delivered' => true])->toStructuredResponse();
     }
 }

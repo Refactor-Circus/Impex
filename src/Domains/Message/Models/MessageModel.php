@@ -15,6 +15,7 @@ use RefactorCircus\Impex\Database\Factories\MessageFactory;
 use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -62,7 +63,10 @@ final class MessageModel extends Model
     // on an Artifact, which prunes itself and deletes its own object.
     use MassPrunable;
 
-    protected $table = 'impex_messages';
+    public function getTable(): string
+    {
+        return Tables::name('messages');
+    }
 
     protected $fillable = [
         'run_id',

@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\CreateChannelMcpRequest;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Create a stored channel. Outbound http channels take options.url; mail channels options.to and options.mailer; file channels options.disk and options.path. Secrets go in credentials.signing_secret.')]
@@ -30,5 +31,10 @@ final class CreateChannelTool extends Tool
             'options' => $schema->object()->description('Transport settings.'),
             'credentials' => $schema->object()->description('Secrets, encrypted at rest.'),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return ChannelResource::structuredSchema($schema);
     }
 }

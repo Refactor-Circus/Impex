@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Impex\Mcp\ImpexServer;
 use RefactorCircus\Impex\Mcp\Tools\ListImpexHistoryTool;
+use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 it('serves the history route inside the JSON API group', function (): void {
     expect(Route::has('impex.history.index'))->toBeTrue()
@@ -17,12 +19,9 @@ it('answers 404 for history while no audit log is installed', function (): void 
         ->assertJsonPath('message', 'No audit log is installed. Install refactor-circus/keen to record history.');
 });
 
-it('lists the history tool on the MCP server', function (): void {
+it('declares the history tool, but offers it only while Impex audits', function (): void {
     expect(ImpexServer::TOOLS)->toContain(ListImpexHistoryTool::class)
-        ->and(app(ListImpexHistoryTool::class)->name())->toBe('list-impex-history-tool');
-});
-
-it('answers the history tool with guidance while no audit log is installed', function (): void {
-    mcpTool(ListImpexHistoryTool::class)
-        ->assertHasErrors(['No audit log is installed']);
+        ->and(app(ListImpexHistoryTool::class)->name())->toBe('list-impex-history-tool')
+        ->and(app(PackageRegistry::class)->get('impex')->audits())->toBeFalse()
+        ->and((new ImpexServer(new FakeTransporter))->createContext()->tools()->contains(fn (mixed $tool): bool => $tool instanceof ListImpexHistoryTool))->toBeFalse();
 });

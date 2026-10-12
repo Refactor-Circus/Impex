@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
@@ -13,9 +14,9 @@ return new class extends Migration
         // A batch is ONE step in the replay history whatever its item count.
         // Per-item state lives below, in a table the replay never reads — which
         // is what keeps a million-item sweep to a two-step history.
-        Schema::create('impex_batches', function (Blueprint $table): void {
+        Schema::create(Tables::name('batches'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('run_id')->constrained('impex_runs')->cascadeOnDelete();
+            $table->foreignUlid('run_id')->constrained(Tables::name('runs'))->cascadeOnDelete();
             $table->ulid('step_id')->index();
             $table->string('source');
             $table->json('source_arguments')->nullable();
@@ -33,17 +34,17 @@ return new class extends Migration
             $table->index(['seeded', 'finalized_at']);
         });
 
-        Schema::create('impex_batch_items', function (Blueprint $table): void {
+        Schema::create(Tables::name('batch_items'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('batch_id')->constrained('impex_batches')->cascadeOnDelete();
+            $table->foreignUlid('batch_id')->constrained(Tables::name('batches'))->cascadeOnDelete();
             $table->string('item_key', 191);
             $table->json('payload')->nullable();
             $table->foreignUlid('payload_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->string('status', 32);
             $table->json('result')->nullable();
             $table->foreignUlid('result_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->json('error')->nullable();
             $table->unsignedInteger('attempts')->default(0);
             $table->ulid('lease_token')->nullable();
@@ -59,7 +60,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_batch_items');
-        Schema::dropIfExists('impex_batches');
+        Schema::dropIfExists(Tables::name('batch_items'));
+        Schema::dropIfExists(Tables::name('batches'));
     }
 };

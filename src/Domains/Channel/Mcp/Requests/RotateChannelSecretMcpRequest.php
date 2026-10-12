@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
 use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
@@ -18,7 +17,7 @@ final class RotateChannelSecretMcpRequest extends ChannelMcpRequest
 
     protected function rules(): array
     {
-        return RotateChannelSecretAction::rules() + [
+        return [
             'channel' => ['required', 'string', 'max:191'],
         ];
     }
@@ -27,9 +26,8 @@ final class RotateChannelSecretMcpRequest extends ChannelMcpRequest
     {
         $rotated = app(RotateChannelSecretAction::class)->execute($this->channel());
 
-        return Response::structured([
-            ...(new ChannelResource($rotated['channel']))->resolve(),
-            'secret' => $rotated['secret'],
-        ]);
+        return (new ChannelResource($rotated['channel']))
+            ->additional(['secret' => $rotated['secret']])
+            ->toStructuredResponse();
     }
 }

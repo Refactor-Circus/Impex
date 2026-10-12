@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\ListChannelsMcpRequest;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List the channels traffic enters and leaves through, configured and stored, with each one\'s transport and the flow an inbound one starts. Secrets are never returned.')]
@@ -24,5 +25,10 @@ final class ListChannelsTool extends Tool
         return [
             'direction' => $schema->string()->enum(['inbound', 'outbound'])->description('Only channels in this direction.'),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return ChannelResource::collectionSchema($schema);
     }
 }

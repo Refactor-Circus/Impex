@@ -17,7 +17,7 @@ final class DeleteSubscriptionMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return DeleteSubscriptionAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
         ];
     }

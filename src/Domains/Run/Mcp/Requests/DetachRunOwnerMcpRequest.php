@@ -17,7 +17,7 @@ final class DetachRunOwnerMcpRequest extends RunRequest
 
     protected function rules(): array
     {
-        return DetachRunOwnerAction::rules() + [
+        return [
             'run' => ['required', 'string', 'max:26'],
             'owner' => ['required', 'string', 'max:26'],
         ];

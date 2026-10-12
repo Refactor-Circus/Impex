@@ -8,7 +8,9 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscribersData;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListSubscribersMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List subscribers: the vendors and partners who receive this application\'s changes.')]
@@ -23,8 +25,11 @@ final class ListSubscribersTool extends Tool
     {
         return [
             'status' => $schema->string()->enum(['active', 'disabled']),
-            'cursor' => $schema->string()->description('The next_cursor of the previous page.'),
-            'per_page' => $schema->integer()->min(1)->max(200),
-        ];
+        ] + ListSubscribersData::pagination()->schema($schema);
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriberResource::collectionSchema($schema, ListSubscribersData::pagination());
     }
 }

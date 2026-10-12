@@ -22,6 +22,17 @@ use Throwable;
  */
 final class PayloadStore
 {
+    /**
+     * Decoded artifact values by id, least recently used first. An artifact
+     * is written once and never changed, so a replay that reads the same
+     * result on every drive reads it from disk once per process.
+     *
+     * @var array<string, array{value: mixed, bytes: int}>
+     */
+    private array $decoded = [];
+
+    private int $decodedBytes = 0;
+
     public function __construct(
         private readonly Config $config,
         private readonly FilesystemFactory $filesystem,
@@ -70,19 +81,7 @@ final class PayloadStore
     public function get(?array $inline, ?string $artifactId): mixed
     {
         if ($artifactId !== null) {
-            $artifact = ArtifactModel::query()->find($artifactId);
-
-            if (! $artifact instanceof ArtifactModel) {
-                throw PayloadException::artifactMissing($artifactId);
-            }
-
-            $contents = $artifact->contents();
-
-            if ($contents === null) {
-                throw PayloadException::artifactMissing($artifactId);
-            }
-
-            return $this->decode($contents);
+            return $this->artifact($artifactId);
         }
 
         if ($inline === null) {
@@ -90,6 +89,72 @@ final class PayloadStore
         }
 
         return $inline['value'] ?? null;
+    }
+
+    /**
+     * Forget memoised artifact values: one, or all of them.
+     */
+    public function forget(?string $artifactId = null): void
+    {
+        if ($artifactId === null) {
+            $this->decoded = [];
+            $this->decodedBytes = 0;
+
+            return;
+        }
+
+        if (isset($this->decoded[$artifactId])) {
+            $this->decodedBytes -= $this->decoded[$artifactId]['bytes'];
+            unset($this->decoded[$artifactId]);
+        }
+    }
+
+    private function artifact(string $artifactId): mixed
+    {
+        if (isset($this->decoded[$artifactId])) {
+            $entry = $this->decoded[$artifactId];
+
+            // Move it to the most recently used end.
+            unset($this->decoded[$artifactId]);
+            $this->decoded[$artifactId] = $entry;
+
+            return $entry['value'];
+        }
+
+        $artifact = ArtifactModel::query()->find($artifactId);
+
+        if (! $artifact instanceof ArtifactModel) {
+            throw PayloadException::artifactMissing($artifactId);
+        }
+
+        $contents = $artifact->contents();
+
+        if ($contents === null) {
+            throw PayloadException::artifactMissing($artifactId);
+        }
+
+        $value = $this->decode($contents);
+
+        $this->remember($artifactId, $value, strlen($contents));
+
+        return $value;
+    }
+
+    private function remember(string $artifactId, mixed $value, int $bytes): void
+    {
+        /** @var int $cap */
+        $cap = $this->config->get('impex.artifacts.memo_bytes', 16777216);
+
+        if ($bytes > $cap) {
+            return;
+        }
+
+        while ($this->decoded !== [] && $this->decodedBytes + $bytes > $cap) {
+            $this->forget((string) array_key_first($this->decoded));
+        }
+
+        $this->decoded[$artifactId] = ['value' => $value, 'bytes' => $bytes];
+        $this->decodedBytes += $bytes;
     }
 
     /**

@@ -29,11 +29,22 @@ final class DeliverSubscription implements ShouldBeUniqueUntilProcessing, Should
 
     public int $timeout = 120;
 
+    /**
+     * Seconds a waiting job holds its place, so one lost on the way to a
+     * worker cannot stop deliveries for good: `impex:tick` queues another.
+     */
+    public int $uniqueFor = 300;
+
     public function __construct(public readonly string $subscriptionId) {}
 
     public function uniqueId(): string
     {
         return $this->subscriptionId;
+    }
+
+    public function uniqueFor(): int
+    {
+        return $this->uniqueFor;
     }
 
     public function handle(Dispatcher $dispatcher): void

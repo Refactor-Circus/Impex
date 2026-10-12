@@ -25,4 +25,11 @@ final class DeleteSubscriptionTool extends Tool
             'subscription' => $schema->string()->description('The subscription id.')->required(),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'deleted' => $schema->string()->description('The deleted subscription\'s id.')->required(),
+        ];
+    }
 }

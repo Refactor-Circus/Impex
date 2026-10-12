@@ -25,4 +25,11 @@ final class DeleteChannelTool extends Tool
             'channel' => $schema->string()->description('The channel name.')->required(),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'deleted' => $schema->string()->description('The deleted channel\'s name.')->required(),
+        ];
+    }
 }

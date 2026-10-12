@@ -8,6 +8,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Support\Tables;
 
 /**
  * The subscriptions' share of `impex:tick`: the safety net under the jobs
@@ -19,6 +20,7 @@ final class SubscriptionSweeper
     public function __construct(
         private readonly SubscriptionJobs $jobs,
         private readonly ConnectionInterface $db,
+        private readonly StreamRegistry $streams,
     ) {}
 
     /**
@@ -28,23 +30,30 @@ final class SubscriptionSweeper
     {
         $now = Carbon::now();
 
-        $touched = $this->db->table('impex_stream_touches')
-            ->where(fn (Builder $q) => $q->whereNull('leased_until')->orWhere('leased_until', '<', $now))
-            ->distinct()
-            ->pluck('stream');
+        // One indexed existence check per registered stream, rather than a
+        // DISTINCT over every touch and every event on each tick.
+        $streams = [];
 
-        $appended = $this->db->table('impex_events')
-            ->whereNull('fanned_out_at')
-            ->distinct()
-            ->pluck('stream');
+        foreach (array_keys($this->streams->all()) as $stream) {
+            $pending = $this->db->table(Tables::name('stream_touches'))
+                ->where('stream', $stream)
+                ->where(fn (Builder $q) => $q->whereNull('leased_until')->orWhere('leased_until', '<', $now))
+                ->exists()
+                || $this->db->table(Tables::name('events'))
+                    ->where('stream', $stream)
+                    ->whereNull('fanned_out_at')
+                    ->exists();
 
-        $streams = $touched->merge($appended)->map(fn (mixed $s): string => (string) $s)->unique()->values();
+            if ($pending) {
+                $streams[] = (string) $stream;
+            }
+        }
 
         foreach ($streams as $stream) {
             $this->jobs->detect($stream);
         }
 
-        $due = $this->db->table('impex_subscriptions')
+        $due = $this->db->table(Tables::name('subscriptions'))
             ->where('status', SubscriptionStatus::Active->value)
             ->whereNotNull('channel_id')
             ->whereNotNull('pending_at')
@@ -57,6 +66,6 @@ final class SubscriptionSweeper
             $this->jobs->deliver((string) $id);
         }
 
-        return ['detections' => $streams->count(), 'deliveries' => $due->count()];
+        return ['detections' => count($streams), 'deliveries' => $due->count()];
     }
 }

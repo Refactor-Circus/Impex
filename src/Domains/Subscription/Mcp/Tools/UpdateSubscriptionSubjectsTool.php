@@ -27,4 +27,12 @@ final class UpdateSubscriptionSubjectsTool extends Tool
             'remove' => $schema->array()->items($schema->string()),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'added' => $schema->integer()->description('Keys newly on the list.')->required(),
+            'removed' => $schema->integer()->description('Keys taken off the list.')->required(),
+        ];
+    }
 }

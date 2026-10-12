@@ -10,6 +10,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Support\Tables;
 use RuntimeException;
 
 /**
@@ -40,7 +41,7 @@ final class Exporter
         }
 
         $stream = $this->streams->get($subscription->stream);
-        $start = (int) $this->db->table('impex_events')->max('id');
+        $start = (int) $this->db->table(Tables::name('events'))->max('id');
 
         $handle = tmpfile();
 
@@ -58,7 +59,7 @@ final class Exporter
             fclose($handle);
         }
 
-        $this->db->table('impex_subscriptions')->where('id', $subscription->id)->update([
+        $this->db->table(Tables::name('subscriptions'))->where('id', $subscription->id)->update([
             'last_export_path' => $path,
             'last_export_at' => Carbon::now(),
             'cursor' => max($subscription->cursor, $start),

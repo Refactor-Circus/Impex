@@ -11,6 +11,7 @@ use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
 use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Flow\Models\FlowOverrideModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
@@ -49,7 +50,7 @@ final class FlowUiController
         }
 
         // The user who starts a run owns it, as with the JSON API.
-        $run = app(RunFlowAction::class)->execute($flow, ['arguments' => $arguments], owner: ScreenAccess::actor());
+        $run = app(RunFlowAction::class)->execute($flow, new RunFlowData(arguments: $arguments), owner: ScreenAccess::actor());
 
         return redirect()
             ->route('atrium.impex.runs.show', $run)

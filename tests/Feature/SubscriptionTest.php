@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use RefactorCircus\Impex\Domains\Channel\Support\StandardWebhooksSigner;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDisabled;
@@ -46,7 +47,7 @@ function subscribe(array $data, ?SubscriberModel $subscriber = null): array
 {
     return app(CreateSubscriptionAction::class)->execute(
         $subscriber ?? SubscriberModel::factory()->create(),
-        ['stream' => 'fixture.products', ...$data],
+        CreateSubscriptionData::from(['stream' => 'fixture.products', ...$data]),
     );
 }
 
@@ -388,4 +389,15 @@ it('reports a lock it cannot release instead of failing a finished delivery', fu
     expect(app(Dispatcher::class)->deliver($subscription->id))->toBe(1)
         ->and($subscription->refresh()->cursor)->toBeGreaterThan(0)
         ->and($reported)->toContain('cache went away');
+});
+
+it('creates a subscription for the subscriber the operator API names', function (): void {
+    $subscriber = SubscriberModel::query()->create(['name' => 'Vendor']);
+
+    $this->postJson("/impex/subscribers/{$subscriber->id}/subscriptions", [
+        'stream' => 'fixture.products',
+        'endpoint' => ['url' => 'https://vendor.test/hooks'],
+    ])->assertCreated();
+
+    expect(SubscriptionModel::query()->sole()->subscriber_id)->toBe($subscriber->id);
 });

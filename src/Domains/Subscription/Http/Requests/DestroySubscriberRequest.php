@@ -16,11 +16,6 @@ final class DestroySubscriberRequest extends Request
         return parent::authorize() && $this->allows('delete', $this->subscriber());
     }
 
-    public function rules(): array
-    {
-        return DeleteSubscriberAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         app(DeleteSubscriberAction::class)->execute($this->subscriber());

@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Validation\Rule;
-use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListDeliveriesData;
 use RefactorCircus\Impex\Domains\Subscription\Events\DeliveriesListedActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Events\DeliveriesListingActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
@@ -15,22 +14,9 @@ use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 final class ListDeliveriesAction
 {
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'status' => ['sometimes', Rule::enum(DeliveryStatus::class)],
-            'cursor' => ['sometimes', 'nullable', 'string'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:200'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
      * @return CursorPaginator<int, DeliveryModel>
      */
-    public function execute(SubscriptionModel $subscription, array $filters = []): CursorPaginator
+    public function execute(SubscriptionModel $subscription, ListDeliveriesData $filters = new ListDeliveriesData): CursorPaginator
     {
         DeliveriesListingActionEvent::dispatch($subscription);
 
@@ -39,14 +25,11 @@ final class ListDeliveriesAction
             ->orderByDesc('attempted_at')
             ->orderByDesc('id');
 
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if ($filters->status !== null) {
+            $query->where('status', $filters->status);
         }
 
-        $result = $query->cursorPaginate(
-            perPage: isset($filters['per_page']) ? (int) $filters['per_page'] : 25,
-            cursor: is_string($filters['cursor'] ?? null) ? $filters['cursor'] : null,
-        );
+        $result = $query->cursorPaginate(perPage: $filters->perPage, cursor: $filters->cursor);
 
         DeliveriesListedActionEvent::dispatch($result);
 

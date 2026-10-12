@@ -18,7 +18,10 @@ The package follows the mono domain-module layout (see `/Users/jay/Herd/mono/age
 
 Impex stands on `refactor-circus/keystone`, the suite's shared runtime. Use its classes rather than adding local copies:
 
-- `ImpexServiceProvider` extends `RefactorCircus\Keystone\Support\PackageServiceProvider`: `definition()` describes the package (`impex`, `RefactorCircus\Impex`, `ImpexServer`, Gate authorization by default), `registerPackage()` runs right after `mergeConfigFrom()` and before the domain providers, and `boot()` uses `registerCortex()`, `registerPolicies()`, `registerAtriumPlugin()`, `registerMcpServer()` and `loadHistoryRoutes()` (`GET impex/history`, `impex.history.index`).
+- `ImpexServiceProvider` extends `RefactorCircus\Keystone\Support\PackageServiceProvider`: `definition()` describes the package (`impex`, `RefactorCircus\Impex`, `ImpexServer`, Gate authorization by default), `registerPackage()` runs right after `mergeConfigFrom()` and before the domain providers, and `boot()` uses `registerCortex()`, `registerPolicies()`, `registerNotFoundResponses()` (a missing record on an `impex.` route answers a plain `Not found.`), `registerAtriumPlugin()`, `registerMcpServer()` and `loadHistoryRoutes()` (`GET impex/history`, `impex.history.index`).
+- Impex has no audit code of its own. History exists only while Impex audits: Keystone's `Package::audits()` (refactor-circus/keen installed and `impex.audit.enabled` on). Otherwise the history route answers 404 and the history tool is not offered. Never add audit tables, writers or audit APIs to Impex.
+- Action input is a `final readonly` `{Action}Data` in the domain's `Data/` (on `RefactorCircus\Keystone\Data\Data`), never an array: fields are promoted constructor properties (camelCase of the input keys; enums for enum values; `T|Missing = new Missing` for partial updates), `rules()` lives on the Data, and the starting events that took input carry the Data. Lists expose `pagination()` (`Pagination::cursor(default: 25, max: 200)`) and add its `rules()`; their tools add its `schema()`. HTTP and MCP requests validate once: their `rules()` return the identifier rules plus `XData::rules()` (identifiers first, so they win), and `persist()`/`handle()` build with `XData::fromValidated($this->validated() / $validated)` - never `XData::from()` in a request (ArchTest). Atrium controllers use `XData::from($request->all())`, which validates; code that vouches for its values uses `new XData(...)`. The subscriber feed (`ListSubscriptionEventsData`) keeps its documented `after`/`limit` instead of Keystone's pagination. Flow authoring and running (`Flow`, the DSL builders, `FlowArguments`, `Impex::run()`, `Engine`, `BatchRunner`) are not Actions and take no Data.
+- API resources extend `RefactorCircus\Keystone\Http\Resources\JsonResource` and declare `schema(JsonSchema $schema)` next to `toArray()` (always-present fields `required()`, conditional ones not, `nullable()`, enum values listed; nullable enums include `null`). MCP requests answer with `(new XResource($m))->additional([...])->toStructuredResponse()` / `XResource::collection($page)->toStructuredResponse()`, and each tool declares `outputSchema()` as `XResource::structuredSchema($schema)` / `collectionSchema($schema, ListXData::pagination())` plus its extra keys, or a hand-written schema for a plain array. `mcpTool()` in tests is Keystone's `Testing\McpTools::call()`, which checks every structured answer against the tool's schema; `tests/Feature/Mcp/OutputSchemaTest.php` requires the declaration. `tests/ArchTest.php` uses Keystone's `Testing\Arch` (actions take Data, Data has rules, every action dispatches a starting and a finished event and does its writes inside `DB::transaction()`, every model fires an event for every Eloquent hook, requests never call `Data::from(`), and `parityGaps()` uses `Testing\Parity`.
 
 ## Atrium screens
 
@@ -27,10 +30,11 @@ Impex stands on `refactor-circus/keystone`, the suite's shared runtime. Use its 
 - Show screens end with `<x-atrium::audit-trail source="impex" :subject="$model" />`, the runs index with the package-wide trail. Run steps are execution, not changes, and stay out of it.
 - `ImpexPlugin::features()` is `featuresFromConfig('impex.atrium.features')`; `key()`/`label()` come from the base. `Atrium\ScreenAccess::allows()` lets operators (`impex.atrium.show_all`) through and otherwise delegates to `RefactorCircus\Atrium\Support\ScreenAccess::allows('impex', ...)`; calls with policy arguments go to the authorizer directly. Impex keeps its own `AuthorizesScreens` because it passes those arguments and honours operators.
 - Events implement `RefactorCircus\Keystone\Contracts\{ActionStartingEvent,ActionFinishedEvent,ModelLifecycleEvent}`; models use `RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents`.
-- HTTP requests extend `RefactorCircus\Keystone\Http\Requests\Request`, MCP requests `RefactorCircus\Keystone\Mcp\Requests\Request`, tools `RefactorCircus\Keystone\Mcp\Tool`; `ImpexServer` extends `RefactorCircus\Keystone\Mcp\Server` and lists `ListImpexHistoryTool`.
+- Tables: models resolve their table with `getTable()` from `Support\Tables` (`impex.tables`, a `RefactorCircus\Keystone\Database\Tables`); migrations, `Rule::unique`/`exists` (by model class), and every raw query builder call in the engine (claims, leases, fan-out, delivery, pruning) use the same keys, never literal `impex_*` names. `tests/ArchTest.php` rejects a literal with Keystone's `Arch::literalTableNames()`, and `tests/Modes/RenamedTables` re-runs a full flow run and a subscription delivery against renamed tables.
+- HTTP requests extend `RefactorCircus\Keystone\Http\Requests\Request` (a guest gets `401`, a signed-in user without the ability `403`; the subscriber API's `SubscriptionRequest` keeps `403` for a refused subscriber, who is authenticated by its credentials, not as a user), MCP requests `RefactorCircus\Keystone\Mcp\Requests\Request`, tools `RefactorCircus\Keystone\Mcp\Tool`; `ImpexServer` extends `RefactorCircus\Keystone\Mcp\Server` and lists `ListImpexHistoryTool`.
 - Outside a request, get the authorizer with `Authorizer::for(app(PackageRegistry::class)->get('impex'))`, and the Cortex bridge with `CortexIntegration::for(...)`.
 - `ImpexException` extends `RefactorCircus\Keystone\Exceptions\PackageException`, so every Impex exception answers `409` with its message over HTTP and returns its message over MCP.
-- `Support\Policies\Policy` extends `RefactorCircus\Keystone\Policies\Policy`; use `allowsOn()` for a child model and `allowsOnRun()` for a model that may have no run.
+- `Support\Policies\Policy` extends `RefactorCircus\Keystone\Policies\Policy`; use `allowsOnParent()` for a child model and `allowsOnRun()` for a model that may have no run. Every model has a policy, registered from `impex.policies` by `registerPolicies()`; `tests/ArchTest.php` checks with `Arch::modelsWithoutPolicies()`.
 - `Domains\Flow\Support\ResumableAction` is Impex's own flow primitive, not a Keystone action.
 
 ## Quick Commands
@@ -66,6 +70,20 @@ These are load-bearing. Changing any of them changes correctness, not style.
 - `lease_seconds` must stay above `max_step_seconds`, or a legitimately slow
   step is reclaimed while still working and runs twice.
 - Jobs carry identifiers only, never payloads. There is an arch test for this.
+- `DriveRun`, `DetectStream` and `DeliverSubscription` are
+  `ShouldBeUniqueUntilProcessing`. The bus does not take a unique job's lock
+  (only the `dispatch()` helper does), so `JobRouter` and `SubscriptionJobs`
+  take `UniqueLock` themselves before dispatching, and each job's `uniqueFor`
+  is set so a lost job cannot hold its place for good.
+- An append stream is fanned out by detection shard 0 alone, in id order;
+  snapshot detection is what `detection.concurrency` parallelises.
+- `DriveRun`, `DetectStream` and `DeliverSubscription` are
+  `ShouldBeUniqueUntilProcessing`. The bus does not take a unique job's lock
+  (only the `dispatch()` helper does), so `JobRouter` and `SubscriptionJobs`
+  take `UniqueLock` themselves before dispatching, and each job's `uniqueFor`
+  is set so a lost job cannot hold its place for good.
+- An append stream is fanned out by detection shard 0 alone, in id order;
+  snapshot detection is what `detection.concurrency` parallelises.
   Every job uses `Support\Concerns\UsesConfiguredMiddleware`, so applications
   add queue middleware per job class through `impex.jobs.middleware`; a new job
   uses it too.
@@ -108,5 +126,4 @@ These are load-bearing. Changing any of them changes correctness, not style.
   or remove one.
 - A subscription's cursor moves only on a 2xx, and one delivery runs per
   subscription at a time, so a subscriber sees batches in order.
-- Table names are hardcoded, matching cortex. A configurable prefix would break
-  the literal table names in the static `rules()` convention.
+- Table names come from `impex.tables`, never literals: see Tables above.

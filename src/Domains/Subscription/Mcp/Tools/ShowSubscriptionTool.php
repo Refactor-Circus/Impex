@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriptionMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one subscription: its topics, filter, endpoint, cursor and delivery health. Never its secret.')]
@@ -24,5 +25,10 @@ final class ShowSubscriptionTool extends Tool
         return [
             'subscription' => $schema->string()->description('The subscription id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriptionResource::structuredSchema($schema);
     }
 }

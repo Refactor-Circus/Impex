@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Flow\Mcp\Requests\RunFlowMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Start a workflow run. Returns immediately with a pending run — the work is queued, not executed inline. Pass an idempotency key to make a retry safe.')]
@@ -30,5 +31,10 @@ final class RunFlowTool extends Tool
             'expires_in' => $schema->integer()->description('Seconds before the run passes its deadline and unwinds.')->min(1),
             'wait' => $schema->boolean()->description('Drive the run inline and return its terminal state. Only for short flows; bounded by impex.limits.sync_seconds.'),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunResource::structuredSchema($schema);
     }
 }

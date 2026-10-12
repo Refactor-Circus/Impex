@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Support\Policies;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
@@ -43,6 +44,20 @@ abstract class Policy extends BasePolicy
      */
     protected function allowsOnRun(Model $user, string $ability, ?RunModel $run, array $arguments = []): bool
     {
-        return $run instanceof RunModel && $this->allowsOn($user, $ability, $run, $arguments);
+        return $this->allowsOnParent($user, $ability, $run, $arguments);
+    }
+
+    /**
+     * Ask the Gate about a parent model, so a child follows whichever policy
+     * is registered for its parent. A record with no parent, or a user model
+     * the Gate cannot act as, is refused.
+     *
+     * @param  array<int, mixed>  $arguments
+     */
+    protected function allowsOnParent(Model $user, string $ability, ?Model $parent, array $arguments = []): bool
+    {
+        return $parent instanceof Model
+            && $user instanceof Authenticatable
+            && $this->allowsOn($user, $ability, $parent, $arguments);
     }
 }

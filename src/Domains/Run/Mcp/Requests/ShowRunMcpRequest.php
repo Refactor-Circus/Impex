@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Run\Actions\ShowRunAction;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
@@ -18,7 +17,7 @@ final class ShowRunMcpRequest extends RunRequest
 
     protected function rules(): array
     {
-        return ShowRunAction::rules() + [
+        return [
             'run' => ['required', 'string', 'max:26'],
         ];
     }
@@ -27,6 +26,6 @@ final class ShowRunMcpRequest extends RunRequest
     {
         $run = app(ShowRunAction::class)->execute($this->run());
 
-        return Response::structured((new RunResource($run))->resolve());
+        return (new RunResource($run))->toStructuredResponse();
     }
 }

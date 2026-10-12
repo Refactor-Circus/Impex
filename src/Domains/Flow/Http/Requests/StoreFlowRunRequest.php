@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Flow\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Http\Requests\Request;
@@ -19,12 +20,12 @@ final class StoreFlowRunRequest extends Request
 
     public function rules(): array
     {
-        return RunFlowAction::rules();
+        return RunFlowData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $run = app(RunFlowAction::class)->execute($this->flow(), $this->validated(), owner: $this->actor());
+        $run = app(RunFlowAction::class)->execute($this->flow(), RunFlowData::fromValidated($this->validated()), owner: $this->actor());
 
         // A reused idempotency key answers with the run it first started,
         // which may belong to someone else.

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Run\Services;
 
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Bus\Dispatcher as Bus;
+use Illuminate\Contracts\Cache\Repository as Cache;
+use Illuminate\Contracts\Queue\Factory as Queues;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 use RefactorCircus\Impex\Jobs\DriveRun;
@@ -25,14 +28,28 @@ final class JobRouter
     public function __construct(
         private readonly Bus $bus,
         private readonly EngineOptions $options,
+        private readonly Queues $queues,
+        private readonly Cache $cache,
     ) {}
 
     /**
-     * Queue a drive of the run.
+     * Queue a drive of the run, unless one is already waiting: a drive
+     * replays the whole history when it starts, so the waiting one covers
+     * this request too. One asked for while a drive is running is queued,
+     * and the running one's dirty marker makes it look again besides.
      */
     public function drive(RunModel $run): void
     {
-        $this->bus->dispatch($this->route(new DriveRun((string) $run->getKey()), $run));
+        $job = $this->route(new DriveRun((string) $run->getKey()), $run);
+        $job->uniqueFor = $this->options->lockSeconds();
+
+        // The bus does not take a unique job's lock itself; only the
+        // dispatch() helper does.
+        if (! (new UniqueLock($this->cache))->acquire($job)) {
+            return;
+        }
+
+        $this->bus->dispatch($job);
     }
 
     /**
@@ -69,6 +86,36 @@ final class JobRouter
         }
 
         $this->bus->dispatch($run instanceof RunModel ? $this->route($job, $run) : $job);
+    }
+
+    /**
+     * Queue many batch items in one push: a seeded chunk of a thousand items
+     * is one round trip to a queue that takes them in bulk, not a thousand.
+     *
+     * @param  list<string>  $itemIds
+     */
+    public function batchItems(?RunModel $run, array $itemIds): void
+    {
+        if ($itemIds === []) {
+            return;
+        }
+
+        if (! $run instanceof RunModel) {
+            foreach ($itemIds as $itemId) {
+                $this->batchItem(null, $itemId);
+            }
+
+            return;
+        }
+
+        $connection = $run->queue_connection ?? $this->options->queueConnection();
+        $queue = $run->queue ?? $this->options->queueName();
+
+        $this->queues->connection($connection)->bulk(
+            array_map(fn (string $itemId): ProcessBatchItem => $this->route(new ProcessBatchItem($itemId), $run), $itemIds),
+            '',
+            $queue,
+        );
     }
 
     /**

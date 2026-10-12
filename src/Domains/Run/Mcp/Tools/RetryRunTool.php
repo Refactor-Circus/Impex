@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\RetryRunMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Re-queue a drive for a failed or stalled run. Completed steps are not re-executed.')]
@@ -24,5 +25,10 @@ final class RetryRunTool extends Tool
         return [
             'run' => $schema->string()->description('The run id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunResource::structuredSchema($schema);
     }
 }

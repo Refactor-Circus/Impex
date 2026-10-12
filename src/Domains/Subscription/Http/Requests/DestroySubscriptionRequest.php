@@ -9,11 +9,6 @@ use RefactorCircus\Impex\Domains\Subscription\Actions\DeleteSubscriptionAction;
 
 final class DestroySubscriptionRequest extends SubscriptionRequest
 {
-    public function rules(): array
-    {
-        return DeleteSubscriptionAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         app(DeleteSubscriptionAction::class)->execute($this->subscription());

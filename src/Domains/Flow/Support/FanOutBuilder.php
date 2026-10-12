@@ -215,6 +215,7 @@ final class FanOutBuilder
         }
 
         $results = [];
+        $completed = [];
         $failures = [];
         $pending = false;
 
@@ -229,8 +230,9 @@ final class FanOutBuilder
             }
 
             match ($step->status) {
-                StepStatus::Completed => $results[$key] = $this->context->engine()->payloads()
-                    ->get($step->result, $step->result_artifact_id),
+                // Read once nothing is pending: a drive that suspends here
+                // would decode every finished branch only to throw it away.
+                StepStatus::Completed => $completed[$key] = $step,
                 StepStatus::Skipped => $results[$key] = $descriptor->fallback,
                 StepStatus::Failed => $descriptor->continueOnFailure
                     ? $results[$key] = $descriptor->fallback
@@ -251,7 +253,15 @@ final class FanOutBuilder
             $this->throwFirst($failures, $sequences);
         }
 
-        return array_values($results);
+        $ordered = [];
+
+        foreach (array_keys($descriptors) as $key) {
+            $ordered[] = isset($completed[$key])
+                ? $this->context->engine()->payloads()->get($completed[$key]->result, $completed[$key]->result_artifact_id)
+                : $results[$key] ?? null;
+        }
+
+        return $ordered;
     }
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher as Events;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Channel\Data\ChannelConfig;
 use RefactorCircus\Impex\Domains\Channel\Data\OutboundMessage;
@@ -25,6 +26,7 @@ use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Support\Backoff;
 use RefactorCircus\Impex\Support\Locks;
+use RefactorCircus\Impex\Support\Tables;
 use Throwable;
 
 /**
@@ -140,9 +142,15 @@ final class Dispatcher
             if ($raw === []) {
                 // Caught up. Only a mark older than this pass is cleared: one
                 // set by a fan-out that landed mid-pass still wants a pass.
-                $this->db->table('impex_subscriptions')
+                // Nor is one while an event landed past the cursor since the
+                // read: a fan-out leaves a recent mark as it is.
+                $this->db->table(Tables::name('subscriptions'))
                     ->where('id', $subscriptionId)
                     ->where('pending_at', '<=', $started)
+                    ->whereNotExists(fn (Builder $q) => $q->select($this->db->raw('1'))
+                        ->from(Tables::name('subscription_events'))
+                        ->where('subscription_id', $subscriptionId)
+                        ->where('event_id', '>', $subscription->cursor))
                     ->update(['pending_at' => null]);
 
                 return $delivered;
@@ -188,7 +196,7 @@ final class Dispatcher
         // move. The ledger row was written by the transport, outside any
         // transaction, because none is held open across an HTTP call.
         $disabled = $this->db->transaction(function () use ($subscription, $receipt, $deliveryId, $first, $last, $raw, $now): bool {
-            $this->db->table('impex_deliveries')->insert([
+            $this->db->table(Tables::name('deliveries'))->insert([
                 'id' => $deliveryId,
                 'subscription_id' => $subscription->id,
                 'first_event_id' => $first,
@@ -203,7 +211,7 @@ final class Dispatcher
             ]);
 
             if ($receipt->successful) {
-                $this->db->table('impex_subscriptions')->where('id', $subscription->id)->update([
+                $this->db->table(Tables::name('subscriptions'))->where('id', $subscription->id)->update([
                     'cursor' => $last,
                     'failures' => 0,
                     'paused_until' => null,
@@ -236,7 +244,7 @@ final class Dispatcher
 
         $disable = $failures >= $threshold;
 
-        $this->db->table('impex_subscriptions')->where('id', $subscription->id)->update([
+        $this->db->table(Tables::name('subscriptions'))->where('id', $subscription->id)->update([
             'failures' => $failures,
             'paused_until' => Carbon::now()->addSeconds($this->backoff->seconds($failures)),
             'last_error' => json_encode($receipt->error),

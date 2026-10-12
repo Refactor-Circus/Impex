@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Run\Actions\CancelRunAction;
+use RefactorCircus\Impex\Domains\Run\Data\CancelRunData;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 
 final class CancelRunRequest extends RunRequest
@@ -17,12 +18,12 @@ final class CancelRunRequest extends RunRequest
 
     public function rules(): array
     {
-        return CancelRunAction::rules();
+        return CancelRunData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $run = app(CancelRunAction::class)->execute($this->run(), $this->validated());
+        $run = app(CancelRunAction::class)->execute($this->run(), CancelRunData::fromValidated($this->validated()));
 
         return (new RunResource($run))->response();
     }

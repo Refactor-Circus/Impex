@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Services;
 
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Bus\Dispatcher as Bus;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Config\Repository as Config;
 use RefactorCircus\Impex\Jobs\DeliverSubscription;
 use RefactorCircus\Impex\Jobs\DetectStream;
@@ -22,25 +24,45 @@ final class SubscriptionJobs
     public function __construct(
         private readonly Bus $bus,
         private readonly Config $config,
+        private readonly Cache $cache,
     ) {}
 
     /**
-     * One detection job per shard. Shards share the work through leases, so
-     * more of them only means more of it done at once.
+     * One detection job per shard, unless one already waits: a touch in a
+     * busy import costs a lock check, not a queued job. Shards share the work
+     * through leases, so more of them only means more of it done at once.
      */
     public function detect(string $stream): void
     {
         /** @var int $shards */
         $shards = $this->config->get('impex.subscriptions.detection.concurrency', 1);
 
+        /** @var int $lease */
+        $lease = $this->config->get('impex.subscriptions.detection.lease_seconds', 300);
+
         for ($shard = 0; $shard < max(1, $shards); $shard++) {
-            $this->bus->dispatch($this->route(new DetectStream($stream, $shard), 'detect')->afterCommit());
+            $job = $this->route(new DetectStream($stream, $shard), 'detect')->afterCommit();
+            $job->uniqueFor = $lease;
+
+            // The bus does not take a unique job's lock itself; only the
+            // dispatch() helper does.
+            if ((new UniqueLock($this->cache))->acquire($job)) {
+                $this->bus->dispatch($job);
+            }
         }
     }
 
+    /**
+     * One delivery job per subscription, unless one already waits: a backlog
+     * fanned out chunk after chunk asks for one per chunk.
+     */
     public function deliver(string $subscriptionId): void
     {
-        $this->bus->dispatch($this->route(new DeliverSubscription($subscriptionId), 'deliver')->afterCommit());
+        $job = $this->route(new DeliverSubscription($subscriptionId), 'deliver')->afterCommit();
+
+        if ((new UniqueLock($this->cache))->acquire($job)) {
+            $this->bus->dispatch($job);
+        }
     }
 
     public function export(string $subscriptionId): void

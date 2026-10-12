@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\UpdateChannelMcpRequest;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Change a stored channel: its transport, status, body policy, options or credentials. The name and direction are fixed.')]
@@ -29,5 +30,10 @@ final class UpdateChannelTool extends Tool
             'options' => $schema->object(),
             'credentials' => $schema->object(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return ChannelResource::structuredSchema($schema);
     }
 }

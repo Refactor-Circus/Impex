@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Run\Actions\AttachRunOwnerAction;
+use RefactorCircus\Impex\Domains\Run\Data\AttachRunOwnerData;
 use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunOwnerResource;
 
@@ -18,12 +19,12 @@ final class StoreRunOwnerRequest extends RunRequest
 
     public function rules(): array
     {
-        return AttachRunOwnerAction::rules();
+        return AttachRunOwnerData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $owner = app(AttachRunOwnerAction::class)->execute($this->run(), $this->validated());
+        $owner = app(AttachRunOwnerAction::class)->execute($this->run(), AttachRunOwnerData::fromValidated($this->validated()));
 
         return (new RunOwnerResource($owner))->response()->setStatusCode(201);
     }

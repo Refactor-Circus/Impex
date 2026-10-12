@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
+use Illuminate\Support\Facades\DB;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelSecretRotatedActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelSecretRotatingActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
@@ -12,14 +13,6 @@ use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 final class RotateChannelSecretAction
 {
     public function __construct(private readonly ChannelRegistry $channels) {}
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
 
     /**
      * Give the channel a new signing secret, keeping the previous one.
@@ -40,7 +33,7 @@ final class RotateChannelSecretAction
         $previous = is_string($credentials['signing_secret'] ?? null) ? [$credentials['signing_secret']] : [];
 
         $channel->credentials = [...$credentials, 'signing_secret' => $secret, 'secrets' => $previous];
-        $channel->save();
+        DB::transaction(fn (): bool => $channel->save());
         $this->channels->flush();
 
         ChannelSecretRotatedActionEvent::dispatch($channel);

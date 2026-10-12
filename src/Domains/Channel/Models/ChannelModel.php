@@ -12,6 +12,7 @@ use RefactorCircus\Impex\Database\Factories\ChannelFactory;
 use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
 use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -41,7 +42,10 @@ final class ChannelModel extends Model
 
     use HasUlids;
 
-    protected $table = 'impex_channels';
+    public function getTable(): string
+    {
+        return Tables::name('channels');
+    }
 
     protected $fillable = [
         'name',

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Channel\Actions\UpdateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Data\UpdateChannelData;
 use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 
 final class UpdateChannelMcpRequest extends ChannelMcpRequest
@@ -18,17 +18,15 @@ final class UpdateChannelMcpRequest extends ChannelMcpRequest
 
     protected function rules(): array
     {
-        return UpdateChannelAction::rules() + [
+        return [
             'channel' => ['required', 'string', 'max:191'],
-        ];
+        ] + UpdateChannelData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        unset($validated['channel']);
+        $channel = app(UpdateChannelAction::class)->execute($this->channel(), UpdateChannelData::fromValidated($validated));
 
-        $channel = app(UpdateChannelAction::class)->execute($this->channel(), $validated);
-
-        return Response::structured((new ChannelResource($channel))->resolve());
+        return (new ChannelResource($channel))->toStructuredResponse();
     }
 }

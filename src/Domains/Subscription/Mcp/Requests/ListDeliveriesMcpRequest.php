@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListDeliveriesData;
 use RefactorCircus\Impex\Domains\Subscription\Resources\DeliveryResource;
 
 final class ListDeliveriesMcpRequest extends SubscriptionMcpRequest
@@ -17,20 +18,15 @@ final class ListDeliveriesMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return ListDeliveriesAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
-        ];
+        ] + ListDeliveriesData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        unset($validated['subscription']);
+        $deliveries = app(ListDeliveriesAction::class)->execute($this->subscription(), ListDeliveriesData::fromValidated($validated));
 
-        $deliveries = app(ListDeliveriesAction::class)->execute($this->subscription(), $validated);
-
-        return $this->structuredCollection(
-            DeliveryResource::collection($deliveries->items())->resolve(),
-            ['next_cursor' => $deliveries->nextCursor()?->encode()],
-        );
+        return DeliveryResource::collection($deliveries)->toStructuredResponse();
     }
 }

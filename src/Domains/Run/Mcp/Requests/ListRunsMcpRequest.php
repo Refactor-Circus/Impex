@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Run\Actions\ListRunsAction;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunsData;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Requests\Request;
@@ -19,16 +20,13 @@ final class ListRunsMcpRequest extends Request
 
     protected function rules(): array
     {
-        return ListRunsAction::rules();
+        return ListRunsData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        $runs = app(ListRunsAction::class)->execute($validated, $this->actor());
+        $runs = app(ListRunsAction::class)->execute(ListRunsData::fromValidated($validated), $this->actor());
 
-        return $this->structuredCollection(
-            RunResource::collection($runs)->resolve(),
-            ['next_cursor' => $runs->nextCursor()?->encode()],
-        );
+        return RunResource::collection($runs)->toStructuredResponse();
     }
 }

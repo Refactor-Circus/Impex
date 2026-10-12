@@ -5,12 +5,13 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('impex_channels', function (Blueprint $table): void {
+        Schema::create(Tables::name('channels'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
             // The name every recorded message carries, so it never changes
             // once traffic has crossed the channel.
@@ -35,6 +36,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_channels');
+        Schema::dropIfExists(Tables::name('channels'));
     }
 };

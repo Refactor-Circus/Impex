@@ -88,7 +88,7 @@ the only check:
 
 With it on, every call acts as the authenticated user:
 
-- A guest is refused (`403` over HTTP, `Unauthorized.` over MCP).
+- A guest is refused (`401` over HTTP, `Unauthorized.` over MCP).
 - `GET impex/runs` and `list-runs-tool` return only the runs the user owns, in any
   role; `GET impex/messages` and `list-messages-tool` only the messages of those
   runs. Your own `owner_type`/`owner_id` filters narrow that further.

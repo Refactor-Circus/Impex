@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Config\Repository as Config;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscriptionEventsData;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionEventsListedActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionEventsListingActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
@@ -18,33 +19,21 @@ final class ListSubscriptionEventsAction
     ) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'after' => ['sometimes', 'integer', 'min:0'],
-            'limit' => ['sometimes', 'integer', 'min:1', 'max:1000'],
-        ];
-    }
-
-    /**
      * The feed: a page of the subscription's events after a cursor, in the
      * same shape a push delivers. Pass the returned cursor back as `after` to
      * read on. Reading never moves the subscription's own cursor, so a
      * subscriber can pull and be pushed to without either stepping on the
      * other.
      *
-     * @param  array<string, mixed>  $data
      * @return array{events: list<array<string, mixed>>, cursor: string, has_more: bool}
      */
-    public function execute(SubscriptionModel $subscription, array $data = []): array
+    public function execute(SubscriptionModel $subscription, ListSubscriptionEventsData $data = new ListSubscriptionEventsData): array
     {
-        $after = (int) ($data['after'] ?? 0);
+        $after = $data->after;
 
         /** @var int $max */
         $max = $this->config->get('impex.subscriptions.feed.max_limit', 1000);
-        $limit = min($max, (int) ($data['limit'] ?? 100));
+        $limit = min($max, $data->limit);
 
         SubscriptionEventsListingActionEvent::dispatch($subscription, $after);
 

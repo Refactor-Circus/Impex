@@ -15,11 +15,6 @@ final class RetryRunRequest extends RunRequest
         return $this->allows('retry', $this->run());
     }
 
-    public function rules(): array
-    {
-        return RetryRunAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         $run = app(RetryRunAction::class)->execute($this->run());

@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Console\Commands;
 
 use Illuminate\Console\Command;
 use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
+use RefactorCircus\Impex\Domains\Artifact\Services\PayloadStore;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\DeliveryModel;
@@ -24,13 +25,14 @@ final class PruneCommand extends Command
 
     protected $description = 'Prune expired Impex runs, messages, subscription events, deliveries, and artifacts';
 
-    public function handle(EventPruner $events): int
+    public function handle(EventPruner $events, PayloadStore $payloads): int
     {
         $runs = (new RunModel)->pruneAll();
         $messages = (new MessageModel)->pruneAll();
         $subscriptionEvents = $events->prune();
         $deliveries = (new DeliveryModel)->pruneAll();
         $artifacts = (new ArtifactModel)->pruneAll();
+        $payloads->forget();
 
         $this->components->info(sprintf(
             'Pruned %d run(s), %d message(s), %d subscription event(s), %d deliveries, and %d artifact(s).',

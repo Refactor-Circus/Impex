@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Run\Actions;
 
+use RefactorCircus\Impex\Domains\Run\Data\CancelRunData;
 use RefactorCircus\Impex\Domains\Run\Events\RunCancelledActionEvent;
 use RefactorCircus\Impex\Domains\Run\Events\RunCancellingActionEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
@@ -13,22 +14,9 @@ final class CancelRunAction
 {
     public function __construct(private readonly Impex $impex) {}
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
+    public function execute(RunModel $run, CancelRunData $data = new CancelRunData): RunModel
     {
-        return [
-            'reason' => ['sometimes', 'nullable', 'string', 'max:1000'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function execute(RunModel $run, array $data = []): RunModel
-    {
-        RunCancellingActionEvent::dispatch($run, is_string($data['reason'] ?? null) ? $data['reason'] : null);
+        RunCancellingActionEvent::dispatch($run, $data->reason);
 
         $result = $this->perform($run, $data);
 
@@ -37,14 +25,8 @@ final class CancelRunAction
         return $result;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function perform(RunModel $run, array $data = []): RunModel
+    private function perform(RunModel $run, CancelRunData $data): RunModel
     {
-        /** @var string|null $reason */
-        $reason = $data['reason'] ?? null;
-
-        return $this->impex->cancel($run, $reason);
+        return $this->impex->cancel($run, $data->reason);
     }
 }

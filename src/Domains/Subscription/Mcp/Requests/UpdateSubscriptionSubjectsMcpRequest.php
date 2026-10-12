@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\UpdateSubscriptionSubjectsAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\UpdateSubscriptionSubjectsData;
 
 final class UpdateSubscriptionSubjectsMcpRequest extends SubscriptionMcpRequest
 {
@@ -17,15 +18,13 @@ final class UpdateSubscriptionSubjectsMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return UpdateSubscriptionSubjectsAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
-        ];
+        ] + UpdateSubscriptionSubjectsData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        unset($validated['subscription']);
-
-        return Response::structured(app(UpdateSubscriptionSubjectsAction::class)->execute($this->subscription(), $validated));
+        return Response::structured(app(UpdateSubscriptionSubjectsAction::class)->execute($this->subscription(), UpdateSubscriptionSubjectsData::fromValidated($validated)));
     }
 }

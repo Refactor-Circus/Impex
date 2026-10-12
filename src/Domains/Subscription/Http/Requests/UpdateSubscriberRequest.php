@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Subscription\Actions\UpdateSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\UpdateSubscriberData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 use RefactorCircus\Keystone\Http\Requests\Request;
@@ -19,12 +20,12 @@ final class UpdateSubscriberRequest extends Request
 
     public function rules(): array
     {
-        return UpdateSubscriberAction::rules();
+        return UpdateSubscriberData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        return (new SubscriberResource(app(UpdateSubscriberAction::class)->execute($this->subscriber(), $this->validated())))->response();
+        return (new SubscriberResource(app(UpdateSubscriberAction::class)->execute($this->subscriber(), UpdateSubscriberData::fromValidated($this->validated()))))->response();
     }
 
     private function subscriber(): SubscriberModel

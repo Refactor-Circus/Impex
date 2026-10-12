@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
@@ -14,7 +15,7 @@ return new class extends Migration
         // This table holds only runtime overrides, so a flow can be disabled or
         // rescheduled from the dashboard without a deploy. A row here for an
         // unregistered slug is ignored.
-        Schema::create('impex_flows', function (Blueprint $table): void {
+        Schema::create(Tables::name('flows'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->string('slug')->unique();
             $table->boolean('enabled')->nullable();
@@ -28,6 +29,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_flows');
+        Schema::dropIfExists(Tables::name('flows'));
     }
 };

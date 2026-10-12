@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscribersAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscribersData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 use RefactorCircus\Keystone\Http\Requests\Request;
@@ -19,11 +20,11 @@ final class IndexSubscribersRequest extends Request
 
     public function rules(): array
     {
-        return ListSubscribersAction::rules();
+        return ListSubscribersData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        return SubscriberResource::collection(app(ListSubscribersAction::class)->execute($this->validated(), $this->actor()))->response();
+        return SubscriberResource::collection(app(ListSubscribersAction::class)->execute(ListSubscribersData::fromValidated($this->validated()), $this->actor()))->response();
     }
 }

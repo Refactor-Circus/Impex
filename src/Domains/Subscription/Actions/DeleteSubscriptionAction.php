@@ -10,18 +10,11 @@ use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletedActionEv
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionDeletingActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Support\Tables;
 
 final class DeleteSubscriptionAction
 {
     public function __construct(private readonly ConnectionInterface $db) {}
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
 
     /**
      * Deletes the subscription, its pending events, and its endpoint channel
@@ -34,7 +27,8 @@ final class DeleteSubscriptionAction
         $id = $subscription->id;
 
         $this->db->transaction(function () use ($subscription): void {
-            $this->db->table('impex_subscription_events')->where('subscription_id', $subscription->id)->delete();
+            $this->db->table(Tables::name('subscription_events'))->where('subscription_id', $subscription->id)->delete();
+            $this->db->table(Tables::name('subscription_holdings'))->where('subscription_id', $subscription->id)->delete();
 
             $channel = $subscription->channel;
             $subscription->delete();

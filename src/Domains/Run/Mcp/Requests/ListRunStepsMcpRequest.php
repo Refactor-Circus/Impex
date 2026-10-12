@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Run\Actions\ListRunStepsAction;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunStepsData;
 use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunStepResource;
 
@@ -18,15 +19,15 @@ final class ListRunStepsMcpRequest extends RunRequest
 
     protected function rules(): array
     {
-        return ListRunStepsAction::rules() + [
+        return [
             'run' => ['required', 'string', 'max:26'],
-        ];
+        ] + ListRunStepsData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        $steps = app(ListRunStepsAction::class)->execute($this->run(), $validated);
+        $steps = app(ListRunStepsAction::class)->execute($this->run(), ListRunStepsData::fromValidated($validated));
 
-        return $this->structuredCollection(RunStepResource::collection($steps)->resolve());
+        return RunStepResource::collection($steps)->toStructuredResponse();
     }
 }

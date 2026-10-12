@@ -16,6 +16,7 @@ use RefactorCircus\Impex\Domains\Subscription\Http\Requests\ShowSubscriptionRequ
 use RefactorCircus\Impex\Domains\Subscription\Http\Requests\StoreSubscriptionRequest;
 use RefactorCircus\Impex\Domains\Subscription\Http\Requests\UpdateSubscriptionRequest;
 use RefactorCircus\Impex\Domains\Subscription\Http\Requests\UpdateSubscriptionSubjectsRequest;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 /**
@@ -30,6 +31,14 @@ final class SubscriptionController
     }
 
     public function store(StoreSubscriptionRequest $request): JsonResponse
+    {
+        return $request->persist();
+    }
+
+    /**
+     * The operator API's store: the subscriber comes bound from the path.
+     */
+    public function storeFor(StoreSubscriptionRequest $request, SubscriberModel $subscriber): JsonResponse
     {
         return $request->persist();
     }

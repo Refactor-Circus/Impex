@@ -6,18 +6,19 @@ namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListDeliveriesData;
 use RefactorCircus\Impex\Domains\Subscription\Resources\DeliveryResource;
 
 final class IndexDeliveriesRequest extends SubscriptionRequest
 {
     public function rules(): array
     {
-        return ListDeliveriesAction::rules();
+        return ListDeliveriesData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        return DeliveryResource::collection(app(ListDeliveriesAction::class)->execute($this->subscription(), $this->validated()))->response();
+        return DeliveryResource::collection(app(ListDeliveriesAction::class)->execute($this->subscription(), ListDeliveriesData::fromValidated($this->validated())))->response();
     }
 
     protected function allowsOperator(): bool

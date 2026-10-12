@@ -13,14 +13,6 @@ use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 final class ListRunOwnersAction
 {
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
-    /**
      * @return Collection<int, RunOwnerModel>
      */
     public function execute(RunModel $run): Collection

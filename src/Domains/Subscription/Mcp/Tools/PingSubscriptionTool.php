@@ -25,4 +25,15 @@ final class PingSubscriptionTool extends Tool
             'subscription' => $schema->string()->description('The subscription id.')->required(),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'successful' => $schema->boolean()->required(),
+            'status_code' => $schema->integer()->nullable()->required(),
+            'duration_ms' => $schema->integer()->nullable()->required(),
+            'error' => $schema->object()->nullable()->required(),
+            'message_id' => $schema->string()->description('The ledger message the ping was recorded as.')->required(),
+        ];
+    }
 }

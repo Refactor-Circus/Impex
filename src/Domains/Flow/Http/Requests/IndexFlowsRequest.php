@@ -16,11 +16,6 @@ final class IndexFlowsRequest extends Request
         return parent::authorize() && $this->allows('viewAny', FlowOverrideModel::class);
     }
 
-    public function rules(): array
-    {
-        return ListFlowsAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         return new JsonResponse(['data' => app(ListFlowsAction::class)->execute()]);

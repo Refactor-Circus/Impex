@@ -17,11 +17,11 @@ class BatchItemPolicy extends Policy
 {
     public function viewAny(Model $user, BatchModel $batch): bool
     {
-        return $this->allowsOn($user, 'view', $batch);
+        return $this->allowsOnParent($user, 'view', $batch);
     }
 
     public function view(Model $user, BatchItemModel $item): bool
     {
-        return $this->allowsOn($user, 'view', $item->batch);
+        return $this->allowsOnParent($user, 'view', $item->batch);
     }
 }

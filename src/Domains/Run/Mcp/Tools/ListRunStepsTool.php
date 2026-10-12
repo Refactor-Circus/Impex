@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ListRunStepsMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunStepResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List the recorded steps of a run, in replay order. Payloads are not inlined; use the artifact id to fetch a large result.')]
@@ -23,7 +24,12 @@ final class ListRunStepsTool extends Tool
     {
         return [
             'run' => $schema->string()->description('The run id.')->required(),
-            'phase' => $schema->string()->description('forward or rollback. Omit for both.'),
+            'phase' => $schema->string()->enum(['forward', 'rollback'])->description('Omit for both.'),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunStepResource::collectionSchema($schema);
     }
 }

@@ -10,14 +10,6 @@ use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 
 final class ShowRunAction
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
     public function execute(RunModel $run): RunModel
     {
         RunShowingActionEvent::dispatch($run);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Message\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Message\Actions\ShowMessageAction;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
@@ -20,7 +19,7 @@ final class ShowMessageMcpRequest extends Request
 
     protected function rules(): array
     {
-        return ShowMessageAction::rules() + [
+        return [
             'message' => ['required', 'string', 'max:26'],
         ];
     }
@@ -29,7 +28,7 @@ final class ShowMessageMcpRequest extends Request
     {
         $message = app(ShowMessageAction::class)->execute($this->message());
 
-        return Response::structured((new MessageResource($message))->resolve());
+        return (new MessageResource($message))->toStructuredResponse();
     }
 
     private function message(): MessageModel

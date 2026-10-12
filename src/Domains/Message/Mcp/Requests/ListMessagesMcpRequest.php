@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Message\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
+use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
 use RefactorCircus\Keystone\Mcp\Requests\Request;
@@ -19,16 +20,13 @@ final class ListMessagesMcpRequest extends Request
 
     protected function rules(): array
     {
-        return ListMessagesAction::rules();
+        return ListMessagesData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        $messages = app(ListMessagesAction::class)->execute($validated, $this->actor());
+        $messages = app(ListMessagesAction::class)->execute(ListMessagesData::fromValidated($validated), $this->actor());
 
-        return $this->structuredCollection(
-            MessageResource::collection($messages)->resolve(),
-            ['next_cursor' => $messages->nextCursor()?->encode()],
-        );
+        return MessageResource::collection($messages)->toStructuredResponse();
     }
 }

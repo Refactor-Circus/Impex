@@ -5,12 +5,13 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('impex_runs', function (Blueprint $table): void {
+        Schema::create(Tables::name('runs'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->string('flow')->index();
             $table->string('flow_class');
@@ -20,10 +21,10 @@ return new class extends Migration
             $table->string('idempotency_key', 191)->nullable();
             $table->json('input')->nullable();
             $table->foreignUlid('input_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->json('result')->nullable();
             $table->foreignUlid('result_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->json('error')->nullable();
             $table->json('tags')->nullable();
             $table->ulid('parent_run_id')->nullable()->index();
@@ -47,9 +48,9 @@ return new class extends Migration
             $table->unique(['flow', 'idempotency_key'], 'impex_runs_idempotency_unique');
         });
 
-        Schema::create('impex_run_steps', function (Blueprint $table): void {
+        Schema::create(Tables::name('run_steps'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('run_id')->constrained('impex_runs')->cascadeOnDelete();
+            $table->foreignUlid('run_id')->constrained(Tables::name('runs'))->cascadeOnDelete();
             $table->string('phase', 16);
             $table->unsignedInteger('sequence');
             $table->string('type', 32);
@@ -57,10 +58,10 @@ return new class extends Migration
             $table->string('status', 32);
             $table->json('input')->nullable();
             $table->foreignUlid('input_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->json('result')->nullable();
             $table->foreignUlid('result_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->json('error')->nullable();
             // The rollback is captured when the forward step is recorded,
             // so rollback never needs to replay the flow to discover it.
@@ -92,9 +93,9 @@ return new class extends Migration
             $table->index(['run_id', 'status']);
         });
 
-        Schema::create('impex_run_owners', function (Blueprint $table): void {
+        Schema::create(Tables::name('run_owners'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('run_id')->constrained('impex_runs')->cascadeOnDelete();
+            $table->foreignUlid('run_id')->constrained(Tables::name('runs'))->cascadeOnDelete();
             $table->string('owner_type', 191);
             $table->string('owner_id', 64);
             $table->string('role', 32);
@@ -109,8 +110,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_run_owners');
-        Schema::dropIfExists('impex_run_steps');
-        Schema::dropIfExists('impex_runs');
+        Schema::dropIfExists(Tables::name('run_owners'));
+        Schema::dropIfExists(Tables::name('run_steps'));
+        Schema::dropIfExists(Tables::name('runs'));
     }
 };

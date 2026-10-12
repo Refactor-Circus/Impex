@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -30,7 +31,10 @@ final class BatchItemModel extends Model
     use DispatchesModelEvents;
     use HasUlids;
 
-    protected $table = 'impex_batch_items';
+    public function getTable(): string
+    {
+        return Tables::name('batch_items');
+    }
 
     protected $fillable = [
         'batch_id',

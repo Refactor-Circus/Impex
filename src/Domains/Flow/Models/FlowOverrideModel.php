@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Flow\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -30,7 +31,10 @@ final class FlowOverrideModel extends Model
     use DispatchesModelEvents;
     use HasUlids;
 
-    protected $table = 'impex_flows';
+    public function getTable(): string
+    {
+        return Tables::name('flows');
+    }
 
     protected $fillable = [
         'slug',

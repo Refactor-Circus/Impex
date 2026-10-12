@@ -502,9 +502,9 @@ Same bodies and responses as the operator routes above. See
 Impex's audit entries, newest first: who did what, through which surface, and
 which fields changed. Filter with `subject_type` and `subject_id` for one
 record, or `action`; cursor paginated with `cursor` and `per_page`. The route
-comes from refactor-circus/keystone and needs an audit log
-([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed. Until one is, it
-answers `404`:
+comes from refactor-circus/keystone and answers only while Impex audits: an
+audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen))
+installed and `impex.audit.enabled` on. Otherwise it answers `404`:
 
 ```json
 { "message": "No audit log is installed. Install refactor-circus/keen to record history." }
@@ -518,6 +518,10 @@ a finished run) answers `409` with its message:
 ```json
 { "message": "The flow [extract-products] is disabled. Re-enable it by removing or updating its row in impex_flows." }
 ```
+
+A record that does not exist answers `404` with `{ "message": "Not found." }`.
+A guest answers `401` while `impex.authorization` is on; a signed-in user the
+policy refuses, `403`.
 
 Validation failures return `422` in Laravel's standard shape:
 

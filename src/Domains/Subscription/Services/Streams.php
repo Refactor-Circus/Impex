@@ -11,6 +11,7 @@ use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
 use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
 use RefactorCircus\Impex\Domains\Subscription\Exceptions\SubscriptionException;
 use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Support\Tables;
 
 /**
  * Where a package reports change. Both entry points are cheap enough for a
@@ -105,7 +106,7 @@ final class Streams
 
         $mask = $topics === [] ? TopicMask::all($definition->topics()) : TopicMask::of($definition->topics(), $topics);
 
-        $id = (int) $this->db->table('impex_events')->insertGetId([
+        $id = (int) $this->db->table(Tables::name('events'))->insertGetId([
             'stream' => $stream,
             'subject_key' => $subjectKey,
             'kind' => EventKind::Appended->value,
@@ -125,6 +126,6 @@ final class Streams
      */
     private function upsertTouches(array $rows): void
     {
-        $this->db->table('impex_stream_touches')->upsert(array_values($rows), ['stream', 'subject_key'], ['touched_at', 'revision']);
+        $this->db->table(Tables::name('stream_touches'))->upsert(array_values($rows), ['stream', 'subject_key'], ['touched_at', 'revision']);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
@@ -16,7 +17,7 @@ return new class extends Migration
         // them would create a cycle with the *_artifact_id columns, which do
         // hold real constraints. Orphans in this direction are swept by
         // `impex:prune`.
-        Schema::create('impex_artifacts', function (Blueprint $table): void {
+        Schema::create(Tables::name('artifacts'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->string('disk');
             $table->string('path', 1024);
@@ -34,6 +35,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_artifacts');
+        Schema::dropIfExists(Tables::name('artifacts'));
     }
 };

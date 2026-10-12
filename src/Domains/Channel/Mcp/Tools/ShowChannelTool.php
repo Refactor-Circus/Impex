@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\ShowChannelMcpRequest;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one channel by name: its direction, transport, options and body policy. Secrets are never returned.')]
@@ -24,5 +25,10 @@ final class ShowChannelTool extends Tool
         return [
             'channel' => $schema->string()->description('The channel name.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return ChannelResource::structuredSchema($schema);
     }
 }

@@ -10,11 +10,6 @@ use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 
 final class ExportSubscriptionRequest extends SubscriptionRequest
 {
-    public function rules(): array
-    {
-        return ExportSubscriptionAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         $subscription = app(ExportSubscriptionAction::class)->execute($this->subscription());

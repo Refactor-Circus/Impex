@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -27,7 +28,10 @@ final class SignalModel extends Model
     use DispatchesModelEvents;
     use HasUlids;
 
-    protected $table = 'impex_signals';
+    public function getTable(): string
+    {
+        return Tables::name('signals');
+    }
 
     protected $fillable = [
         'run_id',

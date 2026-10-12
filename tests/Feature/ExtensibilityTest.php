@@ -8,7 +8,6 @@ use RefactorCircus\Impex\Domains\Run\Data\SweepReport;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 use RefactorCircus\Impex\Domains\Run\Services\EngineOptions;
-use RefactorCircus\Impex\Domains\Run\Services\JobRouter;
 use RefactorCircus\Impex\Domains\Run\Services\Rollbacks;
 use RefactorCircus\Impex\Domains\Run\Services\Sweeper;
 use RefactorCircus\Impex\Impex;
@@ -76,10 +75,7 @@ it('routes engine jobs onto the run own queue when it has one', function (): voi
 
     Queue::fake();
 
-    $run = app(Impex::class)->run('linear', [1]);
-    $run->update(['queue' => 'impex-bulk']);
-
-    app(JobRouter::class)->drive($run);
+    $run = app(Impex::class)->run('linear', [1], queue: 'impex-bulk');
 
     Queue::assertPushedOn('impex-bulk', DriveRun::class);
 });

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
@@ -26,7 +27,7 @@ function pushedSubscription(): SubscriptionModel
 {
     return app(CreateSubscriptionAction::class)->execute(
         SubscriberModel::factory()->create(['name' => 'Acme Supply']),
-        ['stream' => 'fixture.products', 'topics' => ['pricing'], 'endpoint' => ['url' => 'https://acme.test/hooks']],
+        new CreateSubscriptionData(stream: 'fixture.products', topics: ['pricing'], endpoint: ['url' => 'https://acme.test/hooks']),
     )['subscription'];
 }
 

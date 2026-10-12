@@ -15,7 +15,9 @@ use RefactorCircus\Impex\Domains\Subscription\Data\StreamEvent;
 use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
 use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
 use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Impex\Support\Tables;
 use stdClass;
+use Throwable;
 
 /**
  * Works out what actually changed, a chunk of subjects at a time.
@@ -41,13 +43,18 @@ final class Detector
      * Process one chunk. Returns how many subjects or events it handled; zero
      * means the backlog is empty, or another worker holds what is left.
      */
-    public function run(string $streamKey): int
+    public function run(string $streamKey, int $shard = 0): int
     {
         $stream = $this->streams->get($streamKey);
 
-        return $stream->kind() === StreamKind::Append
-            ? $this->fanOutAppended($stream)
-            : $this->detect($stream);
+        if ($stream->kind() === StreamKind::Append) {
+            // An append stream is fanned out in id order by one shard: two
+            // fanning out at once could let a later event reach a subscriber
+            // before an earlier one, and its cursor would then skip it.
+            return $shard === 0 ? $this->fanOutAppended($stream) : 0;
+        }
+
+        return $this->detect($stream, $shard);
     }
 
     /**
@@ -61,17 +68,17 @@ final class Detector
         return $budget;
     }
 
-    private function detect(Stream $stream): int
+    private function detect(Stream $stream, int $shard): int
     {
         $token = strtolower((string) Str::ulid());
-        $keys = $this->claim($stream->key(), $token);
+        $keys = $this->claim($stream->key(), $token, $shard);
 
         if ($keys === []) {
             return 0;
         }
 
         $snapshots = $stream->snapshots($keys);
-        $states = $this->db->table('impex_subject_states')
+        $states = $this->db->table(Tables::name('subject_states'))
             ->where('stream', $stream->key())
             ->whereIn('subject_key', $keys)
             ->pluck('hashes', 'subject_key')
@@ -119,15 +126,15 @@ final class Detector
         // than half-sent.
         $this->db->transaction(function () use ($stream, $events, $upserts, $removed, $rescoped, $token, $snapshots): void {
             foreach (array_chunk($events, 500) as $chunk) {
-                $this->db->table('impex_events')->insert($chunk);
+                $this->db->table(Tables::name('events'))->insert($chunk);
             }
 
             foreach (array_chunk($upserts, 500) as $chunk) {
-                $this->db->table('impex_subject_states')->upsert($chunk, ['stream', 'subject_key'], ['hashes', 'updated_at']);
+                $this->db->table(Tables::name('subject_states'))->upsert($chunk, ['stream', 'subject_key'], ['hashes', 'updated_at']);
             }
 
             if ($removed !== []) {
-                $this->db->table('impex_subject_states')
+                $this->db->table(Tables::name('subject_states'))
                     ->where('stream', $stream->key())
                     ->whereIn('subject_key', $removed)
                     ->delete();
@@ -152,10 +159,20 @@ final class Detector
     private function fanOutAppended(Stream $stream): int
     {
         $token = strtolower((string) Str::ulid());
+        $now = Carbon::now();
+        // A tag older than the lease belongs to a worker that died, or whose
+        // fan-out failed after tagging: its events are claimable again.
+        $stale = $now->copy()->subSeconds($this->leaseSeconds());
+        $claimable = function (Builder $query) use ($stale): void {
+            $query->whereNull('batch')
+                ->orWhereNull('claimed_at')
+                ->orWhere('claimed_at', '<', $stale);
+        };
 
-        $ids = $this->db->table('impex_events')
+        $ids = $this->db->table(Tables::name('events'))
             ->where('stream', $stream->key())
             ->whereNull('fanned_out_at')
+            ->where($claimable)
             ->orderBy('id')
             ->limit($this->chunk())
             ->pluck('id')
@@ -165,13 +182,13 @@ final class Detector
             return 0;
         }
 
-        // Claimed by tagging: the batch column is only ever set once, so two
-        // workers cannot fan the same event out twice.
-        $this->db->table('impex_events')
+        // Claimed by tagging: the update re-checks the tag, so two workers
+        // cannot fan the same event out twice within a lease.
+        $this->db->table(Tables::name('events'))
             ->whereIn('id', $ids)
             ->whereNull('fanned_out_at')
-            ->whereNull('batch')
-            ->update(['batch' => $token]);
+            ->where($claimable)
+            ->update(['batch' => $token, 'claimed_at' => $now]);
 
         $events = $this->inserted($token);
 
@@ -179,17 +196,27 @@ final class Detector
             return 0;
         }
 
-        $this->db->transaction(function () use ($stream, $events, $token): void {
-            $payloads = [];
+        try {
+            $this->db->transaction(function () use ($stream, $events, $token): void {
+                $payloads = [];
 
-            foreach ($events as $event) {
-                $payloads[$event->subjectKey] = $event->payload ?? [];
-            }
+                foreach ($events as $event) {
+                    $payloads[$event->subjectKey] = $event->payload ?? [];
+                }
 
-            $this->fanOut->dispatch($stream, $events, $payloads);
+                $this->fanOut->dispatch($stream, $events, $payloads);
 
-            $this->db->table('impex_events')->where('batch', $token)->update(['fanned_out_at' => Carbon::now()]);
-        });
+                $this->db->table(Tables::name('events'))->where('batch', $token)->update(['fanned_out_at' => Carbon::now()]);
+            });
+        } catch (Throwable $e) {
+            // Hand the events straight back rather than waiting out the lease.
+            $this->db->table(Tables::name('events'))
+                ->where('batch', $token)
+                ->whereNull('fanned_out_at')
+                ->update(['batch' => null, 'claimed_at' => null]);
+
+            throw $e;
+        }
 
         return count($events);
     }
@@ -197,50 +224,64 @@ final class Detector
     /**
      * Lease up to a chunk of touched subjects to this worker. The update
      * re-checks the lease, so of two workers selecting the same keys, each
-     * key goes to one of them.
+     * key goes to one of them; the one that lost looks again, past what the
+     * other now holds. Shards start a chunk apart so they rarely collide.
      *
      * @return list<string>
      */
-    private function claim(string $stream, string $token): array
+    private function claim(string $stream, string $token, int $shard = 0): array
     {
-        $now = Carbon::now();
-        $claimable = function (Builder $query) use ($now): void {
-            $query->whereNull('leased_until')->orWhere('leased_until', '<', $now);
-        };
+        $offset = max(0, $shard) * $this->chunk();
 
-        $keys = $this->db->table('impex_stream_touches')
-            ->where('stream', $stream)
-            ->where($claimable)
-            ->orderBy('touched_at')
-            ->limit($this->chunk())
-            ->pluck('subject_key')
-            ->all();
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $now = Carbon::now();
+            $claimable = function (Builder $query) use ($now): void {
+                $query->whereNull('leased_until')->orWhere('leased_until', '<', $now);
+            };
 
-        if ($keys === []) {
-            return [];
+            $select = fn (int $offset): array => $this->db->table(Tables::name('stream_touches'))
+                ->where('stream', $stream)
+                ->where($claimable)
+                ->orderBy('touched_at')
+                ->offset($offset)
+                ->limit($this->chunk())
+                ->pluck('subject_key')
+                ->all();
+
+            $keys = $select($offset);
+
+            if ($keys === [] && $offset > 0) {
+                $offset = 0;
+                $keys = $select(0);
+            }
+
+            if ($keys === []) {
+                return [];
+            }
+
+            $this->db->table(Tables::name('stream_touches'))
+                ->where('stream', $stream)
+                ->whereIn('subject_key', $keys)
+                ->where($claimable)
+                ->update([
+                    'lease_token' => $token,
+                    'leased_until' => $now->copy()->addSeconds($this->leaseSeconds()),
+                    'claimed_revision' => new Expression('revision'),
+                ]);
+
+            /** @var list<string> $claimed */
+            $claimed = $this->db->table(Tables::name('stream_touches'))
+                ->where('lease_token', $token)
+                ->pluck('subject_key')
+                ->map(fn (mixed $key): string => (string) $key)
+                ->all();
+
+            if ($claimed !== []) {
+                return $claimed;
+            }
         }
 
-        /** @var int $lease */
-        $lease = $this->config->get('impex.subscriptions.detection.lease_seconds', 300);
-
-        $this->db->table('impex_stream_touches')
-            ->where('stream', $stream)
-            ->whereIn('subject_key', $keys)
-            ->where($claimable)
-            ->update([
-                'lease_token' => $token,
-                'leased_until' => $now->copy()->addSeconds($lease),
-                'claimed_revision' => new Expression('revision'),
-            ]);
-
-        /** @var list<string> $claimed */
-        $claimed = $this->db->table('impex_stream_touches')
-            ->where('lease_token', $token)
-            ->pluck('subject_key')
-            ->map(fn (mixed $key): string => (string) $key)
-            ->all();
-
-        return $claimed;
+        return [];
     }
 
     /**
@@ -249,12 +290,12 @@ final class Detector
      */
     private function release(string $stream, string $token): void
     {
-        $this->db->table('impex_stream_touches')
+        $this->db->table(Tables::name('stream_touches'))
             ->where('lease_token', $token)
             ->whereColumn('revision', '=', 'claimed_revision')
             ->delete();
 
-        $this->db->table('impex_stream_touches')
+        $this->db->table(Tables::name('stream_touches'))
             ->where('stream', $stream)
             ->where('lease_token', $token)
             ->update(['lease_token' => null, 'leased_until' => null, 'claimed_revision' => null]);
@@ -327,7 +368,7 @@ final class Detector
      */
     private function inserted(string $token): array
     {
-        return array_values($this->db->table('impex_events')
+        return array_values($this->db->table(Tables::name('events'))
             ->where('batch', $token)
             ->orderBy('id')
             ->get()
@@ -336,6 +377,14 @@ final class Detector
                 return StreamEvent::fromRow($row);
             })
             ->all());
+    }
+
+    private function leaseSeconds(): int
+    {
+        /** @var int $lease */
+        $lease = $this->config->get('impex.subscriptions.detection.lease_seconds', 300);
+
+        return $lease;
     }
 
     private function chunk(): int

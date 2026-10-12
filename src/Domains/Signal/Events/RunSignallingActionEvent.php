@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Signal\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Signal\Data\SignalRunData;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
@@ -17,11 +18,8 @@ final class RunSignallingActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
         public RunModel $run,
-        public array $data,
+        public SignalRunData $data,
     ) {}
 }

@@ -131,7 +131,7 @@ it('leaves the API to the route middleware while authorization is off', function
 });
 
 it('refuses a guest once authorization is on', function (): void {
-    $this->getJson('/impex/runs')->assertForbidden();
+    $this->getJson('/impex/runs')->assertUnauthorized();
     mcpTool(ListRunsTool::class)->assertHasErrors(['Unauthorized.']);
 });
 

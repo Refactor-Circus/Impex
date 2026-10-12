@@ -14,6 +14,7 @@ use RefactorCircus\Impex\Database\Factories\SubscriptionFactory;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -53,7 +54,10 @@ final class SubscriptionModel extends Model
 
     use HasUlids;
 
-    protected $table = 'impex_subscriptions';
+    public function getTable(): string
+    {
+        return Tables::name('subscriptions');
+    }
 
     protected $fillable = [
         'subscriber_id',

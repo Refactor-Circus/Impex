@@ -16,6 +16,8 @@ use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
 use RefactorCircus\Impex\Domains\Channel\Actions\RotateChannelSecretAction;
 use RefactorCircus\Impex\Domains\Channel\Actions\ShowChannelAction;
 use RefactorCircus\Impex\Domains\Channel\Actions\UpdateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Data\CreateChannelData;
+use RefactorCircus\Impex\Domains\Channel\Data\UpdateChannelData;
 use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
 use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
@@ -38,7 +40,7 @@ final class ChannelUiController
         /** @var view-string $view */
         $view = 'impex::ui.channels.index';
 
-        return view($view, ['channels' => app(ListChannelsAction::class)->execute([], ScreenAccess::viewer())]);
+        return view($view, ['channels' => app(ListChannelsAction::class)->execute(viewer: ScreenAccess::viewer())]);
     }
 
     public function create(): View
@@ -55,9 +57,7 @@ final class ChannelUiController
     {
         $this->authorizeScreen('create', ChannelModel::class);
 
-        $data = $this->validated($request, CreateChannelAction::rules());
-
-        $channel = app(CreateChannelAction::class)->execute($data, ScreenAccess::actor());
+        $channel = app(CreateChannelAction::class)->execute(CreateChannelData::from($this->input($request)), ScreenAccess::actor());
 
         return redirect()
             ->route('atrium.impex.channels.show', $channel->name)
@@ -86,9 +86,7 @@ final class ChannelUiController
     {
         $this->authorizeScreen('update', $channel);
 
-        $data = $this->validated($request, UpdateChannelAction::rules());
-
-        app(UpdateChannelAction::class)->execute($channel, $data);
+        app(UpdateChannelAction::class)->execute($channel, UpdateChannelData::from($this->input($request)));
 
         return redirect()
             ->route('atrium.impex.channels.show', $channel->name)
@@ -122,10 +120,9 @@ final class ChannelUiController
      * The form's fields as the action takes them: options arrive as JSON,
      * the signing secret on its own.
      *
-     * @param  array<string, mixed>  $rules
      * @return array<string, mixed>
      */
-    private function validated(Request $request, array $rules): array
+    private function input(Request $request): array
     {
         $options = $request->input('options_json');
         $decoded = is_string($options) && trim($options) !== '' ? json_decode($options, true) : [];
@@ -144,10 +141,10 @@ final class ChannelUiController
             $request->merge(['credentials' => ['signing_secret' => $secret]]);
         }
 
-        /** @var array<string, mixed> $data */
-        $data = $request->validate($rules);
+        /** @var array<string, mixed> $input */
+        $input = $request->all();
 
-        return $data;
+        return $input;
     }
 
     /**

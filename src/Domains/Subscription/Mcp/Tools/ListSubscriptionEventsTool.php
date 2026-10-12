@@ -27,4 +27,13 @@ final class ListSubscriptionEventsTool extends Tool
             'limit' => $schema->integer()->min(1)->max(1000),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'data' => $schema->array()->items($schema->object()->description('An event, in the subscription\'s format.'))->required(),
+            'cursor' => $schema->string()->description('Pass back as after to read on.')->required(),
+            'has_more' => $schema->boolean()->required(),
+        ];
+    }
 }

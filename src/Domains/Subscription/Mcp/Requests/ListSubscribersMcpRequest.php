@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscribersAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscribersData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 
@@ -18,16 +19,13 @@ final class ListSubscribersMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return ListSubscribersAction::rules();
+        return ListSubscribersData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        $subscribers = app(ListSubscribersAction::class)->execute($validated, $this->actor());
+        $subscribers = app(ListSubscribersAction::class)->execute(ListSubscribersData::fromValidated($validated), $this->actor());
 
-        return $this->structuredCollection(
-            SubscriberResource::collection($subscribers->items())->resolve(),
-            ['next_cursor' => $subscribers->nextCursor()?->encode()],
-        );
+        return SubscriberResource::collection($subscribers)->toStructuredResponse();
     }
 }

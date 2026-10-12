@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Events\ModelsPruned;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Database\Factories\RunFactory;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
@@ -20,6 +22,7 @@ use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 use RefactorCircus\Impex\Domains\Signal\Models\TimerModel;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -61,7 +64,12 @@ final class RunModel extends Model
     // on their own schedule, which is never shorter than a run's.
     use MassPrunable;
 
-    protected $table = 'impex_runs';
+    private const int PRUNE_SLICE = 5000;
+
+    public function getTable(): string
+    {
+        return Tables::name('runs');
+    }
 
     protected $fillable = [
         'flow',
@@ -250,6 +258,63 @@ final class RunModel extends Model
                         ->where('finished_at', '<=', Carbon::now()->subDays($failed));
                 });
             });
+    }
+
+    /**
+     * Delete prunable runs a chunk at a time, their batch items and steps
+     * first, in slices. Left to the cascade, one statement would remove a
+     * thousand runs with every item of every batch they ran — millions of
+     * rows under one lock.
+     */
+    public function pruneAll(int $chunkSize = 1000): int
+    {
+        $total = 0;
+
+        do {
+            /** @var list<string> $ids */
+            $ids = $this->prunable()->limit($chunkSize)->pluck('id')->map(fn (mixed $id): string => (string) $id)->all();
+
+            if ($ids === []) {
+                break;
+            }
+
+            $this->pruneChildren($ids);
+
+            $total += $count = self::query()->whereKey($ids)->delete();
+
+            if ($count > 0) {
+                event(new ModelsPruned(self::class, $total));
+            }
+        } while ($count > 0);
+
+        return $total;
+    }
+
+    /**
+     * @param  list<string>  $runIds
+     */
+    private function pruneChildren(array $runIds): void
+    {
+        $db = $this->getConnection();
+
+        $batchIds = $db->table(Tables::name('batches'))->whereIn('run_id', $runIds)->pluck('id')->all();
+
+        foreach (array_chunk($batchIds, 500) as $batches) {
+            $this->deleteInSlices($db->table(Tables::name('batch_items'))->whereIn('batch_id', $batches), Tables::name('batch_items'));
+        }
+
+        $this->deleteInSlices($db->table(Tables::name('run_steps'))->whereIn('run_id', $runIds), Tables::name('run_steps'));
+    }
+
+    private function deleteInSlices(QueryBuilder $query, string $table): void
+    {
+        do {
+            $ids = (clone $query)->limit(self::PRUNE_SLICE)->pluck('id')->all();
+
+            if ($ids !== []) {
+                $this->getConnection()->table($table)->whereIn('id', $ids)->delete();
+            }
+        } while (count($ids) === self::PRUNE_SLICE);
     }
 
     /**

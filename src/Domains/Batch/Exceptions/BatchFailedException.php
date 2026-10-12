@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Batch\Exceptions;
 
 use RefactorCircus\Impex\Exceptions\ImpexException;
+use RefactorCircus\Impex\Support\Tables;
 
 final class BatchFailedException extends ImpexException
 {
@@ -12,12 +13,13 @@ final class BatchFailedException extends ImpexException
     {
         return new self(sprintf(
             'The batch running [%s] failed %d of %d item(s) (%.2f%%), above the tolerated %.2f%%. '.
-            'Inspect the failed rows in impex_batch_items, or raise allowFailures().',
+            'Inspect the failed rows in %s, or raise allowFailures().',
             $action,
             $failed,
             $total,
             $total === 0 ? 0.0 : ($failed / $total) * 100,
             $allowed * 100,
+            Tables::name('batch_items'),
         ));
     }
 }

@@ -17,11 +17,6 @@ final class RotateChannelSecretRequest extends Request
         return parent::authorize() && $this->allows('update', $this->channel());
     }
 
-    public function rules(): array
-    {
-        return RotateChannelSecretAction::rules();
-    }
-
     /**
      * The one response that carries a secret: it is shown once, here.
      */

@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriberData;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
@@ -17,11 +18,8 @@ final class SubscriberCreatingActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
-        public array $data,
+        public CreateSubscriberData $data,
         public ?Model $owner = null,
     ) {}
 }

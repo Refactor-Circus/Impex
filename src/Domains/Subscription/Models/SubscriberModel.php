@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Database\Factories\SubscriberFactory;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriberStatus;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -36,7 +37,10 @@ final class SubscriberModel extends Model
 
     use HasUlids;
 
-    protected $table = 'impex_subscribers';
+    public function getTable(): string
+    {
+        return Tables::name('subscribers');
+    }
 
     protected $fillable = [
         'name',

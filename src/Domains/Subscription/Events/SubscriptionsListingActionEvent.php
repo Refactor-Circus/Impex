@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscriptionsData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
@@ -17,11 +18,8 @@ final class SubscriptionsListingActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
     public function __construct(
-        public array $filters,
+        public ListSubscriptionsData $filters,
         public ?SubscriberModel $subscriber = null,
     ) {}
 }

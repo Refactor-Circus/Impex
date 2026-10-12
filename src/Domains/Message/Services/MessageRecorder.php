@@ -15,6 +15,7 @@ use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 use RefactorCircus\Impex\Domains\Message\Events\MessageRecorded;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
+use RefactorCircus\Impex\Support\Tables;
 
 /**
  * Writes the ledger.
@@ -105,7 +106,7 @@ final class MessageRecorder
             $row = [...$row, ...$this->storeBody($body, $id, $runId)];
         }
 
-        $query = $this->db->table('impex_messages');
+        $query = $this->db->table(Tables::name('messages'));
 
         // Scoped to the channel, because two suppliers may legitimately reuse
         // a key. insertOrIgnore leans on the unique index, so two concurrent

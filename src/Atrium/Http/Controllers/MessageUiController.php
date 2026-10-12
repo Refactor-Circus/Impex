@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
+use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
@@ -20,14 +21,14 @@ final class MessageUiController
     {
         $this->authorizeScreen('viewAny', MessageModel::class);
 
-        $filters = $request->validate(ListMessagesAction::rules());
+        $filters = ListMessagesData::from($request->all());
 
         /** @var view-string $view */
         $view = 'impex::ui.messages.index';
 
         return view($view, [
             'messages' => app(ListMessagesAction::class)->execute($filters, ScreenAccess::viewer()),
-            'filters' => $filters,
+            'filters' => $request->all(),
             'directions' => Direction::cases(),
         ]);
     }

@@ -154,6 +154,11 @@ owners may do anything; steps, owners, signals and messages follow the run).
 Replace a policy by pointing its model at your own class there. Inbound channel
 endpoints are signature-authenticated, never user-authorized.
 
+Table names come from `impex.tables` (`'runs' => 'impex_runs'`, ...). Rename
+them before migrating; in your own queries ask
+`RefactorCircus\Impex\Support\Tables::name('runs')` or the model's
+`getTable()` rather than writing `impex_runs`.
+
 ### 8. Test it
 
 The package ships assertions: `RefactorCircus\Impex\Testing\Flows`. `Flows::run()` drives
@@ -186,9 +191,17 @@ show `<x-atrium::audit-trail source="impex" :subject="..." />`, the runs page th
 package-wide trail; they render nothing until refactor-circus/keen is installed. Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
-check the steps with phase `rollback` to see what was rolled back. With an audit
-log (refactor-circus/keen) installed, `GET impex/history` and `list-impex-history-tool`
-show who changed what; without one they answer "not installed".
+check the steps with phase `rollback` to see what was rolled back. Structured
+tool answers carry the record under `data` (lists add `meta.next_cursor`; pass
+it back as `cursor`), and every tool declares its `outputSchema()`. While Impex
+audits (refactor-circus/keen installed and `impex.audit.enabled` on),
+`GET impex/history` and `list-impex-history-tool` show who changed what;
+otherwise the route answers 404 and the tool is not offered.
+
+Impex's own Actions (channels, subscriptions, runs, signals, the ledger) take a
+`final readonly` Data object, never an array — `new CreateSubscriberData(name:
+'Acme')`, or `XData::from($input)` to validate untrusted input with the Data's
+own `rules()`. Flows themselves (`Impex::run()`, the DSL) are unchanged.
 
 ## Rules, References, and Templates
 
@@ -266,7 +279,17 @@ Impex::streams()->publish('orders', $number, 'order.shipped', $payload); // appe
 A stream's `snapshots()` must load a whole chunk in a constant number of
 queries; its `matcher()` must index subscription filters, never expand them.
 Subscribers manage subscriptions on `/impex/subscriber/...` behind the app's
-OAuth middleware (`impex.routes.subscriber_middleware`).
+OAuth middleware (`impex.routes.subscriber_middleware`). Subscribe from code
+with the Actions and their Data:
+
+```php
+$subscriber = app(CreateSubscriberAction::class)->execute(new CreateSubscriberData(name: 'Acme'), owner: $vendor);
+$created = app(CreateSubscriptionAction::class)->execute($subscriber, CreateSubscriptionData::from([
+    'stream' => 'showroom.products',
+    'endpoint' => ['url' => 'https://acme.example/hooks'],
+]));
+// $created['secret'] is the signing secret, returned this once.
+```
 
 Pausing a flow (its `impex_flows` row, `enabled = false`) stops every
 trigger: `Impex::run()` throws `DisabledFlowException`, and an inbound channel

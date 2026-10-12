@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Flow\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
@@ -18,12 +19,9 @@ final class FlowRunningActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
         public string $slug,
-        public array $data,
+        public RunFlowData $data,
         public RunTrigger $trigger,
         public ?Model $owner = null,
     ) {}

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Resources;
 
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\JsonSchema\Types\Type;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
+use RefactorCircus\Impex\Domains\Subscription\Enums\Selection;
+use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
 use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
+use RefactorCircus\Keystone\Http\Resources\JsonResource;
 
 /**
  * A subscription. Never its signing secret: that is returned once, when the
@@ -19,6 +23,40 @@ use RefactorCircus\Impex\Domains\Subscription\Support\TopicMask;
  */
 final class SubscriptionResource extends JsonResource
 {
+    /**
+     * @return array<string, Type>
+     */
+    public static function schema(JsonSchema $schema): array
+    {
+        return [
+            'id' => $schema->string()->required(),
+            'subscriber_id' => $schema->string()->required(),
+            'stream' => $schema->string()->required(),
+            'topics' => $schema->array()->items($schema->string())->required(),
+            'selection' => $schema->string()->enum(array_column(Selection::cases(), 'value'))->required(),
+            'filter' => $schema->object()->nullable()->required(),
+            'format' => $schema->string()->required(),
+            'options' => $schema->object()->nullable()->required(),
+            'status' => $schema->string()->enum(array_column(SubscriptionStatus::cases(), 'value'))->required(),
+            'endpoint' => $schema->object([
+                'channel' => $schema->string(),
+                'transport' => $schema->string(),
+                'url' => $schema->string(),
+                'to' => $schema->string(),
+            ])->nullable()->description('Where events are pushed; null for a feed-only subscription or when the channel is not loaded.')->required(),
+            'cursor' => $schema->string()->description('The last event delivered.')->required(),
+            'failures' => $schema->integer()->required(),
+            'pending' => $schema->boolean()->required(),
+            'paused_until' => $schema->string()->nullable()->required(),
+            'disabled_at' => $schema->string()->nullable()->required(),
+            'last_delivered_at' => $schema->string()->nullable()->required(),
+            'last_error' => $schema->object()->nullable()->required(),
+            'last_export_path' => $schema->string()->nullable()->required(),
+            'last_export_at' => $schema->string()->nullable()->required(),
+            'created_at' => $schema->string()->required(),
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */

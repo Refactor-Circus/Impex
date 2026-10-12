@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Run\Actions\ListRunsAction;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunsData;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Http\Requests\Request;
@@ -19,12 +20,12 @@ final class IndexRunsRequest extends Request
 
     public function rules(): array
     {
-        return ListRunsAction::rules();
+        return ListRunsData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $runs = app(ListRunsAction::class)->execute($this->validated(), $this->actor());
+        $runs = app(ListRunsAction::class)->execute(ListRunsData::fromValidated($this->validated()), $this->actor());
 
         return RunResource::collection($runs)->response();
     }

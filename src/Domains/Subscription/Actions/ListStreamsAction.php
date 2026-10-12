@@ -14,14 +14,6 @@ final class ListStreamsAction
     public function __construct(private readonly StreamRegistry $streams) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
-    /**
      * What a subscriber can follow, and how.
      *
      * @return array<int, array<string, mixed>>

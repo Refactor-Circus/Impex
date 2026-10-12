@@ -15,11 +15,6 @@ final class DeleteRunOwnerRequest extends RunRequest
         return $this->allows('delete', $this->owner());
     }
 
-    public function rules(): array
-    {
-        return DetachRunOwnerAction::rules();
-    }
-
     public function persist(): Response
     {
         app(DetachRunOwnerAction::class)->execute($this->run(), $this->owner());

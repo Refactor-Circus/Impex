@@ -5,18 +5,19 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('impex_signals', function (Blueprint $table): void {
+        Schema::create(Tables::name('signals'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('run_id')->constrained('impex_runs')->cascadeOnDelete();
+            $table->foreignUlid('run_id')->constrained(Tables::name('runs'))->cascadeOnDelete();
             $table->string('name', 191);
             $table->json('payload')->nullable();
             $table->foreignUlid('payload_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             $table->string('idempotency_key', 191)->nullable();
             $table->timestamp('delivered_at');
             $table->timestamp('consumed_at')->nullable();
@@ -32,9 +33,9 @@ return new class extends Migration
         // SQS caps message delay at 15 minutes, so a workflow that waits a day
         // for a signal cannot be expressed as a delayed job. Long waits become
         // rows here, swept once a minute by `impex:tick`.
-        Schema::create('impex_timers', function (Blueprint $table): void {
+        Schema::create(Tables::name('timers'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
-            $table->foreignUlid('run_id')->constrained('impex_runs')->cascadeOnDelete();
+            $table->foreignUlid('run_id')->constrained(Tables::name('runs'))->cascadeOnDelete();
             $table->string('phase', 16)->nullable();
             $table->unsignedInteger('sequence')->nullable();
             $table->string('kind', 32);
@@ -50,7 +51,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_timers');
-        Schema::dropIfExists('impex_signals');
+        Schema::dropIfExists(Tables::name('timers'));
+        Schema::dropIfExists(Tables::name('signals'));
     }
 };

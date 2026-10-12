@@ -22,21 +22,21 @@ class SubscriptionPolicy extends Policy
 
     public function view(Model $user, SubscriptionModel $subscription): bool
     {
-        return $this->allowsOn($user, 'view', $subscription->subscriber);
+        return $this->allowsOnParent($user, 'view', $subscription->subscriber);
     }
 
     public function create(Model $user, SubscriberModel $subscriber): bool
     {
-        return $this->allowsOn($user, 'update', $subscriber);
+        return $this->allowsOnParent($user, 'update', $subscriber);
     }
 
     public function update(Model $user, SubscriptionModel $subscription): bool
     {
-        return $this->allowsOn($user, 'update', $subscription->subscriber);
+        return $this->allowsOnParent($user, 'update', $subscription->subscriber);
     }
 
     public function delete(Model $user, SubscriptionModel $subscription): bool
     {
-        return $this->allowsOn($user, 'update', $subscription->subscriber);
+        return $this->allowsOnParent($user, 'update', $subscription->subscriber);
     }
 }

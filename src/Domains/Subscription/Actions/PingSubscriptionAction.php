@@ -17,14 +17,6 @@ final class PingSubscriptionAction
     public function __construct(private readonly Dispatcher $dispatcher) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
-    /**
      * Send an empty, signed `ping` to the subscription's endpoint, so a
      * subscriber can check their receiver before real events arrive.
      */

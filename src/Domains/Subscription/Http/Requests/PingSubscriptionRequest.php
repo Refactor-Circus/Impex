@@ -9,11 +9,6 @@ use RefactorCircus\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
 
 final class PingSubscriptionRequest extends SubscriptionRequest
 {
-    public function rules(): array
-    {
-        return PingSubscriptionAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         $receipt = app(PingSubscriptionAction::class)->execute($this->subscription());

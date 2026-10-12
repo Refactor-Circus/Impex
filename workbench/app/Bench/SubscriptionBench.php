@@ -10,10 +10,13 @@ use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriberData;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Services\Detector;
 use RefactorCircus\Impex\Domains\Subscription\Services\Dispatcher;
 use RefactorCircus\Impex\Impex;
+use RefactorCircus\Impex\Support\Tables;
 
 /**
  * Measures the subscription pipeline end to end on synthetic data: touching,
@@ -46,8 +49,8 @@ final class SubscriptionBench
         $rows[] = ['Touch '.number_format($subjects), $this->secs($touch), $this->rate($subjects, $touch).' subjects/s', $this->memory()];
 
         $detect = $this->time(fn () => $this->detect());
-        $events = DB::table('impex_events')->count();
-        $routed = DB::table('impex_subscription_events')->count();
+        $events = DB::table(Tables::name('events'))->count();
+        $routed = DB::table(Tables::name('subscription_events'))->count();
         $rows[] = ['Detect (first look)', $this->secs($detect), $this->rate($subjects, $detect).' subjects/s · '.number_format($events).' events · '.number_format($routed).' routed', $this->memory()];
 
         $changes = (int) round($subjects * $changed);
@@ -61,7 +64,7 @@ final class SubscriptionBench
         $rows[] = [
             sprintf('Re-detect (%s changed)', number_format($changes)),
             $this->secs($retouch),
-            $this->rate($subjects, $retouch).' subjects/s · '.number_format(DB::table('impex_events')->count() - $events).' new events',
+            $this->rate($subjects, $retouch).' subjects/s · '.number_format(DB::table(Tables::name('events'))->count() - $events).' new events',
             $this->memory(),
         ];
 
@@ -93,8 +96,8 @@ final class SubscriptionBench
             }
 
             app(CreateSubscriptionAction::class)->execute(
-                app(CreateSubscriberAction::class)->execute(['name' => 'Bench '.$i]),
-                $data,
+                app(CreateSubscriberAction::class)->execute(new CreateSubscriberData(name: 'Bench '.$i)),
+                CreateSubscriptionData::from($data),
             );
         }
     }

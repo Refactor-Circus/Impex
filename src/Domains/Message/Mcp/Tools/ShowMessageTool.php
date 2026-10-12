@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Message\Mcp\Requests\ShowMessageMcpRequest;
+use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one ledger message, including its headers and body preview.')]
@@ -24,5 +25,10 @@ final class ShowMessageTool extends Tool
         return [
             'message' => $schema->string()->description('The message id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return MessageResource::structuredSchema($schema);
     }
 }

@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Flow\Mcp\Requests;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
@@ -21,14 +22,14 @@ final class RunFlowMcpRequest extends Request
 
     protected function rules(): array
     {
-        return RunFlowAction::rules() + [
+        return [
             'flow' => ['required', 'string', 'max:191'],
-        ];
+        ] + RunFlowData::rules();
     }
 
     protected function handle(array $validated): Response|ResponseFactory
     {
-        $run = app(RunFlowAction::class)->execute($this->flow(), $validated, RunTrigger::Mcp, $this->actor());
+        $run = app(RunFlowAction::class)->execute($this->flow(), RunFlowData::fromValidated($validated), RunTrigger::Mcp, $this->actor());
 
         // A reused idempotency key answers with the run it first started,
         // which may belong to someone else.
@@ -36,7 +37,7 @@ final class RunFlowMcpRequest extends Request
             return Response::error('Unauthorized.');
         }
 
-        return Response::structured((new RunResource($run))->resolve());
+        return (new RunResource($run))->toStructuredResponse();
     }
 
     private function flow(): string

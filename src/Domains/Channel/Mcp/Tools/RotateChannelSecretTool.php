@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Channel\Mcp\Requests\RotateChannelSecretMcpRequest;
+use RefactorCircus\Impex\Domains\Channel\Resources\ChannelResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Give a stored channel a new signing secret, keeping the previous one valid until the next rotation. The new secret is returned once.')]
@@ -23,6 +24,13 @@ final class RotateChannelSecretTool extends Tool
     {
         return [
             'channel' => $schema->string()->description('The channel name.')->required(),
+        ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return ChannelResource::structuredSchema($schema) + [
+            'secret' => $schema->string()->description('The new signing secret, returned this once.')->required(),
         ];
     }
 }

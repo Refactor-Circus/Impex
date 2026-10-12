@@ -57,6 +57,17 @@ use Throwable;
  */
 final class Engine
 {
+    /**
+     * @var list<string>
+     */
+    private const array HISTORY_COLUMNS = [
+        'id', 'run_id', 'phase', 'sequence', 'type', 'name', 'status',
+        'input_artifact_id', 'result', 'result_artifact_id', 'error', 'undone',
+        'attempts', 'max_attempts', 'resumptions', 'lease_token', 'leased_until',
+        'undoes_sequence', 'unit_id', 'expires_at', 'queued_at', 'started_at',
+        'completed_at', 'created_at', 'updated_at',
+    ];
+
     public function __construct(
         private readonly Container $container,
         private readonly FlowRegistry $flows,
@@ -487,7 +498,10 @@ final class Engine
     {
         $history = [];
 
-        foreach ($run->forwardSteps()->get() as $step) {
+        // Every column the replay reads, and none it does not: a step's input,
+        // cursor and rollback can each be large and are read only by the job
+        // that executes or undoes that one step.
+        foreach ($run->forwardSteps()->get(self::HISTORY_COLUMNS) as $step) {
             $history[$step->sequence] = $step;
         }
 

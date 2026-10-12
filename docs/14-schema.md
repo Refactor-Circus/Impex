@@ -1,8 +1,9 @@
 # Schema
 
-All tables are ULID-keyed with hardcoded names. Table names are **not**
-configurable: the validation rules on Actions embed literal table names, and a
-configurable connection would silently void every foreign key.
+All tables are ULID-keyed. The names below are the defaults: each can be
+renamed under `impex.tables` before migrating (see
+[Configuration](13-configuration.md#tables)). The connection is not
+configurable: a separate connection would silently void every foreign key.
 
 ## `impex_runs`
 
@@ -26,7 +27,9 @@ One execution of a flow.
 | `queue_connection`, `queue` | per-run routing |
 | `expires_at`, `started_at`, `finished_at` | |
 
-Indexes: `(status, created_at)`, `(flow, status)`, `(parent_run_id)`, and
+Indexes: `(status, created_at)`, `(flow, status)`, `(parent_run_id)`,
+`(status, expires_at)` for the deadline sweep, `(created_at, id)` and
+`(flow, created_at)` for the newest-first listings, and
 `unique(flow, idempotency_key)` (`impex_runs_idempotency_unique`). Scoped to
 the flow because two channels may legitimately deliver the same key to
 different flows; a global unique would make the second a 500. A concurrent
@@ -50,6 +53,8 @@ The replay log.
 | `lease_token`, `leased_until` | claim-before-execute; a lapsed lease is reclaimable |
 | `undoes_sequence` | back-reference from a rollback step |
 | `unit_id` | groups steps declared in one `unit()` block, so a rollback can find a step's peers and apply the group's policy |
+
+Indexes: `(run_id, status)`, and `(status, expires_at)` so the deadline sweep reads only pending and running steps.
 
 `phase` gives rollback its own sequence space, so rollback steps never
 collide with the forward history the replay reads.
@@ -188,7 +193,7 @@ subject however often it is touched: a burst of saves is one look.
 | `revision` | new on every touch |
 | `claimed_revision` | the revision a detector claimed; a row touched again while it was being looked at survives the release |
 | `lease_token`, `leased_until` | the detector's claim |
-| `touched_at` | |
+| `touched_at` | indexed with `stream`: the oldest touches are claimed first |
 
 ### `impex_subject_states`
 
@@ -213,6 +218,7 @@ The sequence. Its auto-increment `id` is every subscriber's cursor.
 | `topics` | bit mask |
 | `payload` | an append event's data; snapshot events carry none |
 | `batch` | ties a bulk insert's rows to the job that wrote them; indexed |
+| `claimed_at` | when an append event was tagged for fan-out; a tag older than `detection.lease_seconds` is claimable again |
 | `fanned_out_at` | null for an append event not yet fanned out |
 | `occurred_at` | indexed; pruned after `retention.events_days` |
 
@@ -221,6 +227,16 @@ The sequence. Its auto-increment `id` is every subscriber's cursor.
 Who each event goes to: `(subscription_id, event_id)`, the primary key, plus an
 index on `event_id`. Two columns, so fan-out to a hundred subscribers is a
 hundred narrow rows.
+
+### `impex_subscription_holdings`
+
+Which subjects each filtered or listed subscription currently has:
+`(subscription_id, subject_key)`, the primary key. Written as fan-out routes
+events — a subject sent adds a row, one removed or left behind drops it — so
+working out who a subject reached or left reads only the keys in hand. A
+subscription that takes everything has no rows. The migration that creates it
+fills it from each filtered or listed subscription's event history; one that
+took everything and is given a filter or list is filled the same way.
 
 ### `impex_deliveries`
 

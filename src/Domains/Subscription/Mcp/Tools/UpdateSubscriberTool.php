@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriberMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Change a subscriber\'s name, OAuth client, status or metadata.')]
@@ -28,5 +29,10 @@ final class UpdateSubscriberTool extends Tool
             'status' => $schema->string()->enum(['active', 'disabled']),
             'metadata' => $schema->object(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriberResource::structuredSchema($schema);
     }
 }

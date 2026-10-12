@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Services;
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Carbon;
+use RefactorCircus\Impex\Support\Tables;
 
 /**
  * Drops events older than `impex.retention.events_days`, with the rows that
@@ -31,8 +32,8 @@ final class EventPruner
         /** @var int $days */
         $days = $this->config->get('impex.retention.events_days', 30);
 
-        $upTo = $this->db->table('impex_events')->where('occurred_at', '<=', Carbon::now()->subDays($days))->max('id');
-        $from = $this->db->table('impex_events')->min('id');
+        $upTo = $this->db->table(Tables::name('events'))->where('occurred_at', '<=', Carbon::now()->subDays($days))->max('id');
+        $from = $this->db->table(Tables::name('events'))->min('id');
 
         if ($upTo === null || $from === null) {
             return 0;
@@ -43,8 +44,8 @@ final class EventPruner
         for ($low = (int) $from; $low <= (int) $upTo; $low += self::SLICE) {
             $high = min((int) $upTo, $low + self::SLICE - 1);
 
-            $this->db->table('impex_subscription_events')->whereBetween('event_id', [$low, $high])->delete();
-            $deleted += $this->db->table('impex_events')->whereBetween('id', [$low, $high])->delete();
+            $this->db->table(Tables::name('subscription_events'))->whereBetween('event_id', [$low, $high])->delete();
+            $deleted += $this->db->table(Tables::name('events'))->whereBetween('id', [$low, $high])->delete();
         }
 
         return $deleted;

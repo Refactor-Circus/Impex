@@ -9,6 +9,7 @@ use RefactorCircus\Impex\Domains\Subscription\Data\StreamEvent;
 use RefactorCircus\Impex\Domains\Subscription\Enums\EventKind;
 use RefactorCircus\Impex\Domains\Subscription\Enums\StreamKind;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
+use RefactorCircus\Impex\Support\Tables;
 use stdClass;
 
 /**
@@ -36,7 +37,7 @@ final class EventReader
      */
     public function read(SubscriptionModel $subscription, int $after, int $limit): array
     {
-        $ids = $this->db->table('impex_subscription_events')
+        $ids = $this->db->table(Tables::name('subscription_events'))
             ->where('subscription_id', $subscription->id)
             ->where('event_id', '>', $after)
             ->orderBy('event_id')
@@ -49,7 +50,7 @@ final class EventReader
             return [];
         }
 
-        return array_values($this->db->table('impex_events')
+        return array_values($this->db->table(Tables::name('events'))
             ->whereIn('id', $ids)
             ->orderBy('id')
             ->get(['id', 'stream', 'subject_key', 'kind', 'name', 'topics', 'payload', 'occurred_at'])

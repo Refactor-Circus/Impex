@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\CreateSubscriptionMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Subscribe a subscriber to a stream. Give endpoint.url to have events pushed, or leave endpoint out to have them pulled from the feed. Topics default to all. The signing secret is returned once.')]
@@ -30,6 +31,13 @@ final class CreateSubscriptionTool extends Tool
             'subjects' => $schema->array()->items($schema->string())->description('An explicit list of subject keys to follow instead.'),
             'endpoint' => $schema->object()->description('{url} for a webhook, or {transport: mail, to} for mail.'),
             'options' => $schema->object(),
+        ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriptionResource::structuredSchema($schema) + [
+            'secret' => $schema->string()->nullable()->description('The signing secret, returned this once; null for a feed-only subscription.')->required(),
         ];
     }
 }

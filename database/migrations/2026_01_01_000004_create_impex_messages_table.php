@@ -5,15 +5,16 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RefactorCircus\Impex\Support\Tables;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('impex_messages', function (Blueprint $table): void {
+        Schema::create(Tables::name('messages'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->foreignUlid('run_id')->nullable()
-                ->constrained('impex_runs')->nullOnDelete();
+                ->constrained(Tables::name('runs'))->nullOnDelete();
             $table->ulid('step_id')->nullable()->index();
             $table->string('direction', 16);
             $table->string('channel', 191);
@@ -23,7 +24,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('status_code')->nullable();
             $table->json('headers')->nullable();
             $table->foreignUlid('body_artifact_id')->nullable()
-                ->constrained('impex_artifacts')->nullOnDelete();
+                ->constrained(Tables::name('artifacts'))->nullOnDelete();
             // Bodies up to the artifact threshold live here in full; the
             // preview is only what the list view shows.
             $table->longText('body')->nullable();
@@ -55,6 +56,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('impex_messages');
+        Schema::dropIfExists(Tables::name('messages'));
     }
 };

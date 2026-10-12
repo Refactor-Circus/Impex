@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use RefactorCircus\Impex\Database\Factories\ArtifactFactory;
 use RefactorCircus\Impex\Domains\Artifact\Enums\ArtifactKind;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -44,7 +45,10 @@ final class ArtifactModel extends Model
     // orphaned on the disk.
     use Prunable;
 
-    protected $table = 'impex_artifacts';
+    public function getTable(): string
+    {
+        return Tables::name('artifacts');
+    }
 
     protected $fillable = [
         'disk',

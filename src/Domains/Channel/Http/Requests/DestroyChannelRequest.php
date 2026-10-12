@@ -16,11 +16,6 @@ final class DestroyChannelRequest extends Request
         return parent::authorize() && $this->allows('delete', $this->channel());
     }
 
-    public function rules(): array
-    {
-        return DeleteChannelAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         app(DeleteChannelAction::class)->execute($this->channel());

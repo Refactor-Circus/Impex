@@ -14,14 +14,6 @@ final class ExportSubscriptionAction
     public function __construct(private readonly SubscriptionJobs $jobs) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
-    /**
      * Queue a full export of everything the subscription covers. When it is
      * written, the subscription's last_export_path names the file and its
      * cursor has moved past everything the file contains.

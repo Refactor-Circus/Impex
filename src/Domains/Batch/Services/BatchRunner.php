@@ -187,7 +187,7 @@ final class BatchRunner
 
         BatchModel::query()->whereKey($batch->getKey())->increment('succeeded');
 
-        $this->settle((string) $batch->getKey());
+        $this->settleIfDone((string) $batch->getKey());
     }
 
     /**
@@ -215,10 +215,24 @@ final class BatchRunner
     }
 
     /**
-     * Sweep batches whose completion check was throttled away.
-     *
-     * @return int the number finalised
+     * Settle only once the counters say every item is done: one narrow read
+     * per item instead of a lock and the completion query. The item whose
+     * increment completes the count always sees it, so nothing waits on
+     * `impex:tick` for it.
      */
+    private function settleIfDone(string $batchId): void
+    {
+        $counts = BatchModel::query()->whereKey($batchId)->toBase()->first(['seeded', 'total', 'succeeded', 'failed']);
+
+        if ($counts === null || ! (bool) $counts->seeded) {
+            return;
+        }
+
+        if ((int) $counts->succeeded + (int) $counts->failed >= (int) $counts->total) {
+            $this->settle($batchId);
+        }
+    }
+
     /**
      * Give up the item this process is running, because the worker is about
      * to be killed for running past its timeout. The attempt counts, and the
@@ -283,6 +297,11 @@ final class BatchRunner
         return $reclaimed;
     }
 
+    /**
+     * Sweep batches whose completion check was throttled away.
+     *
+     * @return int the number finalised
+     */
     public function sweep(int $limit = 100): int
     {
         $batches = BatchModel::query()
@@ -378,45 +397,47 @@ final class BatchRunner
             return;
         }
 
-        $inserted = 0;
+        foreach (array_chunk($items, 500) as $chunk) {
+            $rows = [];
+            $now = Carbon::now();
 
-        foreach ($items as $item) {
-            $stored = $this->payloads->put($item->payload, ArtifactKind::Payload, [
-                'run_id' => $batch->run_id,
-            ]);
+            foreach ($chunk as $item) {
+                $stored = $this->payloads->put($item->payload, ArtifactKind::Payload, [
+                    'run_id' => $batch->run_id,
+                ]);
+
+                $rows[] = [
+                    'id' => (string) Str::ulid(),
+                    'batch_id' => $batch->getKey(),
+                    'item_key' => $item->key,
+                    'payload' => json_encode($stored['inline']),
+                    'payload_artifact_id' => $stored['artifact_id'],
+                    'status' => StepStatus::Pending->value,
+                    'attempts' => 0,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
 
             // insertOrIgnore against unique(batch_id, item_key): a redelivered
-            // seed writes nothing and dispatches nothing.
-            $created = BatchItemModel::query()->insertOrIgnore([
-                'id' => (string) Str::ulid(),
-                'batch_id' => $batch->getKey(),
-                'item_key' => $item->key,
-                'payload' => json_encode($stored['inline']),
-                'payload_artifact_id' => $stored['artifact_id'],
-                'status' => StepStatus::Pending->value,
-                'attempts' => 0,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-
-            if ($created === 0) {
+            // seed writes nothing and dispatches nothing. The ids are fresh
+            // ULIDs, so whichever of them exist now are the rows this call
+            // wrote.
+            if (BatchItemModel::query()->insertOrIgnore($rows) === 0) {
                 continue;
             }
 
-            $inserted++;
+            $ids = array_column($rows, 'id');
+            $written = array_flip(array_map('strval', BatchItemModel::query()->whereIn('id', $ids)->pluck('id')->all()));
+            $inserted = array_values(array_filter($ids, fn (string $id): bool => isset($written[$id])));
 
-            $row = BatchItemModel::query()
-                ->where('batch_id', $batch->getKey())
-                ->where('item_key', $item->key)
-                ->first();
-
-            if ($row instanceof BatchItemModel) {
-                $this->jobs->batchItem($batch->run, (string) $row->getKey());
+            if ($inserted === []) {
+                continue;
             }
-        }
 
-        if ($inserted > 0) {
-            BatchModel::query()->whereKey($batch->getKey())->increment('total', $inserted);
+            BatchModel::query()->whereKey($batch->getKey())->increment('total', count($inserted));
+
+            $this->jobs->batchItems($batch->run, $inserted);
         }
     }
 
@@ -466,7 +487,7 @@ final class BatchRunner
 
         BatchModel::query()->whereKey($batch->getKey())->increment('failed');
 
-        $this->settle((string) $batch->getKey());
+        $this->settleIfDone((string) $batch->getKey());
     }
 
     private function makeSource(BatchModel $batch): BatchSource

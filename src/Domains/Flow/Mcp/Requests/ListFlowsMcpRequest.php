@@ -16,11 +16,6 @@ final class ListFlowsMcpRequest extends Request
         return parent::authorize() && $this->allows('viewAny', FlowOverrideModel::class);
     }
 
-    protected function rules(): array
-    {
-        return ListFlowsAction::rules();
-    }
-
     protected function handle(array $validated): ResponseFactory
     {
         return $this->structuredCollection(app(ListFlowsAction::class)->execute());

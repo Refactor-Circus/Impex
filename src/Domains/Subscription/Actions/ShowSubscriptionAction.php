@@ -10,14 +10,6 @@ use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 
 final class ShowSubscriptionAction
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
     public function execute(SubscriptionModel $subscription): SubscriptionModel
     {
         SubscriptionShowingActionEvent::dispatch($subscription);

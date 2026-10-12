@@ -73,7 +73,7 @@ name through `execute_tools`:
 | `update-subscription-subjects-tool` | Add or remove explicit subject keys |
 | `list-subscription-events-tool` | Read the feed after a cursor |
 | `list-deliveries-tool` | Delivery attempts, newest first |
-| `list-impex-history-tool` | Impex's audit history, newest first. Needs an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed. |
+| `list-impex-history-tool` | Impex's audit history, newest first. Offered only while Impex audits: an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed and `impex.audit.enabled` on. |
 
 Each name is the tool's class name in kebab case (`ListChannelsTool` is
 `list-channels-tool`), as laravel/mcp derives it. Channel tools name a stored
@@ -83,6 +83,19 @@ ids. A subscription's endpoint secret is rotated with
 
 The catalog is `ImpexServer::TOOLS`. The same list is registered with
 [Cortex](../README.md#cortex) when it is installed.
+
+## Structured answers
+
+Every tool that answers with structured content declares its shape as an
+`outputSchema()`, and answers the way the JSON API does: the record under
+`data`, and anything beside it next to it — `secret` from the create and
+rotate tools, `delivered` from `signal-run-tool`. Lists put their rows under
+`data`; the cursor-paginated ones (`list-runs-tool`, `list-messages-tool`,
+`list-subscribers-tool`, `list-subscriptions-tool`, `list-deliveries-tool`)
+add `meta` with `per_page`, `next_cursor` and `prev_cursor`. Pass
+`meta.next_cursor` back as `cursor` for the next page. The feed,
+`list-subscription-events-tool`, keeps the subscriber API's shape: `data`,
+`cursor` (pass it back as `after`) and `has_more`.
 
 ## Server instructions
 

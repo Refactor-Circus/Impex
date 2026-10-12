@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Validation\Rule;
-use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
-use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use Illuminate\Support\Facades\DB;
+use RefactorCircus\Impex\Domains\Channel\Data\CreateChannelData;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelCreatedActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelCreatingActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
@@ -15,7 +14,6 @@ use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Channel\Services\ChannelRegistry;
 use RefactorCircus\Impex\Domains\Channel\Services\TransportManager;
 use RefactorCircus\Impex\Domains\Channel\Support\EndpointGuard;
-use RefactorCircus\Impex\Domains\Message\Enums\Direction;
 
 final class CreateChannelAction
 {
@@ -26,29 +24,10 @@ final class CreateChannelAction
     ) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            // Lowercase, dotted or dashed: the name appears in URLs and on
-            // every ledger row, so it is never renamed once created.
-            'name' => ['required', 'string', 'max:191', 'regex:/^[a-z0-9][a-z0-9._-]*$/', Rule::unique('impex_channels', 'name')],
-            'direction' => ['required', Rule::enum(Direction::class)],
-            'transport' => ['required', 'string', 'max:32'],
-            'status' => ['sometimes', Rule::enum(ChannelStatus::class)],
-            'body_policy' => ['sometimes', Rule::enum(BodyPolicy::class)],
-            'options' => ['sometimes', 'array'],
-            'credentials' => ['sometimes', 'array'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
      * @param  Model|null  $owner  Who the channel belongs to, such as the
      *                             subscriber registering it.
      */
-    public function execute(array $data, ?Model $owner = null): ChannelModel
+    public function execute(CreateChannelData $data, ?Model $owner = null): ChannelModel
     {
         ChannelCreatingActionEvent::dispatch($data, $owner);
 
@@ -59,13 +38,10 @@ final class CreateChannelAction
         return $result;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function perform(array $data, ?Model $owner): ChannelModel
+    private function perform(CreateChannelData $data, ?Model $owner): ChannelModel
     {
-        $name = (string) $data['name'];
-        $transport = (string) $data['transport'];
+        $name = $data->name;
+        $transport = $data->transport;
 
         // A configured channel of the same name would be silently shadowed.
         if (array_key_exists($name, $this->channels->configured())) {
@@ -76,8 +52,7 @@ final class CreateChannelAction
             throw ChannelUnavailableException::unknownTransport($name, $transport);
         }
 
-        /** @var array<string, mixed> $options */
-        $options = $data['options'] ?? [];
+        $options = $data->options;
 
         // An outside party's endpoint is checked before it is ever stored, so
         // a bad URL is refused to the person entering it, not discovered at
@@ -86,17 +61,17 @@ final class CreateChannelAction
             $this->guard->resolve($options['url'], config('impex.outbound.allow_insecure') === true);
         }
 
-        $channel = ChannelModel::query()->create([
+        $channel = DB::transaction(fn (): ChannelModel => ChannelModel::query()->create([
             'name' => $name,
-            'direction' => $data['direction'],
+            'direction' => $data->direction,
             'transport' => $transport,
-            'status' => $data['status'] ?? ChannelStatus::Active,
-            'body_policy' => $data['body_policy'] ?? BodyPolicy::All,
+            'status' => $data->status,
+            'body_policy' => $data->bodyPolicy,
             'options' => $options === [] ? null : $options,
-            'credentials' => $data['credentials'] ?? null,
+            'credentials' => $data->credentials,
             'owner_type' => $owner?->getMorphClass(),
             'owner_id' => $owner === null ? null : (string) $owner->getKey(),
-        ]);
+        ]));
 
         $this->channels->flush();
 

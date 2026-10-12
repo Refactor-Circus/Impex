@@ -25,11 +25,6 @@ final class ShowChannelRequest extends Request
         return ! $stored instanceof ChannelModel || $this->allows('view', $stored);
     }
 
-    public function rules(): array
-    {
-        return ShowChannelAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         return (new ChannelResource(app(ShowChannelAction::class)->execute($this->name())))->response();

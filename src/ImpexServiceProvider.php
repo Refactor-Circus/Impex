@@ -57,11 +57,15 @@ class ImpexServiceProvider extends PackageServiceProvider
 
         $this->registerPolicies();
 
+        // A missing record on an Impex route answers a plain "Not found.".
+        $this->registerNotFoundResponses();
+
         $this->registerAtriumPlugin(ImpexPlugin::class);
 
         $this->registerMcpServer();
 
-        // GET impex/history: Impex's audit entries, once refactor-circus/keen is installed.
+        // GET impex/history: Impex's audit entries, while Impex audits
+        // (refactor-circus/keen installed and impex.audit.enabled on).
         $this->loadHistoryRoutes();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'impex');

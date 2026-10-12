@@ -14,6 +14,9 @@ use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscriptionsAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\UpdateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListDeliveriesData;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListSubscriptionsData;
+use RefactorCircus\Impex\Domains\Subscription\Data\UpdateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
@@ -27,14 +30,14 @@ final class SubscriptionUiController
     {
         $this->authorizeScreen('viewAny', SubscriptionModel::class);
 
-        $filters = $request->validate(ListSubscriptionsAction::rules());
+        $filters = ListSubscriptionsData::from($request->all());
 
         /** @var view-string $view */
         $view = 'impex::ui.subscriptions.index';
 
         return view($view, [
             'subscriptions' => app(ListSubscriptionsAction::class)->execute($filters, null, ScreenAccess::viewer()),
-            'filters' => $filters,
+            'filters' => $request->all(),
             'statuses' => SubscriptionStatus::cases(),
         ]);
     }
@@ -53,25 +56,24 @@ final class SubscriptionUiController
             'topics' => $streams->has($subscription->stream)
                 ? TopicMask::names($streams->get($subscription->stream)->topics(), $subscription->topics)
                 : [],
-            'deliveries' => app(ListDeliveriesAction::class)->execute($subscription, ['per_page' => 20]),
+            'deliveries' => app(ListDeliveriesAction::class)->execute($subscription, new ListDeliveriesData(perPage: 20)),
         ]);
     }
 
     public function pause(SubscriptionModel $subscription): RedirectResponse
     {
-        return $this->update($subscription, ['status' => SubscriptionStatus::Paused->value], 'impex::impex.subscription_paused');
+        return $this->update($subscription, new UpdateSubscriptionData(status: SubscriptionStatus::Paused), 'impex::impex.subscription_paused');
     }
 
     public function resume(SubscriptionModel $subscription): RedirectResponse
     {
-        return $this->update($subscription, ['status' => SubscriptionStatus::Active->value], 'impex::impex.subscription_resumed');
+        return $this->update($subscription, new UpdateSubscriptionData(status: SubscriptionStatus::Active), 'impex::impex.subscription_resumed');
     }
 
     public function replay(Request $request, SubscriptionModel $subscription): RedirectResponse
     {
-        $data = $request->validate(['replay_from' => UpdateSubscriptionAction::rules()['replay_from']]);
-
-        return $this->update($subscription, $data, 'impex::impex.subscription_replaying');
+        // Only the replay point: the form changes nothing else.
+        return $this->update($subscription, UpdateSubscriptionData::from($request->only('replay_from')), 'impex::impex.subscription_replaying');
     }
 
     public function ping(SubscriptionModel $subscription): RedirectResponse
@@ -87,10 +89,7 @@ final class SubscriptionUiController
                 : __('impex::impex.ping_failed', ['error' => (string) ($receipt->error['message'] ?? '')]));
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function update(SubscriptionModel $subscription, array $data, string $message): RedirectResponse
+    private function update(SubscriptionModel $subscription, UpdateSubscriptionData $data, string $message): RedirectResponse
     {
         $this->authorizeScreen('update', $subscription);
 

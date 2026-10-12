@@ -8,7 +8,9 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Impex\Domains\Subscription\Data\ListDeliveriesData;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ListDeliveriesMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\DeliveryResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List a subscription\'s delivery attempts, newest first, with how each went.')]
@@ -24,8 +26,11 @@ final class ListDeliveriesTool extends Tool
         return [
             'subscription' => $schema->string()->description('The subscription id.')->required(),
             'status' => $schema->string()->enum(['succeeded', 'failed']),
-            'cursor' => $schema->string()->description('The next_cursor of the previous page.'),
-            'per_page' => $schema->integer()->min(1)->max(200),
-        ];
+        ] + ListDeliveriesData::pagination()->schema($schema);
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return DeliveryResource::collectionSchema($schema, ListDeliveriesData::pagination());
     }
 }

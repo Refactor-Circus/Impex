@@ -97,12 +97,14 @@ class Impex
 
         // Every trigger respects a paused flow — code, channels and the
         // schedule as well as the API.
-        if (! $this->flows->enabled($slug)) {
+        // The override is read once: it holds both the pause and the defaults.
+        $override = $this->flows->override($slug);
+
+        if (($override->enabled ?? true) === false) {
             throw DisabledFlowException::slug($slug);
         }
 
         $class = $this->flows->class($slug);
-        $override = $this->flows->override($slug);
         $arguments = FlowArguments::withDefaults($class, $arguments, $override->defaults ?? []);
         // Keys are kept rather than flattened: a caller may pass arguments by
         // name, which the engine applies as named arguments, so the names have

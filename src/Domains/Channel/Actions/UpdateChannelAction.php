@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Channel\Actions;
 
-use Illuminate\Validation\Rule;
-use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
-use RefactorCircus\Impex\Domains\Channel\Enums\ChannelStatus;
+use Illuminate\Support\Facades\DB;
+use RefactorCircus\Impex\Domains\Channel\Data\UpdateChannelData;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelUpdatedActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Events\ChannelUpdatingActionEvent;
 use RefactorCircus\Impex\Domains\Channel\Exceptions\ChannelUnavailableException;
@@ -23,27 +22,7 @@ final class UpdateChannelAction
         private readonly EndpointGuard $guard,
     ) {}
 
-    /**
-     * The name and direction are fixed: ledger rows carry the name, and a
-     * channel turned around would leave its history describing the wrong way.
-     *
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'transport' => ['sometimes', 'string', 'max:32'],
-            'status' => ['sometimes', Rule::enum(ChannelStatus::class)],
-            'body_policy' => ['sometimes', Rule::enum(BodyPolicy::class)],
-            'options' => ['sometimes', 'array'],
-            'credentials' => ['sometimes', 'array'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function execute(ChannelModel $channel, array $data): ChannelModel
+    public function execute(ChannelModel $channel, UpdateChannelData $data): ChannelModel
     {
         ChannelUpdatingActionEvent::dispatch($channel, $data);
 
@@ -54,26 +33,21 @@ final class UpdateChannelAction
         return $result;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function perform(ChannelModel $channel, array $data): ChannelModel
+    private function perform(ChannelModel $channel, UpdateChannelData $data): ChannelModel
     {
-        $transport = (string) ($data['transport'] ?? $channel->transport);
+        $transport = is_string($data->transport) ? $data->transport : $channel->transport;
 
         if (! $this->transports->has($transport)) {
             throw ChannelUnavailableException::unknownTransport($channel->name, $transport);
         }
 
-        /** @var array<string, mixed>|null $options */
-        $options = $data['options'] ?? null;
+        $options = is_array($data->options) ? $data->options : null;
 
         if ($channel->owner_type !== null && $transport === 'http' && is_string($options['url'] ?? null) && config('impex.outbound.guard', true) !== false) {
             $this->guard->resolve($options['url'], config('impex.outbound.allow_insecure') === true);
         }
 
-        $channel->fill(array_intersect_key($data, array_flip(['transport', 'status', 'body_policy', 'options', 'credentials'])));
-        $channel->save();
+        DB::transaction(fn (): bool => $channel->fill($data->toArray())->save());
 
         $this->channels->flush();
 

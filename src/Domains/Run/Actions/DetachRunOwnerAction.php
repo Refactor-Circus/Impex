@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Run\Actions;
 
+use Illuminate\Support\Facades\DB;
 use RefactorCircus\Impex\Domains\Run\Events\RunOwnerDetachedActionEvent;
 use RefactorCircus\Impex\Domains\Run\Events\RunOwnerDetachingActionEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
@@ -11,14 +12,6 @@ use RefactorCircus\Impex\Domains\Run\Models\RunOwnerModel;
 
 final class DetachRunOwnerAction
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
     public function execute(RunModel $run, RunOwnerModel $owner): void
     {
         $ownerType = $owner->owner_type;
@@ -38,6 +31,6 @@ final class DetachRunOwnerAction
             abort(404);
         }
 
-        $owner->delete();
+        DB::transaction(fn (): ?bool => $owner->delete());
     }
 }

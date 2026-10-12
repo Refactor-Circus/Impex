@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriptionAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
@@ -14,7 +15,7 @@ final class StoreSubscriptionRequest extends SubscriptionRequest
 {
     public function rules(): array
     {
-        return CreateSubscriptionAction::rules();
+        return CreateSubscriptionData::rules();
     }
 
     /**
@@ -22,7 +23,7 @@ final class StoreSubscriptionRequest extends SubscriptionRequest
      */
     public function persist(): JsonResponse
     {
-        $created = app(CreateSubscriptionAction::class)->execute($this->owner(), $this->validated());
+        $created = app(CreateSubscriptionAction::class)->execute($this->owner(), CreateSubscriptionData::fromValidated($this->validated()));
 
         return (new SubscriptionResource($created['subscription']))
             ->additional(['secret' => $created['secret']])

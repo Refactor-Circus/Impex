@@ -90,6 +90,7 @@ per-step values override these.
 | `disk` | `null` | Flysystem disk for payloads. Point at S3 on Vapor. `null` uses the app default. |
 | `path` | `'impex'` | Path prefix on that disk. |
 | `inline_threshold` | `65536` | Bytes above which a payload goes to the disk instead of a column. |
+| `memo_bytes` | `16777216` | Bytes of decoded artifact values each process keeps, least recently used out first, so a replay reads a stored result from the disk once rather than on every drive. Artifacts never change once written. `0` turns it off. |
 
 ## `cache`
 
@@ -175,12 +176,34 @@ checking every call against `impex.policies`. Set it to `false` only for a
 trusted operator surface, where the route middleware is the only check. The
 inbound channel endpoints are never user-authorized, and the subscriber API is
 scoped to the calling subscriber rather than checked against these policies.
+A guest is refused with `401`, a signed-in user without the ability with `403`.
+
+## `audit`
+
+| Key | Default | |
+| --- | --- | --- |
+| `enabled` | `true` | Impex keeps no audit log of its own. With refactor-circus/keen installed, Keen records every change Impex makes and Impex shows the history (its Atrium pages, `GET /impex/history`, `list-impex-history-tool`). Set to `false` to keep Impex out of the audit log even while Keen is installed. |
 
 ## `policies`
 
 The policy the Gate uses for each model, keyed by model class. Point a model at
 your own class to replace its policy. See
 [Ownership](08-ownership.md#authorizing-the-api).
+
+## `tables`
+
+The table each of Impex's records is stored in, keyed by a short name
+(`runs` => `impex_runs`, `batch_items` => `impex_batch_items`, ...). Set these
+before running the migrations: the migrations, models, validation rules and
+the engine's own claim, lease and fan-out queries all read them. A published
+config that lists only some tables keeps the defaults for the rest.
+
+```php
+'tables' => [
+    'runs' => 'workflow_runs',
+    'run_steps' => 'workflow_run_steps',
+],
+```
 
 ## `routes`
 
@@ -293,8 +316,8 @@ with `Impex::streams()->register()`. See [Subscriptions](19-subscriptions.md).
 | `queue.detect.connection`, `queue.detect.queue` | `null` | Where `DetectStream` runs. `null` falls back to `impex.queue`. |
 | `queue.deliver.connection`, `queue.deliver.queue` | `null` | Where `DeliverSubscription` and `ExportSubscription` run. Separate, so a big import cannot hold up deliveries behind it. |
 | `detection.chunk` | `1000` | Touched subjects compared per chunk — one `snapshots()` call, one transaction. Also the append-stream fan-out chunk. |
-| `detection.concurrency` | `1` | Detection jobs per stream, sharing the backlog through leases. |
-| `detection.lease_seconds` | `300` | How long a claimed chunk is held before another worker may take it. |
+| `detection.concurrency` | `1` | Detection jobs per snapshot stream, sharing the backlog through leases; each shard starts a chunk further into it, and one that loses a chunk to another looks again past it. An append stream is fanned out by one of them, so its events stay in order. |
+| `detection.lease_seconds` | `300` | How long a claimed chunk is held before another worker may take it — append-stream events tagged for a fan-out that never finished included. Also how long a queued `DetectStream` holds its place. |
 | `detection.time_budget` | `50` | Seconds one detection job keeps claiming chunks before queuing the next. |
 | `delivery.batch` | `100` | Events per delivery request. |
 | `delivery.time_budget` | `50` | Seconds one delivery job keeps sending batches before queuing the next. |

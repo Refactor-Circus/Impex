@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -25,7 +26,10 @@ final class RunOwnerModel extends Model
     use DispatchesModelEvents;
     use HasUlids;
 
-    protected $table = 'impex_run_owners';
+    public function getTable(): string
+    {
+        return Tables::name('run_owners');
+    }
 
     protected $fillable = [
         'run_id',

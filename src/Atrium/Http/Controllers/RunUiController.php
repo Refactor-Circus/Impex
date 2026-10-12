@@ -10,16 +10,20 @@ use Illuminate\Http\Request;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
+use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Run\Actions\CancelRunAction;
 use RefactorCircus\Impex\Domains\Run\Actions\ListRunsAction;
 use RefactorCircus\Impex\Domains\Run\Actions\ListRunStepsAction;
 use RefactorCircus\Impex\Domains\Run\Actions\RetryRunAction;
+use RefactorCircus\Impex\Domains\Run\Data\CancelRunData;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunsData;
 use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
 use RefactorCircus\Impex\Domains\Run\Enums\RunTrigger;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 use RefactorCircus\Impex\Domains\Signal\Actions\SignalRunAction;
+use RefactorCircus\Impex\Domains\Signal\Data\SignalRunData;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 
 /**
@@ -36,14 +40,14 @@ final class RunUiController
 
         // Filters are validated by the Action's own rules, so the page and the
         // JSON API accept exactly the same query.
-        $filters = $request->validate(ListRunsAction::rules());
+        $filters = ListRunsData::from($request->all());
 
         /** @var view-string $view */
         $view = 'impex::ui.runs.index';
 
         return view($view, [
             'runs' => app(ListRunsAction::class)->execute($filters, ScreenAccess::viewer()),
-            'filters' => $filters,
+            'filters' => $request->all(),
             'statuses' => RunStatus::cases(),
             'triggers' => RunTrigger::cases(),
         ]);
@@ -62,7 +66,7 @@ final class RunUiController
                 ? app(ListRunStepsAction::class)->execute($run)
                 : collect(),
             'messages' => ScreenAccess::allows('viewAny', MessageModel::class)
-                ? app(ListMessagesAction::class)->execute(['run' => $run->getKey()], ScreenAccess::viewer())
+                ? app(ListMessagesAction::class)->execute(new ListMessagesData(run: $run->id), ScreenAccess::viewer())
                 : collect(),
         ]);
     }
@@ -71,9 +75,9 @@ final class RunUiController
     {
         $this->authorizeScreen('cancel', $run);
 
-        app(CancelRunAction::class)->execute($run, [
-            'reason' => __('impex::impex.cancelled_from_dashboard'),
-        ]);
+        app(CancelRunAction::class)->execute($run, new CancelRunData(
+            reason: __('impex::impex.cancelled_from_dashboard'),
+        ));
 
         return redirect()
             ->route('atrium.impex.runs.show', $run)
@@ -95,16 +99,16 @@ final class RunUiController
     {
         $this->authorizeScreen('create', SignalModel::class, [$run]);
 
-        $data = $request->validate(SignalRunAction::rules());
+        $input = $request->all();
 
         // A payload arrives from the form as a JSON string.
-        if (is_string($data['payload'] ?? null)) {
-            $decoded = json_decode($data['payload'], true);
+        if (is_string($input['payload'] ?? null)) {
+            $decoded = json_decode($input['payload'], true);
 
-            $data['payload'] = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+            $input['payload'] = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
         }
 
-        $signal = app(SignalRunAction::class)->execute($run, $data);
+        $signal = app(SignalRunAction::class)->execute($run, SignalRunData::from($input));
 
         return redirect()
             ->route('atrium.impex.runs.show', $run)

@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ShowSubscriberMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriberResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one subscriber and how many subscriptions it has.')]
@@ -24,5 +25,10 @@ final class ShowSubscriberTool extends Tool
         return [
             'subscriber' => $schema->string()->description('The subscriber id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriberResource::structuredSchema($schema);
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Flow\Events\FlowRanActionEvent;
 use RefactorCircus\Impex\Domains\Flow\Events\FlowRunningActionEvent;
 use RefactorCircus\Impex\Domains\Flow\Exceptions\UnknownFlowException;
@@ -13,6 +14,11 @@ use RefactorCircus\Impex\Domains\Run\Actions\ShowRunAction;
 use RefactorCircus\Impex\Domains\Run\Events\RunCreatingEvent;
 use RefactorCircus\Impex\Domains\Run\Events\RunShownActionEvent;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
+use RefactorCircus\Impex\Domains\Subscription\Actions\CreateSubscriberAction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriberData;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberCreatedActionEvent;
+use RefactorCircus\Impex\Domains\Subscription\Events\SubscriberCreatedEvent;
+use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Tests\Fixtures\Calls;
 use RefactorCircus\Impex\Tests\Fixtures\LinearFlow;
 use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
@@ -65,7 +71,7 @@ it('maps every Eloquent hook of every model to its own event', function (): void
 it('fires model events as a run executes', function (): void {
     $seen = recordImpexEvents(ModelLifecycleEvent::class);
 
-    $run = app(RunFlowAction::class)->execute('linear', ['arguments' => [1]]);
+    $run = app(RunFlowAction::class)->execute('linear', new RunFlowData(arguments: [1]));
     RunModel::query()->find($run->getKey());
 
     $fired = collect($seen)
@@ -114,7 +120,7 @@ it('starts and finishes each action, carrying its input and result', function ()
     $starts = recordImpexEvents(ActionStartingEvent::class);
     $finishes = recordImpexEvents(ActionFinishedEvent::class);
 
-    $run = app(RunFlowAction::class)->execute('linear', ['arguments' => [1]]);
+    $run = app(RunFlowAction::class)->execute('linear', new RunFlowData(arguments: [1]));
     app(ShowRunAction::class)->execute($run);
     app(ListFlowsAction::class)->execute();
 
@@ -144,10 +150,38 @@ it('finishes an action only once the transaction around it commits', function ()
     $finishes = recordImpexEvents(FlowRanActionEvent::class);
 
     DB::transaction(function () use ($finishes): void {
-        app(RunFlowAction::class)->execute('linear', ['arguments' => [1]]);
+        app(RunFlowAction::class)->execute('linear', new RunFlowData(arguments: [1]));
 
         expect($finishes)->toHaveCount(0);
     });
 
     expect($finishes)->toHaveCount(1);
+});
+
+it('fires no finished event when the write it wraps rolls back', function (): void {
+    $finishes = recordImpexEvents(SubscriberCreatedActionEvent::class);
+
+    // Inside the action's own transaction.
+    Event::listen(SubscriberCreatedEvent::class, function (): never {
+        throw new RuntimeException('rolled back');
+    });
+
+    expect(fn (): SubscriberModel => app(CreateSubscriberAction::class)->execute(new CreateSubscriberData(name: 'Vendor')))
+        ->toThrow(RuntimeException::class, 'rolled back');
+
+    Event::forget(SubscriberCreatedEvent::class);
+
+    // Around the action, after it returned.
+    try {
+        DB::transaction(function (): void {
+            app(CreateSubscriberAction::class)->execute(new CreateSubscriberData(name: 'Vendor'));
+
+            throw new RuntimeException('rolled back');
+        });
+    } catch (RuntimeException) {
+        //
+    }
+
+    expect($finishes)->toHaveCount(0)
+        ->and(SubscriberModel::query()->count())->toBe(0);
 });

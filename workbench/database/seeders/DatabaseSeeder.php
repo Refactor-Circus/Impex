@@ -10,14 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
+use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
 use RefactorCircus\Impex\Domains\Run\Actions\AttachRunOwnerAction;
 use RefactorCircus\Impex\Domains\Run\Actions\CancelRunAction;
+use RefactorCircus\Impex\Domains\Run\Data\AttachRunOwnerData;
+use RefactorCircus\Impex\Domains\Run\Data\CancelRunData;
 use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
 use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Run\Models\RunStepModel;
 use RefactorCircus\Impex\Domains\Run\Services\Engine;
 use RefactorCircus\Impex\Domains\Signal\Actions\SignalRunAction;
+use RefactorCircus\Impex\Domains\Signal\Data\SignalRunData;
 use Workbench\Database\Factories\UserFactory;
 
 /**
@@ -57,11 +61,11 @@ class DatabaseSeeder extends Seeder
             // A clean import, shared with a colleague.
             $at('2 days');
             $september = $this->start('customer-import', ['customers-2026-09.csv'], $ada);
-            app(AttachRunOwnerAction::class)->execute($september, [
-                'owner_type' => $grace->getMorphClass(),
-                'owner_id' => (string) $grace->getKey(),
-                'role' => 'viewer',
-            ]);
+            app(AttachRunOwnerAction::class)->execute($september, new AttachRunOwnerData(
+                ownerType: $grace->getMorphClass(),
+                ownerId: (string) $grace->getKey(),
+                role: 'viewer',
+            ));
 
             // The CRM refuses a malformed address: the import is undone and
             // the run fails.
@@ -87,7 +91,7 @@ class DatabaseSeeder extends Seeder
             $at('20 hours');
             $withdrawn = $this->start('purchase-approval', ['PO-1041', 'Globex', 7650], $ada);
             $at('19 hours');
-            app(CancelRunAction::class)->execute($withdrawn, ['reason' => 'The supplier withdrew the quote.']);
+            app(CancelRunAction::class)->execute($withdrawn, new CancelRunData(reason: 'The supplier withdrew the quote.'));
 
             // Upstream traffic: a signed supplier feed starts a run, a forged
             // copy is refused, a storefront webhook is only recorded, and the
@@ -155,7 +159,7 @@ class DatabaseSeeder extends Seeder
      */
     private function start(string $flow, array $arguments, Model $owner): RunModel
     {
-        return app(RunFlowAction::class)->execute($flow, ['arguments' => $arguments], owner: $owner);
+        return app(RunFlowAction::class)->execute($flow, new RunFlowData(arguments: $arguments), owner: $owner);
     }
 
     /**
@@ -173,7 +177,7 @@ class DatabaseSeeder extends Seeder
      */
     private function signal(RunModel $run, array $payload): void
     {
-        app(SignalRunAction::class)->execute($run, ['name' => 'approval', 'payload' => $payload]);
+        app(SignalRunAction::class)->execute($run, new SignalRunData(name: 'approval', payload: $payload));
     }
 
     /**

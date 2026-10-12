@@ -13,6 +13,7 @@ use RefactorCircus\Impex\Database\Factories\RunStepFactory;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Run\Enums\StepStatus;
 use RefactorCircus\Impex\Domains\Run\Enums\StepType;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -52,7 +53,10 @@ final class RunStepModel extends Model
 
     use HasUlids;
 
-    protected $table = 'impex_run_steps';
+    public function getTable(): string
+    {
+        return Tables::name('run_steps');
+    }
 
     protected $fillable = [
         'run_id',

@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Run\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Run\Data\AttachRunOwnerData;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
@@ -17,11 +18,8 @@ final class RunOwnerAttachingActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
         public RunModel $run,
-        public array $data,
+        public AttachRunOwnerData $data,
     ) {}
 }

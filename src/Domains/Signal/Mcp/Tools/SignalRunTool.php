@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Signal\Mcp\Requests\SignalRunMcpRequest;
+use RefactorCircus\Impex\Domains\Signal\Resources\SignalResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Deliver a signal to a run. Accepted by any unfinished run - pending, running, or waiting - and a signal sent before the run reaches its wait is held, not lost. Signalling a finished run is an error unless if_running is set.')]
@@ -27,6 +28,15 @@ final class SignalRunTool extends Tool
             'payload' => $schema->object()->description('Data handed to the flow when it resumes.'),
             'idempotency_key' => $schema->string()->description('Reusing a key will not deliver the signal twice.'),
             'if_running' => $schema->boolean()->description('Treat an already-finished run as a no-op instead of an error.'),
+        ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'data' => $schema->object(SignalResource::schema($schema))->nullable()->description('The signal; null when nothing was delivered.')->required(),
+            'delivered' => $schema->boolean()->description('False when if_running was set and the run had finished.')->required(),
+            'reason' => $schema->string()->description('Why nothing was delivered.'),
         ];
     }
 }

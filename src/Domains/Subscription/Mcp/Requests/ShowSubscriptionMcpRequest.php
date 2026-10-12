@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Domains\Subscription\Mcp\Requests;
 
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ShowSubscriptionAction;
 use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
@@ -18,13 +17,13 @@ final class ShowSubscriptionMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return ShowSubscriptionAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
         ];
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        return Response::structured((new SubscriptionResource(app(ShowSubscriptionAction::class)->execute($this->subscription())))->resolve());
+        return (new SubscriptionResource(app(ShowSubscriptionAction::class)->execute($this->subscription())))->toStructuredResponse();
     }
 }

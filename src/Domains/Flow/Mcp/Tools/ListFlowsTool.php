@@ -25,4 +25,16 @@ final class ListFlowsTool extends Tool
 
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'data' => $schema->array()->items($schema->object([
+                'slug' => $schema->string()->required(),
+                'class' => $schema->string()->required(),
+                'enabled' => $schema->boolean()->required(),
+                'schedule' => $schema->string()->nullable()->description('A cron expression, when the flow is scheduled.')->required(),
+            ]))->required(),
+        ];
+    }
 }

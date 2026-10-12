@@ -156,11 +156,7 @@ class ImpexPlugin extends Plugin
                 ->view('impex::ui.widgets.run-status')
                 ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', RunModel::class))
                 ->resolve(fn (): array => [
-                    'counts' => collect(RunStatus::cases())
-                        ->mapWithKeys(fn (RunStatus $status): array => [
-                            $status->value => self::owned(RunModel::query())->where('status', $status)->count(),
-                        ])
-                        ->all(),
+                    'counts' => self::statusCounts(),
                 ]),
 
             WidgetDefinition::make('impex.recent-failures')
@@ -227,6 +223,32 @@ class ImpexPlugin extends Plugin
                     route('atrium.impex.runs.show', $run),
                 )->subtitle($run->status->value)->group(__('impex::impex.runs')))
                 ->all());
+    }
+
+    /**
+     * Runs by status, every status present, in one grouped count.
+     *
+     * @return array<string, int>
+     */
+    private static function statusCounts(): array
+    {
+        $counts = array_fill_keys(array_column(RunStatus::cases(), 'value'), 0);
+
+        $rows = self::owned(RunModel::query())
+            ->toBase()
+            ->select('status')
+            ->selectRaw('count(*) as aggregate')
+            ->groupBy('status')
+            ->get();
+
+        foreach ($rows as $row) {
+            /** @var object{status: string, aggregate: int|string} $row */
+            if (array_key_exists($row->status, $counts)) {
+                $counts[$row->status] = (int) $row->aggregate;
+            }
+        }
+
+        return $counts;
     }
 
     /**

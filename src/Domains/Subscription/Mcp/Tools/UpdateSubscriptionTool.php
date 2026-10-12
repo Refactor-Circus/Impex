@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\UpdateSubscriptionMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Change a subscription. status active resumes a paused or disabled one; replay_from redelivers from that event on.')]
@@ -31,5 +32,10 @@ final class UpdateSubscriptionTool extends Tool
             'replay_from' => $schema->integer()->min(1),
             'endpoint' => $schema->object(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriptionResource::structuredSchema($schema);
     }
 }

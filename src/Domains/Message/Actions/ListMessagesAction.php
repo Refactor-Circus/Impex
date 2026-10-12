@@ -7,8 +7,7 @@ namespace RefactorCircus\Impex\Domains\Message\Actions;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Validation\Rule;
-use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Events\MessagesListedActionEvent;
 use RefactorCircus\Impex\Domains\Message\Events\MessagesListingActionEvent;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
@@ -17,27 +16,10 @@ use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 final class ListMessagesAction
 {
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'direction' => ['sometimes', Rule::enum(Direction::class)],
-            'channel' => ['sometimes', 'string', 'max:191'],
-            'run' => ['sometimes', 'string', 'max:26'],
-            'since' => ['sometimes', 'date'],
-            'until' => ['sometimes', 'date'],
-            'cursor' => ['sometimes', 'nullable', 'string'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:200'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
      * @param  Model|null  $viewer  When given, only messages of runs they own.
      * @return CursorPaginator<int, MessageModel>
      */
-    public function execute(array $filters = [], ?Model $viewer = null): CursorPaginator
+    public function execute(ListMessagesData $filters = new ListMessagesData, ?Model $viewer = null): CursorPaginator
     {
         MessagesListingActionEvent::dispatch($filters, $viewer);
 
@@ -49,11 +31,10 @@ final class ListMessagesAction
     }
 
     /**
-     * @param  array<string, mixed>  $filters
      * @param  Model|null  $viewer  When given, only messages of runs they own.
      * @return CursorPaginator<int, MessageModel>
      */
-    private function perform(array $filters = [], ?Model $viewer = null): CursorPaginator
+    private function perform(ListMessagesData $filters, ?Model $viewer): CursorPaginator
     {
         $query = MessageModel::query()->latest('occurred_at');
 
@@ -65,23 +46,26 @@ final class ListMessagesAction
             });
         }
 
-        foreach (['direction' => 'direction', 'channel' => 'channel', 'run' => 'run_id'] as $filter => $column) {
-            if (isset($filters[$filter])) {
-                $query->where($column, $filters[$filter]);
-            }
+        if ($filters->direction !== null) {
+            $query->where('direction', $filters->direction);
         }
 
-        if (isset($filters['since'])) {
-            $query->where('occurred_at', '>=', $filters['since']);
+        if ($filters->channel !== null) {
+            $query->where('channel', $filters->channel);
         }
 
-        if (isset($filters['until'])) {
-            $query->where('occurred_at', '<=', $filters['until']);
+        if ($filters->run !== null) {
+            $query->where('run_id', $filters->run);
         }
 
-        return $query->cursorPaginate(
-            perPage: isset($filters['per_page']) ? (int) $filters['per_page'] : 25,
-            cursor: is_string($filters['cursor'] ?? null) ? $filters['cursor'] : null,
-        );
+        if ($filters->since !== null) {
+            $query->where('occurred_at', '>=', $filters->since);
+        }
+
+        if ($filters->until !== null) {
+            $query->where('occurred_at', '<=', $filters->until);
+        }
+
+        return $query->cursorPaginate(perPage: $filters->perPage, cursor: $filters->cursor);
     }
 }

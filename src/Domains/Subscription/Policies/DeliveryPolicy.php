@@ -20,6 +20,6 @@ class DeliveryPolicy extends Policy
 
     public function view(Model $user, DeliveryModel $delivery): bool
     {
-        return $this->allowsOn($user, 'view', $delivery->subscription);
+        return $this->allowsOnParent($user, 'view', $delivery->subscription);
     }
 }

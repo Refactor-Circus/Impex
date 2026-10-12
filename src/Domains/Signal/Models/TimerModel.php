@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Run\Enums\StepPhase;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Domains\Signal\Enums\TimerKind;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -29,7 +30,10 @@ final class TimerModel extends Model
     use DispatchesModelEvents;
     use HasUlids;
 
-    protected $table = 'impex_timers';
+    public function getTable(): string
+    {
+        return Tables::name('timers');
+    }
 
     protected $fillable = [
         'run_id',

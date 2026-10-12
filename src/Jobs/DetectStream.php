@@ -19,7 +19,8 @@ use RefactorCircus\Impex\Support\Concerns\UsesConfiguredMiddleware;
  * empty or the time budget is spent — then queues itself again.
  *
  * At most one waits on the queue per stream and shard, however many touches
- * asked for it; several can run at once, sharing the work through leases.
+ * asked for it; several can run at once, sharing a snapshot stream's work
+ * through leases. An append stream is fanned out by shard 0 alone, in order.
  */
 final class DetectStream implements ShouldBeUniqueUntilProcessing, ShouldQueue
 {
@@ -33,6 +34,12 @@ final class DetectStream implements ShouldBeUniqueUntilProcessing, ShouldQueue
 
     public int $timeout = 120;
 
+    /**
+     * Seconds a waiting job holds its place; set from
+     * `impex.subscriptions.detection.lease_seconds` when queued.
+     */
+    public int $uniqueFor = 300;
+
     public function __construct(
         public readonly string $stream,
         public readonly int $shard = 0,
@@ -43,11 +50,21 @@ final class DetectStream implements ShouldBeUniqueUntilProcessing, ShouldQueue
         return $this->stream.':'.$this->shard;
     }
 
+    /**
+     * How long a waiting job holds its place. A job lost on the way to a
+     * worker must not stop detection for good: `impex:tick` queues another
+     * once this lapses.
+     */
+    public function uniqueFor(): int
+    {
+        return $this->uniqueFor;
+    }
+
     public function handle(Detector $detector, SubscriptionJobs $jobs): void
     {
         $deadline = microtime(true) + $detector->timeBudget();
 
-        while ($detector->run($this->stream) > 0) {
+        while ($detector->run($this->stream, $this->shard) > 0) {
             if (microtime(true) >= $deadline) {
                 $jobs->detect($this->stream);
 

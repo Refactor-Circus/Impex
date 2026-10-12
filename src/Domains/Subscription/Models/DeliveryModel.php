@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Subscription\Enums\DeliveryStatus;
+use RefactorCircus\Impex\Support\Tables;
 use RefactorCircus\Keystone\Models\Concerns\DispatchesModelEvents;
 
 /**
@@ -42,7 +43,10 @@ final class DeliveryModel extends Model
 
     public $timestamps = false;
 
-    protected $table = 'impex_deliveries';
+    public function getTable(): string
+    {
+        return Tables::name('deliveries');
+    }
 
     protected $fillable = [
         'subscription_id',

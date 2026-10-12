@@ -18,15 +18,13 @@ final class ListRunOwnersMcpRequest extends RunRequest
 
     protected function rules(): array
     {
-        return ListRunOwnersAction::rules() + [
+        return [
             'run' => ['required', 'string', 'max:26'],
         ];
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        return $this->structuredCollection(
-            RunOwnerResource::collection(app(ListRunOwnersAction::class)->execute($this->run()))->resolve(),
-        );
+        return RunOwnerResource::collection(app(ListRunOwnersAction::class)->execute($this->run()))->toStructuredResponse();
     }
 }

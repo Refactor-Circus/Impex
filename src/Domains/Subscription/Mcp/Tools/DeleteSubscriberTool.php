@@ -25,4 +25,11 @@ final class DeleteSubscriberTool extends Tool
             'subscriber' => $schema->string()->description('The subscriber id.')->required(),
         ];
     }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return [
+            'deleted' => $schema->string()->description('The deleted subscriber\'s id.')->required(),
+        ];
+    }
 }

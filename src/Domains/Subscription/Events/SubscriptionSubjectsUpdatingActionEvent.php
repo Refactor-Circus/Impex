@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Subscription\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Subscription\Data\UpdateSubscriptionSubjectsData;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
@@ -17,11 +18,8 @@ final class SubscriptionSubjectsUpdatingActionEvent implements ActionStartingEve
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
         public SubscriptionModel $subscription,
-        public array $data,
+        public UpdateSubscriptionSubjectsData $data,
     ) {}
 }

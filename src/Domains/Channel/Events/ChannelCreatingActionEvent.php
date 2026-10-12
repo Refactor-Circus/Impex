@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Channel\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Impex\Domains\Channel\Data\CreateChannelData;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
@@ -17,11 +18,8 @@ final class ChannelCreatingActionEvent implements ActionStartingEvent
     use Dispatchable;
     use SerializesModels;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function __construct(
-        public array $data,
+        public CreateChannelData $data,
         public ?Model $owner = null,
     ) {}
 }

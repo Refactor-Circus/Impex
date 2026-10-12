@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ShowRunMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show one run with its owners and its recorded step history.')]
@@ -24,5 +25,10 @@ final class ShowRunTool extends Tool
         return [
             'run' => $schema->string()->description('The run id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunResource::structuredSchema($schema);
     }
 }

@@ -6,10 +6,12 @@ namespace RefactorCircus\Impex\Domains\Subscription\Actions;
 
 use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Validation\Rule;
 use RefactorCircus\Impex\Domains\Channel\Actions\CreateChannelAction;
+use RefactorCircus\Impex\Domains\Channel\Data\CreateChannelData;
+use RefactorCircus\Impex\Domains\Channel\Enums\BodyPolicy;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Impex\Domains\Message\Enums\Direction;
+use RefactorCircus\Impex\Domains\Subscription\Data\CreateSubscriptionData;
 use RefactorCircus\Impex\Domains\Subscription\Enums\SubscriptionStatus;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionCreatedActionEvent;
 use RefactorCircus\Impex\Domains\Subscription\Events\SubscriptionCreatingActionEvent;
@@ -17,6 +19,7 @@ use RefactorCircus\Impex\Domains\Subscription\Models\SubscriberModel;
 use RefactorCircus\Impex\Domains\Subscription\Models\SubscriptionModel;
 use RefactorCircus\Impex\Domains\Subscription\Services\StreamRegistry;
 use RefactorCircus\Impex\Domains\Subscription\Support\SubscriptionSettings;
+use RefactorCircus\Impex\Support\Tables;
 
 final class CreateSubscriptionAction
 {
@@ -29,41 +32,16 @@ final class CreateSubscriptionAction
     ) {}
 
     /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
-            'stream' => ['required', 'string', 'max:191'],
-            'topics' => ['sometimes', 'array'],
-            'topics.*' => ['string', 'max:64'],
-            'format' => ['sometimes', 'string', 'max:32'],
-            'filter' => ['sometimes', 'nullable', 'array'],
-            'subjects' => ['sometimes', 'array', 'max:10000'],
-            'subjects.*' => ['string', 'max:191'],
-            'options' => ['sometimes', 'array'],
-            // Where to push. Leave it out for a feed-only subscription.
-            'endpoint' => ['sometimes', 'nullable', 'array'],
-            'endpoint.transport' => ['sometimes', Rule::in(['http', 'mail'])],
-            'endpoint.url' => ['exclude_without:endpoint', 'required_without:endpoint.to', 'nullable', 'url', 'max:2048'],
-            'endpoint.to' => ['sometimes', 'nullable', 'string', 'max:1024'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
      * @return array{subscription: SubscriptionModel, secret: string|null} The
      *                                                                     signing secret, returned this once.
      */
-    public function execute(SubscriberModel $subscriber, array $data): array
+    public function execute(SubscriberModel $subscriber, CreateSubscriptionData $data): array
     {
         SubscriptionCreatingActionEvent::dispatch($subscriber, $data);
 
-        $stream = $this->streams->get((string) $data['stream']);
-        $settings = $this->settings->resolve($stream, $data);
-
-        /** @var array<string, mixed>|null $endpoint */
-        $endpoint = $data['endpoint'] ?? null;
+        $stream = $this->streams->get($data->stream);
+        $settings = $this->settings->resolve($stream, $data->toArray());
+        $endpoint = $data->endpoint;
         $secret = $endpoint === null ? null : 'whsec_'.base64_encode(random_bytes(32));
 
         $subscription = $this->db->transaction(function () use ($subscriber, $stream, $settings, $data, $endpoint, $secret): SubscriptionModel {
@@ -71,7 +49,7 @@ final class CreateSubscriptionAction
                 'subscriber_id' => $subscriber->id,
                 'stream' => $stream->key(),
                 'status' => SubscriptionStatus::Active,
-                'options' => $data['options'] ?? null,
+                'options' => $data->options,
                 ...$settings,
             ]);
 
@@ -80,11 +58,8 @@ final class CreateSubscriptionAction
                 $subscription->save();
             }
 
-            /** @var list<string> $subjects */
-            $subjects = $data['subjects'] ?? [];
-
-            foreach (array_chunk(array_values(array_unique($subjects)), 1000) as $chunk) {
-                $this->db->table('impex_subscription_subjects')->insertOrIgnore(array_map(
+            foreach (array_chunk(array_values(array_unique($data->subjects)), 1000) as $chunk) {
+                $this->db->table(Tables::name('subscription_subjects'))->insertOrIgnore(array_map(
                     fn (string $key): array => ['subscription_id' => $subscription->id, 'subject_key' => $key],
                     $chunk,
                 ));
@@ -109,17 +84,20 @@ final class CreateSubscriptionAction
     {
         $transport = is_string($endpoint['transport'] ?? null) ? $endpoint['transport'] : 'http';
 
-        return $this->channels->execute([
-            'name' => 'subscription-'.$subscription->id,
-            'direction' => Direction::Outbound->value,
-            'transport' => $transport,
-            'body_policy' => $this->config->get('impex.subscriptions.body_policy', 'failures'),
-            'options' => array_filter([
+        /** @var BodyPolicy|string $policy */
+        $policy = $this->config->get('impex.subscriptions.body_policy', 'failures');
+
+        return $this->channels->execute(new CreateChannelData(
+            name: 'subscription-'.$subscription->id,
+            direction: Direction::Outbound,
+            transport: $transport,
+            bodyPolicy: $policy instanceof BodyPolicy ? $policy : BodyPolicy::from($policy),
+            options: array_filter([
                 'url' => $endpoint['url'] ?? null,
                 'to' => $endpoint['to'] ?? null,
                 'gzip' => $this->config->get('impex.subscriptions.delivery.gzip', false) === true ? true : null,
             ], fn (mixed $value): bool => $value !== null),
-            'credentials' => ['signing_secret' => $secret],
-        ], $subscriber);
+            credentials: ['signing_secret' => $secret],
+        ), $subscriber);
     }
 }

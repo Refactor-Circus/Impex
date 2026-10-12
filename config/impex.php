@@ -172,6 +172,10 @@ return [
         'disk' => null,
         'path' => 'impex',
         'inline_threshold' => 65536,
+        // How many bytes of decoded artifact values each process keeps, so a
+        // replay reads a stored result from the disk once, not every drive.
+        // Artifacts never change once written. Zero turns it off.
+        'memo_bytes' => 16777216,
     ],
 
     /*
@@ -341,6 +345,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auditing
+    |--------------------------------------------------------------------------
+    |
+    | Impex keeps no audit log of its own. With refactor-circus/keen
+    | installed, Keen records every change Impex makes, and Impex shows the
+    | history on its Atrium pages, its `GET /impex/history` route and its
+    | history MCP tool. Without Keen none of that exists.
+    |
+    | enabled: Set to false to keep Impex out of the audit log even while
+    |          Keen is installed: Keen records nothing of Impex's, and Impex
+    |          offers no history.
+    |
+    */
+
+    'audit' => [
+        'enabled' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -368,6 +392,41 @@ return [
         DeliveryModel::class => DeliveryPolicy::class,
         ArtifactModel::class => ArtifactPolicy::class,
         FlowOverrideModel::class => FlowOverridePolicy::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tables
+    |--------------------------------------------------------------------------
+    |
+    | The table each of Impex's records is stored in. Set these before running
+    | the migrations: the migrations, models, validation rules and the
+    | engine's own claim, lease and fan-out queries all read them. Keys left
+    | out keep their default.
+    |
+    */
+
+    'tables' => [
+        'artifacts' => 'impex_artifacts',
+        'runs' => 'impex_runs',
+        'run_steps' => 'impex_run_steps',
+        'run_owners' => 'impex_run_owners',
+        'signals' => 'impex_signals',
+        'timers' => 'impex_timers',
+        'messages' => 'impex_messages',
+        'flows' => 'impex_flows',
+        'batches' => 'impex_batches',
+        'batch_items' => 'impex_batch_items',
+        'channels' => 'impex_channels',
+        'subscribers' => 'impex_subscribers',
+        'subscriptions' => 'impex_subscriptions',
+        'subscription_subjects' => 'impex_subscription_subjects',
+        'stream_touches' => 'impex_stream_touches',
+        'subject_states' => 'impex_subject_states',
+        'events' => 'impex_events',
+        'subscription_events' => 'impex_subscription_events',
+        'subscription_holdings' => 'impex_subscription_holdings',
+        'deliveries' => 'impex_deliveries',
     ],
 
     /*

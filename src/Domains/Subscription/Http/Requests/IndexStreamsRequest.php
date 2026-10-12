@@ -9,11 +9,6 @@ use RefactorCircus\Impex\Domains\Subscription\Actions\ListStreamsAction;
 
 final class IndexStreamsRequest extends SubscriptionRequest
 {
-    public function rules(): array
-    {
-        return ListStreamsAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         return new JsonResponse(['data' => app(ListStreamsAction::class)->execute()]);

@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Subscription\Mcp\Requests\ExportSubscriptionMcpRequest;
+use RefactorCircus\Impex\Domains\Subscription\Resources\SubscriptionResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Queue a full export of everything a subscription covers, for a subscriber starting from scratch.')]
@@ -24,5 +25,10 @@ final class ExportSubscriptionTool extends Tool
         return [
             'subscription' => $schema->string()->description('The subscription id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return SubscriptionResource::structuredSchema($schema);
     }
 }

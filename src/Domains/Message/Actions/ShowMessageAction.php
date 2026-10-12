@@ -10,14 +10,6 @@ use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 
 final class ShowMessageAction
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [];
-    }
-
     public function execute(MessageModel $message): MessageModel
     {
         MessageShowingActionEvent::dispatch($message);

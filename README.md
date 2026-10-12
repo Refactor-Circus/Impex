@@ -469,6 +469,10 @@ and messages follow it. Replace a policy by pointing its model at your own
 class. Set it to `false` only for a trusted operator surface. The inbound
 channel endpoints stay signature-authenticated, never user-authorized. See [Ownership](docs/08-ownership.md#authorizing-the-api).
 
+Every table name is configurable under `impex.tables`, keyed by a short name
+(`'runs' => 'impex_runs'`). Rename before running the migrations; a published
+config that lists only some tables keeps the defaults for the rest.
+
 ## MCP
 
 The same operations over MCP as over HTTP. Both surfaces call one Action, so
@@ -742,7 +746,7 @@ Every action dispatches two events:
 - **Start:** `…ingActionEvent`, before any work. It carries the input.
 - **Finish:** `…edActionEvent`, after the surrounding transaction commits and only on success. It carries the result.
 
-An action that throws fires its start event only. Each action and its two events live in the same domain: `RefactorCircus\Impex\Domains\{Domain}\Actions` and `RefactorCircus\Impex\Domains\{Domain}\Events`.
+An action that throws fires its start event only. Each action does its writes in one database transaction, so one that fails part-way leaves nothing behind. Each action and its two events live in the same domain: `RefactorCircus\Impex\Domains\{Domain}\Actions` and `RefactorCircus\Impex\Domains\{Domain}\Events`.
 
 Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it does not clash with the engine's `RunStarted`. `FlowRan` marks the run being accepted. `RunStarted` marks it actually beginning, later, on the queue.
 

@@ -6,12 +6,15 @@ use Laravel\Ai\Contracts\Tool as AgentTool;
 use Laravel\Ai\Tools\Request;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Cortex\Domains\McpServer\Actions\CreateMcpInstructionVersionAction;
+use RefactorCircus\Cortex\Domains\McpServer\Data\CreateMcpInstructionVersionData;
 use RefactorCircus\Cortex\Domains\McpServer\Services\McpServerRegistry;
 use RefactorCircus\Cortex\Domains\Tool\Actions\CreateToolDescriptionVersionAction;
+use RefactorCircus\Cortex\Domains\Tool\Data\CreateToolDescriptionVersionData;
 use RefactorCircus\Cortex\Domains\Tool\Services\ToolRegistry;
 use RefactorCircus\Impex\Domains\Run\Mcp\Tools\ListRunsTool;
 use RefactorCircus\Impex\Mcp\ImpexServer;
 use RefactorCircus\Keystone\Cortex\CortexIntegration;
+use RefactorCircus\Keystone\Mcp\Server;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 it('registers the MCP server with Cortex', function (): void {
@@ -22,13 +25,14 @@ it('registers the MCP server with Cortex', function (): void {
         ->and($servers->defaultInstructions('impex'))->toStartWith('Track and control Impex workflows');
 });
 
-it('offers every Impex tool to Cortex agents under its own name', function (): void {
+it('offers every Impex tool to Cortex agents under its own name, the history tool only while Impex audits', function (): void {
     $tools = app(ToolRegistry::class);
 
-    $names = array_map(fn (string $class): string => app($class)->name(), ImpexServer::TOOLS);
+    $names = array_map(fn (string $class): string => app($class)->name(), Server::withoutHistory(ImpexServer::TOOLS));
 
     expect(ImpexServer::TOOLS)->toHaveCount(36)
         ->and(array_diff($names, $tools->names()))->toBe([])
+        ->and($tools->names())->not->toContain('list-impex-history-tool')
         ->and($tools->get('list-runs-tool'))->toBeInstanceOf(AgentTool::class)
         ->and($tools->tagsFor('list-runs-tool'))->toContain('impex');
 });
@@ -45,13 +49,13 @@ it('offers only the tools listed in config', function (): void {
 });
 
 it('serves the instructions published in Cortex', function (): void {
-    app(CreateMcpInstructionVersionAction::class)->execute('impex', ['content' => 'Only retry failed runs.', 'publish' => true]);
+    app(CreateMcpInstructionVersionAction::class)->execute('impex', new CreateMcpInstructionVersionData(content: 'Only retry failed runs.', publish: true));
 
     expect((new ImpexServer(new FakeTransporter))->createContext()->instructions)->toBe('Only retry failed runs.');
 });
 
 it('serves tool descriptions published in Cortex, to MCP clients and agents alike', function (): void {
-    app(CreateToolDescriptionVersionAction::class)->execute('list-runs-tool', ['content' => 'List the runs of our nightly syncs.', 'publish' => true]);
+    app(CreateToolDescriptionVersionAction::class)->execute('list-runs-tool', new CreateToolDescriptionVersionData(content: 'List the runs of our nightly syncs.', publish: true));
 
     expect(app(ListRunsTool::class)->description())->toBe('List the runs of our nightly syncs.')
         ->and(app(ToolRegistry::class)->get('list-runs-tool')->description())->toBe('List the runs of our nightly syncs.');

@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Channel\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
+use RefactorCircus\Impex\Domains\Channel\Data\ListChannelsData;
 use RefactorCircus\Impex\Domains\Channel\Models\ChannelModel;
 use RefactorCircus\Keystone\Mcp\Requests\Request;
 
@@ -18,11 +19,11 @@ final class ListChannelsMcpRequest extends Request
 
     protected function rules(): array
     {
-        return ListChannelsAction::rules();
+        return ListChannelsData::rules();
     }
 
     protected function handle(array $validated): ResponseFactory
     {
-        return $this->structuredCollection(app(ListChannelsAction::class)->execute($validated, $this->actor()));
+        return $this->structuredCollection(app(ListChannelsAction::class)->execute(ListChannelsData::fromValidated($validated), $this->actor()));
     }
 }

@@ -16,6 +16,6 @@ Route::post('subscribers', [SubscriberController::class, 'store'])->name('subscr
 Route::get('subscribers/{subscriber}', [SubscriberController::class, 'show'])->name('subscribers.show');
 Route::patch('subscribers/{subscriber}', [SubscriberController::class, 'update'])->name('subscribers.update');
 Route::delete('subscribers/{subscriber}', [SubscriberController::class, 'destroy'])->name('subscribers.destroy');
-Route::post('subscribers/{subscriber}/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+Route::post('subscribers/{subscriber}/subscriptions', [SubscriptionController::class, 'storeFor'])->name('subscriptions.store');
 
 require __DIR__.'/routes/subscriptions.php';

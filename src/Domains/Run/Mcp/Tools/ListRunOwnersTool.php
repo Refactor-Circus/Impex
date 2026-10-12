@@ -9,6 +9,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ListRunOwnersMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunOwnerResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List the models with a stake in a run, and the role each holds.')]
@@ -24,5 +25,10 @@ final class ListRunOwnersTool extends Tool
         return [
             'run' => $schema->string()->description('The run id.')->required(),
         ];
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunOwnerResource::collectionSchema($schema);
     }
 }

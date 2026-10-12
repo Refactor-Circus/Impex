@@ -17,7 +17,7 @@ final class PingSubscriptionMcpRequest extends SubscriptionMcpRequest
 
     protected function rules(): array
     {
-        return PingSubscriptionAction::rules() + [
+        return [
             'subscription' => ['required', 'string', 'max:26'],
         ];
     }

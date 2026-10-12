@@ -15,11 +15,6 @@ final class ShowRunRequest extends RunRequest
         return $this->allows('view', $this->run());
     }
 
-    public function rules(): array
-    {
-        return ShowRunAction::rules();
-    }
-
     public function persist(): JsonResponse
     {
         return (new RunResource(app(ShowRunAction::class)->execute($this->run())))->response();

@@ -6,6 +6,7 @@ namespace RefactorCircus\Impex\Domains\Message\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
+use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
 use RefactorCircus\Impex\Domains\Message\Resources\MessageResource;
 use RefactorCircus\Keystone\Http\Requests\Request;
@@ -19,12 +20,12 @@ final class IndexMessagesRequest extends Request
 
     public function rules(): array
     {
-        return ListMessagesAction::rules();
+        return ListMessagesData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $messages = app(ListMessagesAction::class)->execute($this->validated(), $this->actor());
+        $messages = app(ListMessagesAction::class)->execute(ListMessagesData::fromValidated($this->validated()), $this->actor());
 
         return MessageResource::collection($messages)->response();
     }

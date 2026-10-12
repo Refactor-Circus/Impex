@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex\Domains\Signal\Http\Requests;
 use Illuminate\Http\JsonResponse;
 use RefactorCircus\Impex\Domains\Run\Http\Requests\RunRequest;
 use RefactorCircus\Impex\Domains\Signal\Actions\SignalRunAction;
+use RefactorCircus\Impex\Domains\Signal\Data\SignalRunData;
 use RefactorCircus\Impex\Domains\Signal\Models\SignalModel;
 use RefactorCircus\Impex\Domains\Signal\Resources\SignalResource;
 
@@ -19,12 +20,12 @@ final class StoreRunSignalRequest extends RunRequest
 
     public function rules(): array
     {
-        return SignalRunAction::rules();
+        return SignalRunData::rules();
     }
 
     public function persist(): JsonResponse
     {
-        $signal = app(SignalRunAction::class)->execute($this->run(), $this->validated());
+        $signal = app(SignalRunAction::class)->execute($this->run(), SignalRunData::fromValidated($this->validated()));
 
         // `if_running` on a finished run is a deliberate no-op, so it answers
         // 200 with nothing delivered rather than 202.

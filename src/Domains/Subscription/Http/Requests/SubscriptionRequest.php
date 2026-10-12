@@ -35,6 +35,16 @@ abstract class SubscriptionRequest extends Request
     abstract protected function allowsOperator(): bool;
 
     /**
+     * A subscriber is authenticated by its credentials, not as a user, so a
+     * subscriber refused another's subscription gets a 403, never the 401
+     * a guest would.
+     */
+    protected function isGuest(): bool
+    {
+        return ! $this->subscriber() instanceof SubscriberModel && parent::isGuest();
+    }
+
+    /**
      * The subscriber calling, on the subscriber API. Null on the operator
      * API.
      */

@@ -8,7 +8,9 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use RefactorCircus\Impex\Domains\Run\Data\ListRunsData;
 use RefactorCircus\Impex\Domains\Run\Mcp\Requests\ListRunsMcpRequest;
+use RefactorCircus\Impex\Domains\Run\Resources\RunResource;
 use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List workflow runs, newest first. Filter by status, flow, trigger, owner, tag, or date range. Cursor paginated.')]
@@ -31,8 +33,11 @@ final class ListRunsTool extends Tool
             'since' => $schema->string()->description('Only runs created at or after this date.'),
             'until' => $schema->string()->description('Only runs created at or before this date.'),
             'parent' => $schema->string()->description('Only child runs of this run id.'),
-            'cursor' => $schema->string()->description('Cursor from a previous page.'),
-            'per_page' => $schema->integer()->description('Results per page, 1-200.')->min(1)->max(200),
-        ];
+        ] + ListRunsData::pagination()->schema($schema);
+    }
+
+    public function outputSchema(JsonSchema $schema): array
+    {
+        return RunResource::collectionSchema($schema, ListRunsData::pagination());
     }
 }
