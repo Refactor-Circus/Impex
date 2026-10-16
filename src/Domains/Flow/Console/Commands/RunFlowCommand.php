@@ -45,12 +45,18 @@ final class RunFlowCommand extends Command
                 $flows = app(Impex::class)->flows();
 
                 if ($flows->has($slug)) {
+                    // The command's own definition, not the merged one: from a
+                    // terminal the application has already merged it, and
+                    // Command::run() rebuilds the merged copy from this one.
+                    $definition = $this->getNativeDefinition();
+
                     foreach (FlowArguments::options($flows->class($slug)) as $option) {
-                        if (! $this->getDefinition()->hasOption($option->getName())) {
-                            $this->getDefinition()->addOption($option);
+                        if (! $definition->hasOption($option->getName())) {
+                            $definition->addOption($option);
                         }
                     }
 
+                    $this->mergeApplicationDefinition();
                     $input->bind($this->getDefinition());
                 }
             } catch (Throwable) {

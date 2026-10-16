@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Console\Kernel;
 use RefactorCircus\Impex\Domains\Run\Enums\RunStatus;
 use RefactorCircus\Impex\Domains\Run\Models\RunModel;
 use RefactorCircus\Impex\Facades\Impex;
 use RefactorCircus\Impex\Tests\Fixtures\TypedArgumentsFlow;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 beforeEach(function (): void {
     config()->set('queue.default', 'sync');
@@ -39,6 +43,31 @@ it('exposes a flow\'s parameters as named options', function (): void {
         'size' => 500,
         'tolerance' => 1.5,
     ]);
+});
+
+it('takes a flow\'s named options from a terminal command line', function (): void {
+    // From a terminal the application merges and binds the command's
+    // definition before running it, unlike $this->artisan(); the options must
+    // survive that.
+    // An event dispatcher is what makes the application merge and bind early.
+    $kernel = $this->app->make(Kernel::class);
+    (fn () => $this->getArtisan())->call($kernel)->setDispatcher(new class implements EventDispatcherInterface
+    {
+        public function dispatch(object $event, ?string $eventName = null): object
+        {
+            return $event;
+        }
+    });
+
+    $output = new BufferedOutput;
+
+    $status = $kernel->handle(
+        new ArgvInput(['artisan', 'impex:run', 'typed', '--initial', '--since=2026-01-01', '--size=500']),
+        $output,
+    );
+
+    expect($status)->toBe(0, $output->fetch())
+        ->and(lastRunResult())->toMatchArray(['since' => '2026-01-01', 'initial' => true, 'size' => 500]);
 });
 
 it('leaves untouched parameters on their declared defaults', function (): void {
