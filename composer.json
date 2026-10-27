@@ -27,8 +27,6 @@
         "laravel/mcp": "^1.0.1"
     },
     "require-dev": {
-        "refactor-circus/cortex": "dev-main",
-        "refactor-circus/pennantplus": "dev-main",
         "larastan/larastan": "^3.13",
         "laravel/pao": "^1.1.5",
         "laravel/pint": "^1.32.1",
@@ -36,7 +34,11 @@
         "pestphp/pest": "^5.3.1",
         "pestphp/pest-plugin-laravel": "^5.0.1",
         "pestphp/pest-plugin-type-coverage": "^5.0.3",
-        "phpstan/extension-installer": "^1.4.3"
+        "phpstan/extension-installer": "^1.4.3",
+        "refactor-circus/cortex": "dev-main",
+        "refactor-circus/pennantplus": "dev-main",
+        "refactor-circus/ringside": "dev-main",
+        "refactor-circus/standards": "dev-main"
     },
     "suggest": {
         "refactor-circus/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main).",
@@ -130,7 +132,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "refactor-circus/ringside": true
         }
     },
     "minimum-stability": "stable",
@@ -151,6 +154,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/Refactor-Circus/Keystone.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Ringside.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Standards.git"
         }
     ],
     "conflict": {
