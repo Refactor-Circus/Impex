@@ -127,3 +127,11 @@ These are load-bearing. Changing any of them changes correctness, not style.
 - A subscription's cursor moves only on a 2xx, and one delivery runs per
   subscription at a time, so a subscriber sees batches in order.
 - Table names come from `impex.tables`, never literals: see Tables above.
+
+<!-- ring-master:start -->
+## Ring Master
+
+- Specs, product docs and local standards live in `docs/agent/`. Shared standards come from `vendor/` through `docs/agent/standards.index.yml`; read the matching standards before changing code.
+- Workflow: `/ring-master-shape-spec` → `/ring-master-write-spec` → `/ring-master-create-tasks` → `/ring-master-implement` → `/ring-master-verify-spec`.
+- Done means `composer test` passes. When work must break a standard, add a row to `docs/agent/standards-feedback.md`.
+<!-- ring-master:end -->
