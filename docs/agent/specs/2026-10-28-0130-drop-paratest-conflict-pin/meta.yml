@@ -1,0 +1,19 @@
+id: 2026-10-28-0130-drop-paratest-conflict-pin
+title: Drop the paratest conflict pin (Impex)
+status: merged
+pr: { number: 14, url: https://github.com/Refactor-Circus/Impex/pull/14 }
+created: 2026-10-28
+ticket: { provider: github, key: "#13", url: https://github.com/Refactor-Circus/Impex/issues/13 }
+standards: {}
+review_passes: 1
+runs:
+  - workflow: ring-master-factory
+    run_id: wf_4adc734c-844
+    result: escalated
+    round: 0
+    date: 2026-10-28
+  - workflow: ring-master-factory
+    run_id: wf_a15d7a49-934
+    result: approved
+    round: 1
+    date: 2026-10-28
