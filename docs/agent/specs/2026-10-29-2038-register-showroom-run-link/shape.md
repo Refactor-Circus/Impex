@@ -13,6 +13,7 @@ In scope:
 
 - D-001: the registry must support row-level slots (one section render per table row, with that row's record). This requirement belongs to the Atrium spec: confirm it there, or fall back to a per-row component that reads the registry.
 - D-002: Roster's and Showroom's transfers pages and nav are section B and out of scope. Those packages keep their Impex flows (behaviour, not UI).
+- D-003: settled. Atrium's registry supports per-row slots (Atrium D-006). The run link is a row section on `showroom.transfers`. (User, 2026-10-29.)
 
 ## Context
 
