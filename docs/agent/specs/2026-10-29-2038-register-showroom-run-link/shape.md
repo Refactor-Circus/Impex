@@ -26,3 +26,8 @@ In scope:
 - atrium/components: `x-atrium::*` only.
 - http/authorization: Impex `ScreenAccess` decides visibility.
 - testing/test-layers: a feature test with Showroom as a dev dependency, or a fake host screen.
+
+## Addendum (2026-10-29): every screen declares slots and tab bar
+
+User decision (Atrium D-013): every Atrium screen in this package declares itself with `Screen::make("{package}.{screen}")`, renders the Atrium tab bar (only visible once at least 2 tabs are visible), and declares the standard slots: `header.actions`, `before` and `after` on all screens; `aside` and `history` (when audited) on detail screens; the `row.actions` row slot on list screens. Screens without built-in tabs get a default `overview` tab. With nothing registered, every existing feature and browser test passes unchanged. A feature test per screen registers a tab and a section in each standard slot and asserts that they render.
+Impex screens (about 10): runs index and show, messages index and show, flows, channels index, create and show, subscriptions index and show.
