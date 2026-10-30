@@ -35,7 +35,8 @@ function impexSourceWithoutComments(): array
         }
 
         // A namespace in a string is written with doubled backslashes.
-        $sources[substr($file->getPathname(), strlen($root) + 1)] = str_replace('\\\\', '\\', $code);
+        // Keyed by forward-slash path, on Windows too.
+        $sources[str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1))] = str_replace('\\\\', '\\', $code);
     }
 
     return $sources;
