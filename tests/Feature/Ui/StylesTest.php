@@ -16,6 +16,15 @@ it('uses only atrium styles', function (): void {
         ->and(AtriumStyles::inlineStyles($views))->toBe([]);
 });
 
+it('styles the run link on other packages\' screens with atrium classes only', function (): void {
+    $view = dirname(__DIR__, 3).'/resources/views/ui/screens';
+
+    expect(is_file($view.'/run-link.blade.php'))->toBeTrue()
+        ->and((string) file_get_contents($view.'/run-link.blade.php'))->toContain('class="underline-offset-2 hover:underline"')
+        ->and(AtriumStyles::missingClasses($view))->toBe([])
+        ->and(AtriumStyles::inlineStyles($view))->toBe([]);
+});
+
 it('ships no stylesheet and no components of its own', function (): void {
     $root = dirname(__DIR__, 3);
 

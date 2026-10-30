@@ -2,6 +2,16 @@
 
 ## [Unreleased](https://github.com/Refactor-Circus/Impex/commits/main)
 
+### Upgrading: Atrium suggested, run link, History from Keen
+
+- **Merge and deploy together.** This release ships with the grouped merge of Atrium, Keen, Showroom and Impex. Atrium's screen-extensions registry release removes the history components Impex used, Showroom drops its own inline run link, and Keen now provides History, so update all four together or the run link and History disappear in between.
+- **Atrium moved from `require` to `suggest`.** Keystone is Impex's only suite dependency. An app that used the dashboard through Impex alone must now require Atrium itself: `composer require refactor-circus/atrium`. The minimum is the screen-extensions registry release, 0.1.0. `composer.json` has a `conflict` on `refactor-circus/atrium` `<0.1.0`, so `composer update` refuses an older Atrium instead of installing one Impex cannot render with. Without Atrium, Impex boots and serves its HTTP API and MCP server, and registers no `atrium.` routes.
+- **History comes from Keen.** The `<x-atrium::audit-trail>` panels on the runs, run and message pages and the **Audit log** item in Impex's sidebar group are removed. Keen attaches History to every Atrium screen, Impex's included. Install `refactor-circus/keen` to keep History. Impex's JSON history route and `list-impex-history-tool` are unchanged.
+- **New config key `impex.atrium.run_link.screens`.** Impex now owns the link from a run row on another package's Atrium screen to the run's page: one `impex.run-link` section per entry (screen key => slot name), defaulting to `['showroom.transfers' => 'row.actions']`, which replaces Showroom's inline link. It reads "Open run", with the flow name in its `aria-label`, and shows only for a saved run that the viewer may `view`, while Impex's Atrium plugin is authorized for the request and the `atrium.impex.runs.show` route exists. Set the key to `[]` to place the link nowhere.
+- **Republish `config/impex.php`** (`php artisan vendor:publish --tag=impex-config --force`, then reapply your changes) to see the new `atrium.run_link.screens` key. A published config without it falls back to the shipped default; only an explicit `[]` registers nothing.
+- **A malformed `run_link.screens` entry fails at boot in local and testing.** Each entry needs a non-empty string screen key and a non-empty string slot name. A malformed entry, or one Atrium rejects, throws `InvalidArgumentException` from `boot()` in the `local` and `testing` environments. In production it is reported once with `report()` and skipped, and the other entries still register.
+- Every Impex Atrium screen declares itself to Atrium's screen registry (`impex.runs` ... `impex.subscription`) with the standard slots, so other packages can add tabs and sections. With nothing registered the pages are unchanged.
+
 ### Breaking
 
 - Moved to the Refactor Circus organisation: the package is now `refactor-circus/impex` with the PHP namespace `RefactorCircus\Impex` (it was `jayi/impex` and `JayI\Impex`). Update `composer.json` requirements and `use` statements. Old class names are not kept as aliases, so stored values written under them - polymorphic `*_type` columns, audit subjects, Pennant feature names - need updating to the new names.
@@ -39,7 +49,6 @@
 - `StandardWebhooksValidator` for inbound channels, and every secret in a channel's `credentials.secrets` accepted beside its `signing_secret`.
 - Ledger rows keep a body's sha256 (`body_sha256`), its encoding, and the subscription delivery that sent it (`delivery_id`); `impex_messages` gains an index on `(channel, occurred_at)`.
 - The package's section in Atrium's sidebar rail has its own icon (`arrows-right-left`) and a fixed place in the rail.
-- An **Audit log** link in the package's sidebar group, opening its own audit log in Atrium (`/atrium/history/impex`), shown while an audit log (refactor-circus/keen) is installed and to those who may read the package's history.
 
 ### Fixed
 

@@ -21,7 +21,6 @@
     ],
     "require": {
         "php": "^8.5",
-        "refactor-circus/atrium": "dev-main",
         "refactor-circus/keystone": "dev-main",
         "laravel/framework": "^13.35",
         "laravel/mcp": "^1.0.1"
@@ -35,14 +34,19 @@
         "pestphp/pest-plugin-laravel": "^5.0.1",
         "pestphp/pest-plugin-type-coverage": "^5.0.3",
         "phpstan/extension-installer": "^1.4.3",
+        "refactor-circus/atrium": "dev-main",
         "refactor-circus/cortex": "dev-main",
         "refactor-circus/pennantplus": "dev-main",
         "refactor-circus/ringside": "dev-main",
         "refactor-circus/standards": "dev-main"
     },
     "suggest": {
+        "refactor-circus/atrium": "Browse runs, messages, flows, channels and subscriptions in the Atrium dashboard, and link runs from other packages' screens. Needs the screen-extensions registry release (0.1.0) or later; older versions are refused by a conflict. Install refactor-circus/keen as well to keep History on these screens (dev-main).",
         "refactor-circus/cortex": "Let Cortex agents use the Impex tools and manage the MCP instructions and tool descriptions (dev-main).",
         "refactor-circus/pennantplus": "Switch Impex in Atrium on and off with the ImpexSupportFeature Pennant feature (dev-main)."
+    },
+    "conflict": {
+        "refactor-circus/atrium": "<0.1.0"
     },
     "autoload": {
         "psr-4": {
@@ -93,11 +97,15 @@
         "test:unit": [
             "vendor/bin/pest --parallel"
         ],
+        "test:without-atrium": [
+            "vendor/bin/pest --configuration=phpunit.without-atrium.xml --test-directory=tests/WithoutAtrium"
+        ],
         "test": [
             "@analyse",
             "@lint:check",
             "@test:types",
-            "@test:unit"
+            "@test:unit",
+            "@test:without-atrium"
         ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"

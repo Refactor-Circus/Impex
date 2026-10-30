@@ -7,8 +7,11 @@ namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use RefactorCircus\Atrium\Domains\Screens\Data\Screen;
+use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\Screens;
 use RefactorCircus\Impex\Domains\Message\Actions\ListMessagesAction;
 use RefactorCircus\Impex\Domains\Message\Data\ListMessagesData;
 use RefactorCircus\Impex\Domains\Message\Models\MessageModel;
@@ -34,7 +37,7 @@ final class RunUiController
 {
     use AuthorizesScreens;
 
-    public function index(Request $request): View
+    public function index(Request $request, ScreenExtensions $extensions): View
     {
         $this->authorizeScreen('viewAny', RunModel::class);
 
@@ -46,6 +49,7 @@ final class RunUiController
         $view = 'impex::ui.runs.index';
 
         return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.runs', Screen::LIST, null, RunModel::class), $request),
             'runs' => app(ListRunsAction::class)->execute($filters, ScreenAccess::viewer()),
             'filters' => $request->all(),
             'statuses' => RunStatus::cases(),
@@ -53,7 +57,7 @@ final class RunUiController
         ]);
     }
 
-    public function show(RunModel $run): View
+    public function show(Request $request, ScreenExtensions $extensions, RunModel $run): View
     {
         $this->authorizeScreen('view', $run);
 
@@ -61,6 +65,7 @@ final class RunUiController
         $view = 'impex::ui.runs.show';
 
         return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.run', Screen::DETAIL, $run, null), $request),
             'run' => $run->load('owners'),
             'steps' => ScreenAccess::allows('viewAny', RunStepModel::class, [$run])
                 ? app(ListRunStepsAction::class)->execute($run)

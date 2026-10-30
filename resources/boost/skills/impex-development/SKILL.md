@@ -170,7 +170,13 @@ repeat a side effect.
 
 ### 9. Watch it
 
-The dashboard renders through Atrium: define Atrium's `viewAtrium` gate and
+The dashboard renders through Atrium, which Impex lists in `suggest`, not
+`require` (at least the screen-extensions registry release, 0.1.0; a `conflict`
+refuses `refactor-circus/atrium` `<0.1.0`). Without Atrium, Impex still serves
+its API and MCP; only `RefactorCircus\Impex\Atrium` may use Atrium classes, so
+never import one elsewhere. `composer test:without-atrium` checks this in
+process, and the `without-atrium` CI lane (Atrium uninstalled) is the
+authoritative proof. Define Atrium's `viewAtrium` gate and
 Impex appears in its sidebar (set `impex.ui.enabled` to `false` to leave it
 out). Atrium's gate decides who may load the dashboard, `impex.routes.middleware`
 decides who may call the API. With `impex.authorization` on, the dashboard asks
@@ -186,9 +192,24 @@ Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
 `impex::ui.partials.status-dot` partial); actions are icon buttons. Impex ships
 no stylesheet and no components: views use `x-atrium::*` components and Atrium's
 safelisted utilities only, never `<style>` or `style=` (a test runs
-`AtriumStyles::missingClasses()` / `inlineStyles()`). The run and message pages
-show `<x-atrium::audit-trail source="impex" :subject="..." />`, the runs page the
-package-wide trail; they render nothing until refactor-circus/keen is installed. Over MCP the tools sit behind `search_tools` and
+`AtriumStyles::missingClasses()` / `inlineStyles()`). History comes from
+refactor-circus/keen, which attaches it to every Atrium screen; Impex renders
+none itself. Each Impex screen declares itself with `Screens::declare()`
+(`impex.runs`, `impex.run`, ... `impex.subscription`; the standard slots, an
+`access()` through `ScreenAccess::allows()`), so packages extend it through
+`Atrium::screens()`; flow and channel rows without a stored model are unsaved
+stand-ins (`exists` false). To link runs from another package's screen, add
+an entry to `impex.atrium.run_link.screens` (screen key => slot name; default
+`['showroom.transfers' => 'row.actions']`, `[]` for none, a missing key falls
+back to the default): Impex registers one `impex.run-link` section per entry,
+reading "Open run" with the flow in its `aria-label`, and never names the host
+in PHP. It shows only for a saved `RunModel` row or record, while Impex's
+Atrium plugin is authorized for the request, the viewer may `view` the run
+through `ScreenAccess::allows()` (operators included), and the
+`atrium.impex.runs.show` route exists. A malformed entry (not a non-empty
+string key and slot, or one Atrium rejects) throws `InvalidArgumentException`
+at boot in `local` and `testing`; elsewhere it is reported once and skipped.
+Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
 check the steps with phase `rollback` to see what was rolled back. Structured

@@ -7,8 +7,11 @@ namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use RefactorCircus\Atrium\Domains\Screens\Data\Screen;
+use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\Screens;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListDeliveriesAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\ListSubscriptionsAction;
 use RefactorCircus\Impex\Domains\Subscription\Actions\PingSubscriptionAction;
@@ -26,7 +29,7 @@ final class SubscriptionUiController
 {
     use AuthorizesScreens;
 
-    public function index(Request $request): View
+    public function index(Request $request, ScreenExtensions $extensions): View
     {
         $this->authorizeScreen('viewAny', SubscriptionModel::class);
 
@@ -36,13 +39,14 @@ final class SubscriptionUiController
         $view = 'impex::ui.subscriptions.index';
 
         return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.subscriptions', Screen::LIST, null, SubscriptionModel::class), $request),
             'subscriptions' => app(ListSubscriptionsAction::class)->execute($filters, null, ScreenAccess::viewer()),
             'filters' => $request->all(),
             'statuses' => SubscriptionStatus::cases(),
         ]);
     }
 
-    public function show(SubscriptionModel $subscription): View
+    public function show(Request $request, ScreenExtensions $extensions, SubscriptionModel $subscription): View
     {
         $this->authorizeScreen('view', $subscription);
 
@@ -52,6 +56,7 @@ final class SubscriptionUiController
         $streams = app(StreamRegistry::class);
 
         return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.subscription', Screen::DETAIL, $subscription, null), $request),
             'subscription' => app(ShowSubscriptionAction::class)->execute($subscription),
             'topics' => $streams->has($subscription->stream)
                 ? TopicMask::names($streams->get($subscription->stream)->topics(), $subscription->topics)

@@ -20,6 +20,14 @@ arch('the package source declares strict types')
     ->expect('RefactorCircus\Impex')
     ->toUseStrictTypes();
 
+// Atrium is suggested, not required: only the screens and their registrations
+// under RefactorCircus\Impex\Atrium may name its classes, and they are reached
+// only behind a class_exists() guard.
+arch('only the Atrium layer uses Atrium')
+    ->expect('RefactorCircus\Impex')
+    ->not->toUse('RefactorCircus\Atrium')
+    ->ignoring('RefactorCircus\Impex\Atrium');
+
 arch('actions are final classes')
     ->expect(Arch::domainNamespaces('RefactorCircus\Impex', IMPEX_DOMAINS, 'Actions'))
     ->classes()

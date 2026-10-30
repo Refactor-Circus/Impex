@@ -8,8 +8,11 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use RefactorCircus\Atrium\Domains\Screens\Data\Screen;
+use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\Screens;
 use RefactorCircus\Impex\Domains\Channel\Actions\CreateChannelAction;
 use RefactorCircus\Impex\Domains\Channel\Actions\DeleteChannelAction;
 use RefactorCircus\Impex\Domains\Channel\Actions\ListChannelsAction;
@@ -33,24 +36,33 @@ final class ChannelUiController
 {
     use AuthorizesScreens;
 
-    public function index(): View
+    public function index(Request $request, ScreenExtensions $extensions): View
     {
         $this->authorizeScreen('viewAny', ChannelModel::class);
+
+        $channels = app(ListChannelsAction::class)->execute(viewer: ScreenAccess::viewer());
 
         /** @var view-string $view */
         $view = 'impex::ui.channels.index';
 
-        return view($view, ['channels' => app(ListChannelsAction::class)->execute(viewer: ScreenAccess::viewer())]);
+        return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.channels', Screen::LIST, null, ChannelModel::class), $request),
+            'channels' => $channels,
+            'rows' => $this->rows($channels),
+        ]);
     }
 
-    public function create(): View
+    public function create(Request $request, ScreenExtensions $extensions): View
     {
         $this->authorizeScreen('create', ChannelModel::class);
 
         /** @var view-string $view */
         $view = 'impex::ui.channels.create';
 
-        return view($view, $this->choices());
+        return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.channel-create', Screen::DETAIL, null, ChannelModel::class), $request),
+            ...$this->choices(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -64,7 +76,7 @@ final class ChannelUiController
             ->with('status', __('impex::impex.channel_created'));
     }
 
-    public function show(string $name): View
+    public function show(string $name, Request $request, ScreenExtensions $extensions): View
     {
         $stored = ChannelModel::query()->where('name', $name)->first();
 
@@ -72,11 +84,17 @@ final class ChannelUiController
             ? $this->authorizeScreen('view', $stored)
             : $this->authorizeScreen('viewAny', ChannelModel::class);
 
+        $channel = app(ShowChannelAction::class)->execute($name);
+
+        // A configured channel has no row: its record is an unsaved stand-in.
+        $record = $stored ?? new ChannelModel(['name' => $name]);
+
         /** @var view-string $view */
         $view = 'impex::ui.channels.show';
 
         return view($view, [
-            'channel' => app(ShowChannelAction::class)->execute($name),
+            'resolved' => $extensions->resolve(Screens::declare('impex.channel', Screen::DETAIL, $record, null), $request),
+            'channel' => $channel,
             'stored' => $stored,
             ...$this->choices(),
         ]);
@@ -145,6 +163,32 @@ final class ChannelUiController
         $input = $request->all();
 
         return $input;
+    }
+
+    /**
+     * Each listed channel's row model for its `row.actions` sections, by
+     * name: the stored channel, from one query for every name, or else an
+     * unsaved stand-in naming the configured channel.
+     *
+     * @param  array<int, array<string, mixed>>  $channels
+     * @return array<string, ChannelModel>
+     */
+    private function rows(array $channels): array
+    {
+        $names = array_map(fn (array $channel): string => (string) $channel['name'], $channels);
+
+        if ($names === []) {
+            return [];
+        }
+
+        $stored = ChannelModel::query()->whereIn('name', $names)->get()->keyBy('name');
+        $rows = [];
+
+        foreach ($names as $name) {
+            $rows[$name] = $stored->get($name) ?? new ChannelModel(['name' => $name]);
+        }
+
+        return $rows;
     }
 
     /**
