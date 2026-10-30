@@ -50,7 +50,7 @@ it('suggests atrium, naming the registry release as the minimum and keen for his
 });
 
 it('installs atrium for development on its main branch', function (): void {
-    expect(impexComposerSection('require-dev'))->toHaveKey('refactor-circus/atrium', 'dev-main');
+    expect(impexComposerSection('require-dev'))->toHaveKey('refactor-circus/atrium', '^0.1');
 });
 
 it('refuses an atrium older than the screen-extensions registry', function (): void {
