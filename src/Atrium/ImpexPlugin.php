@@ -103,8 +103,7 @@ class ImpexPlugin extends Plugin
                 ->sort(50)
                 ->authorize(fn (Request $request): bool => self::may($request, 'viewAny', SubscriptionModel::class)),
 
-            // The package's own audit log, while an audit log is installed.
-            $this->historyNavItem('impex')->group('Impex')->sort(90),
+            // No History item: Keen attaches History to every screen.
         ];
     }
 

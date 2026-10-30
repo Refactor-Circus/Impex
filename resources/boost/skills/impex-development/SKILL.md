@@ -186,9 +186,13 @@ Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
 `impex::ui.partials.status-dot` partial); actions are icon buttons. Impex ships
 no stylesheet and no components: views use `x-atrium::*` components and Atrium's
 safelisted utilities only, never `<style>` or `style=` (a test runs
-`AtriumStyles::missingClasses()` / `inlineStyles()`). The run and message pages
-show `<x-atrium::audit-trail source="impex" :subject="..." />`, the runs page the
-package-wide trail; they render nothing until refactor-circus/keen is installed. Over MCP the tools sit behind `search_tools` and
+`AtriumStyles::missingClasses()` / `inlineStyles()`). History comes from
+refactor-circus/keen, which attaches it to every Atrium screen; Impex renders
+none itself. Each Impex screen declares itself with `Screens::declare()`
+(`impex.runs`, `impex.run`, ... `impex.subscription`; the standard slots, an
+`access()` through `ScreenAccess::allows()`), so packages extend it through
+`Atrium::screens()`; flow and channel rows without a stored model are unsaved
+stand-ins (`exists` false). Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
 check the steps with phase `rollback` to see what was rolled back. Structured

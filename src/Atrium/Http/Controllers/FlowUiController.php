@@ -7,8 +7,11 @@ namespace RefactorCircus\Impex\Atrium\Http\Controllers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use RefactorCircus\Atrium\Domains\Screens\Data\Screen;
+use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Impex\Atrium\Http\Controllers\Concerns\AuthorizesScreens;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\Screens;
 use RefactorCircus\Impex\Domains\Flow\Actions\ListFlowsAction;
 use RefactorCircus\Impex\Domains\Flow\Actions\RunFlowAction;
 use RefactorCircus\Impex\Domains\Flow\Data\RunFlowData;
@@ -19,14 +22,20 @@ final class FlowUiController
 {
     use AuthorizesScreens;
 
-    public function index(): View
+    public function index(Request $request, ScreenExtensions $extensions): View
     {
         $this->authorizeScreen('viewAny', FlowOverrideModel::class);
+
+        $flows = app(ListFlowsAction::class)->execute();
 
         /** @var view-string $view */
         $view = 'impex::ui.flows.index';
 
-        return view($view, ['flows' => app(ListFlowsAction::class)->execute()]);
+        return view($view, [
+            'resolved' => $extensions->resolve(Screens::declare('impex.flows', Screen::LIST, null, FlowOverrideModel::class), $request),
+            'flows' => $flows,
+            'rows' => $this->rows($flows),
+        ]);
     }
 
     public function run(Request $request, string $flow): RedirectResponse
@@ -55,5 +64,31 @@ final class FlowUiController
         return redirect()
             ->route('atrium.impex.runs.show', $run)
             ->with('status', __('impex::impex.flow_started'));
+    }
+
+    /**
+     * Each listed flow's row model for its `row.actions` sections, by slug:
+     * its stored override, from one query for every slug, or else an
+     * unsaved stand-in naming the slug.
+     *
+     * @param  array<int, array<string, mixed>>  $flows
+     * @return array<string, FlowOverrideModel>
+     */
+    private function rows(array $flows): array
+    {
+        $slugs = array_map(fn (array $flow): string => (string) $flow['slug'], $flows);
+
+        if ($slugs === []) {
+            return [];
+        }
+
+        $stored = FlowOverrideModel::query()->whereIn('slug', $slugs)->get()->keyBy('slug');
+        $rows = [];
+
+        foreach ($slugs as $slug) {
+            $rows[$slug] = $stored->get($slug) ?? new FlowOverrideModel(['slug' => $slug]);
+        }
+
+        return $rows;
     }
 }
