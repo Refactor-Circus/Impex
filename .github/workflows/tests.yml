@@ -76,3 +76,50 @@ jobs:
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
         run: vendor/bin/pest
+
+  # The authoritative proof that Impex runs without Atrium (it is suggested,
+  # not required): uninstall Atrium and every dev dependency that pulls it in,
+  # resolve again, and run the WithoutAtrium suite. Unlike the in-process
+  # `composer test:without-atrium` run inside `composer test`, this one also
+  # catches Composer `files` and classmap leaks.
+  without-atrium:
+    runs-on: ubuntu-latest
+
+    name: P8.5 - L13.* - without Atrium
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts
+
+      - name: Remove Atrium and the dev dependencies that require it
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Every package that requires Atrium, directly or through another.
+          dependents=$(composer why refactor-circus/atrium --recursive --no-interaction | awk '{print $1}' | sort -u)
+          # Only the root's own dev dependencies can be removed here.
+          root_dev=$(php -r 'echo implode(PHP_EOL, array_keys(json_decode(file_get_contents("composer.json"), true)["require-dev"] ?? []));' | sort -u)
+          remove=$(comm -12 <(echo "$dependents") <(echo "$root_dev") | grep -vx 'refactor-circus/atrium' || true)
+          if [ -n "$remove" ]; then
+            echo "Removing dev dependencies that require Atrium: $remove"
+            composer remove --dev $remove --no-update --no-interaction
+          fi
+          composer remove --dev refactor-circus/atrium --no-update --no-interaction
+          # Resolve again rather than editing the lock, so nothing drifts.
+          composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts
+          test ! -e vendor/refactor-circus/atrium
+
+      - name: Test Suite without Atrium
+        run: composer test:without-atrium

@@ -34,6 +34,12 @@
         <testsuite name="RenamedTables">
             <directory>tests/Modes/RenamedTables</directory>
         </testsuite>
+        <!--
+            tests/WithoutAtrium is deliberately not a suite here: it needs
+            Atrium out of the autoloader before anything loads, so it runs on
+            its own through phpunit.without-atrium.xml (`composer
+            test:without-atrium`).
+        -->
     </testsuites>
     <source>
         <include>

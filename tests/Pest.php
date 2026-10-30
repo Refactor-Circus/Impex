@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
+use RefactorCircus\Atrium\Testing\ResetsScreenExtensions;
 use RefactorCircus\Impex\Mcp\ImpexServer;
 use RefactorCircus\Impex\Tests\CortexTestCase;
 use RefactorCircus\Impex\Tests\PennantPlusTestCase;
@@ -12,10 +13,13 @@ use RefactorCircus\Impex\Tests\TestCase;
 use RefactorCircus\Keystone\Testing\McpTools;
 use RefactorCircus\Keystone\Testing\Parity;
 
-uses(TestCase::class)->in('Feature', 'Unit');
-uses(CortexTestCase::class)->in('Cortex');
-uses(PennantPlusTestCase::class)->in('PennantPlus');
-uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
+// Every suite here boots Atrium, so whatever a test registers through
+// Atrium::screens() is gone before the next. tests/WithoutAtrium has its own
+// Pest.php and test case, and never loads this file.
+uses(TestCase::class, ResetsScreenExtensions::class)->in('Feature', 'Unit');
+uses(CortexTestCase::class, ResetsScreenExtensions::class)->in('Cortex');
+uses(PennantPlusTestCase::class, ResetsScreenExtensions::class)->in('PennantPlus');
+uses(RenamedTablesTestCase::class, ResetsScreenExtensions::class)->in('Modes/RenamedTables');
 
 /**
  * Call a catalog tool the way a client must now reach it: through the
