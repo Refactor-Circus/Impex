@@ -1,6 +1,8 @@
 # Release Notes
 
-## [Unreleased](https://github.com/Refactor-Circus/Impex/commits/main)
+## [Unreleased](https://github.com/Refactor-Circus/Impex/compare/v0.1.0...main)
+
+## [v0.1.0](https://github.com/Refactor-Circus/Impex/commits/v0.1.0) - 2026-10-30
 
 ### Upgrading: Atrium suggested, run link, History from Keen
 
@@ -505,8 +507,3 @@
   happened to be read first won.
 - Two packages registering the same flow slug now raises
   `FlowCollisionException` instead of the second silently shadowing the first.
-
-
-## [v0.1.0](https://github.com/Refactor-Circus/Impex/compare/...v0.1.0) - 202x-xx-xx
-
-Initial pre-release.
