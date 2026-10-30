@@ -114,6 +114,8 @@ it('throws for a malformed entry in local', function (): void {
     config()->set('impex.atrium.run_link.screens', ['acme.jobs' => null]);
 
     expect(fn () => reregisterImpexScreens())->toThrow(InvalidArgumentException::class);
+
+    app()->detectEnvironment(fn (): string => 'testing');
 });
 
 it('reports a malformed entry once in production and registers the valid one', function (): void {
@@ -122,6 +124,10 @@ it('reports a malformed entry once in production and registers the valid one', f
     config()->set('impex.atrium.run_link.screens', [5 => 'row.actions', 'acme.jobs' => 'aside']);
 
     reregisterImpexScreens();
+
+    // Back to testing, so the test case's teardown does not ask to confirm
+    // commands as it would in production.
+    app()->detectEnvironment(fn (): string => 'testing');
 
     Exceptions::assertReportedCount(1);
     Exceptions::assertReported(InvalidArgumentException::class);

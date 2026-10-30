@@ -21,7 +21,7 @@ beforeEach(function (): void {
         new User()->forceFill(['id' => 2, 'name' => 'Row 2']),
     ]);
 
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::forceCreate(['name' => 'Viewer', 'email' => 'viewer@example.test', 'password' => 'x']));
 });
 
 function testHostSection(string $key): SectionDefinition

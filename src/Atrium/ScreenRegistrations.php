@@ -94,8 +94,8 @@ final class ScreenRegistrations
         if (! is_string($target) || $target === '' || ! is_string($slot) || $slot === '') {
             throw new InvalidArgumentException(sprintf(
                 'Every [impex.atrium.run_link.screens] entry maps a screen key to a slot name, both non-empty strings; got [%s => %s].',
-                var_export($target, true),
-                var_export($slot, true),
+                self::describe($target),
+                self::describe($slot),
             ));
         }
 
@@ -123,6 +123,17 @@ final class ScreenRegistrations
             && array_key_exists(self::PLUGIN, Atrium::pluginRegistry()->authorized($request))
             && ScreenAccess::allows('view', $record, [], $request)
             && Route::has(self::RUN_ROUTE);
+    }
+
+    /**
+     * A config value as it reads in an error message: JSON, or its type
+     * when it has none.
+     */
+    private static function describe(mixed $value): string
+    {
+        $json = json_encode($value);
+
+        return $json === false ? get_debug_type($value) : $json;
     }
 
     /**
