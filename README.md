@@ -548,7 +548,9 @@ Impex also contributes three dashboard widgets — run status counts, recent fai
 
 The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `RefactorCircus\Impex\Atrium\Badges` is the one place that maps states to colours. Impex ships no stylesheet and no Blade components: its screens use Atrium's components (`x-atrium::description-list`, `x-atrium::flash`, `x-atrium::status-dot` and so on) and the utilities Atrium's stylesheet already contains, which a test checks with `RefactorCircus\Atrium\Testing\AtriumStyles`.
 
-With an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed, the run and message pages end with that record's history and the runs page with the whole of Impex's (`<x-atrium::audit-trail source="impex" />`); without one nothing renders. Run steps stay in the step timeline: they record execution, not changes.
+History comes from [refactor-circus/keen](https://github.com/Refactor-Circus/Keen), which attaches it to every Atrium screen; Impex renders no history of its own, so install Keen to keep it. Run steps stay in the step timeline: they record execution, not changes.
+
+Every Impex screen declares itself to Atrium's screen registry (`impex.runs`, `impex.run`, `impex.messages`, `impex.message`, `impex.flows`, `impex.channels`, `impex.channel-create`, `impex.channel`, `impex.subscriptions`, `impex.subscription`) with the standard slots, so other packages can add tabs and sections through `Atrium::screens()`. On the flows and channels lists, a row without a stored model gets an unsaved stand-in (`new FlowOverrideModel(['slug' => ...])`, `new ChannelModel(['name' => ...])`) whose `exists` is false, as does a configured channel's page. A section's `permission()` is asked through `ScreenAccess::allows()`, operators included. See [docs/11-dashboard.md](docs/11-dashboard.md#screen-extensions).
 
 ### Who sees what
 

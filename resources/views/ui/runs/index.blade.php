@@ -1,77 +1,97 @@
+{{-- The `impex.runs` list screen: header actions always render; an open
+     registered tab's panel replaces the page, and `before`, `after` and each
+     row's `row.actions` (in its last cell) render only around it. --}}
 <x-atrium::layout :title="__('impex::impex.runs')">
-    <x-atrium::page-header :title="__('impex::impex.runs')" />
-
-    <div class="mt-5 flex flex-col gap-4">
-        <x-atrium::flash />
-
-        {{-- Status and trigger options come from the enums themselves, so a new
-             case can never drift out of the filter list. --}}
-        <x-atrium::card>
-            <form method="GET" action="{{ route('atrium.impex.runs.index') }}" class="flex flex-wrap items-end gap-3">
-                <x-atrium::form.select
-                    name="status"
-                    :label="__('impex::impex.status')"
-                    :placeholder="__('impex::impex.all_statuses')"
-                    :options="collect($statuses)->mapWithKeys(fn ($status) => [$status->value => $status->value])"
-                    :selected="$filters['status'] ?? null"
-                    wrapper="w-48" />
-
-                <x-atrium::form.select
-                    name="trigger"
-                    :label="__('impex::impex.trigger')"
-                    :placeholder="__('impex::impex.all_triggers')"
-                    :options="collect($triggers)->mapWithKeys(fn ($trigger) => [$trigger->value => $trigger->value])"
-                    :selected="$filters['trigger'] ?? null"
-                    wrapper="w-40" />
-
-                <x-atrium::form.input name="flow" :label="__('impex::impex.flow')" :value="$filters['flow'] ?? null" wrapper="w-48" />
-
-                <x-atrium::icon-button icon="funnel" :label="__('impex::impex.filter')" variant="primary" type="submit" data-testid="filter-runs" />
-                <x-atrium::icon-button icon="x-mark" :label="__('impex::impex.clear')" variant="ghost" :href="route('atrium.impex.runs.index')" />
-            </form>
-        </x-atrium::card>
-
-        @if ($runs->isEmpty())
-            <x-atrium::empty-state :title="__('impex::impex.no_runs')" />
-        @else
-            <x-atrium::table striped>
-                <x-slot:head>
-                    <x-atrium::table.row>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.flow') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.status') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.trigger') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.tags') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.started') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell heading>{{ __('impex::impex.finished') }}</x-atrium::table.cell>
-                    </x-atrium::table.row>
-                </x-slot:head>
-
-                @foreach ($runs as $run)
-                    <x-atrium::table.row>
-                        <x-atrium::table.cell>
-                            <a class="font-medium underline-offset-2 hover:underline"
-                               href="{{ route('atrium.impex.runs.show', $run) }}">{{ $run->flow }}</a>
-                        </x-atrium::table.cell>
-                        <x-atrium::table.cell>
-                            @include('impex::ui.partials.status-dot', ['status' => $run->status])
-                        </x-atrium::table.cell>
-                        <x-atrium::table.cell>{{ $run->trigger->value }}</x-atrium::table.cell>
-                        <x-atrium::table.cell>
-                            @forelse ((array) $run->tags as $key => $value)
-                                <x-atrium::badge>{{ $key }}={{ $value }}</x-atrium::badge>
-                            @empty
-                                <span class="opacity-60">{{ __('impex::impex.none') }}</span>
-                            @endforelse
-                        </x-atrium::table.cell>
-                        <x-atrium::table.cell>{{ $run->started_at?->diffForHumans() ?? __('impex::impex.none') }}</x-atrium::table.cell>
-                        <x-atrium::table.cell>{{ $run->finished_at?->diffForHumans() ?? __('impex::impex.none') }}</x-atrium::table.cell>
-                    </x-atrium::table.row>
-                @endforeach
-            </x-atrium::table>
-
-            <x-atrium::pagination :paginator="$runs" />
+    <x-atrium::page-header :title="__('impex::impex.runs')">
+        @if ($resolved->sections('header.actions') !== [])
+            <x-slot:actions>
+                <x-atrium::screen-sections :screen="$resolved" slot="header.actions" />
+            </x-slot:actions>
         @endif
+    </x-atrium::page-header>
 
-        <x-atrium::audit-trail source="impex" />
-    </div>
+    <x-atrium::screen-tabs :screen="$resolved" class="mt-4" />
+
+    @if ($resolved->openRegisteredTab !== null)
+        <x-atrium::screen-tab-panel :screen="$resolved" class="mt-5" />
+    @else
+        <x-atrium::screen-sections :screen="$resolved" slot="before" class="mt-5" />
+
+        <div class="mt-5 flex flex-col gap-4" data-testid="impex-content">
+            <x-atrium::flash />
+
+            {{-- Status and trigger options come from the enums themselves, so a new
+                 case can never drift out of the filter list. --}}
+            <x-atrium::card>
+                <form method="GET" action="{{ route('atrium.impex.runs.index') }}" class="flex flex-wrap items-end gap-3">
+                    <x-atrium::form.select
+                        name="status"
+                        :label="__('impex::impex.status')"
+                        :placeholder="__('impex::impex.all_statuses')"
+                        :options="collect($statuses)->mapWithKeys(fn ($status) => [$status->value => $status->value])"
+                        :selected="$filters['status'] ?? null"
+                        wrapper="w-48" />
+
+                    <x-atrium::form.select
+                        name="trigger"
+                        :label="__('impex::impex.trigger')"
+                        :placeholder="__('impex::impex.all_triggers')"
+                        :options="collect($triggers)->mapWithKeys(fn ($trigger) => [$trigger->value => $trigger->value])"
+                        :selected="$filters['trigger'] ?? null"
+                        wrapper="w-40" />
+
+                    <x-atrium::form.input name="flow" :label="__('impex::impex.flow')" :value="$filters['flow'] ?? null" wrapper="w-48" />
+
+                    <x-atrium::icon-button icon="funnel" :label="__('impex::impex.filter')" variant="primary" type="submit" data-testid="filter-runs" />
+                    <x-atrium::icon-button icon="x-mark" :label="__('impex::impex.clear')" variant="ghost" :href="route('atrium.impex.runs.index')" />
+                </form>
+            </x-atrium::card>
+
+            @if ($runs->isEmpty())
+                <x-atrium::empty-state :title="__('impex::impex.no_runs')" />
+            @else
+                <x-atrium::table striped>
+                    <x-slot:head>
+                        <x-atrium::table.row>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.flow') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.status') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.trigger') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.tags') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.started') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell heading>{{ __('impex::impex.finished') }}</x-atrium::table.cell>
+                        </x-atrium::table.row>
+                    </x-slot:head>
+
+                    @foreach ($runs as $run)
+                        <x-atrium::table.row>
+                            <x-atrium::table.cell>
+                                <a class="font-medium underline-offset-2 hover:underline"
+                                   href="{{ route('atrium.impex.runs.show', $run) }}">{{ $run->flow }}</a>
+                            </x-atrium::table.cell>
+                            <x-atrium::table.cell>
+                                @include('impex::ui.partials.status-dot', ['status' => $run->status])
+                            </x-atrium::table.cell>
+                            <x-atrium::table.cell>{{ $run->trigger->value }}</x-atrium::table.cell>
+                            <x-atrium::table.cell>
+                                @forelse ((array) $run->tags as $key => $value)
+                                    <x-atrium::badge>{{ $key }}={{ $value }}</x-atrium::badge>
+                                @empty
+                                    <span class="opacity-60">{{ __('impex::impex.none') }}</span>
+                                @endforelse
+                            </x-atrium::table.cell>
+                            <x-atrium::table.cell>{{ $run->started_at?->diffForHumans() ?? __('impex::impex.none') }}</x-atrium::table.cell>
+                            <x-atrium::table.cell>
+                                {{ $run->finished_at?->diffForHumans() ?? __('impex::impex.none') }}
+                                <x-atrium::screen-sections :screen="$resolved" slot="row.actions" :row="$run" />
+                            </x-atrium::table.cell>
+                        </x-atrium::table.row>
+                    @endforeach
+                </x-atrium::table>
+
+                <x-atrium::pagination :paginator="$runs" />
+            @endif
+        </div>
+
+        <x-atrium::screen-sections :screen="$resolved" slot="after" class="mt-5" />
+    @endif
 </x-atrium::layout>

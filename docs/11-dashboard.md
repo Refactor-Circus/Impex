@@ -72,19 +72,44 @@ Each calls the same Action as the API (`UpdateSubscriptionAction`,
 the [API](09-api.md#subscribers) and [MCP](10-mcp.md). See
 [Subscriptions](19-subscriptions.md).
 
+## Screen extensions
+
+Every screen above declares itself to Atrium's screen registry, so another
+package can add a tab or a section to it from its `boot()` through
+`Atrium::screens()`, without Impex knowing it exists:
+
+| Key | Kind | Record, or row of `row.actions` |
+|---|---|---|
+| `impex.runs` | list | each run |
+| `impex.run` | detail | the run |
+| `impex.messages` | list | each message |
+| `impex.message` | detail | the message |
+| `impex.flows` | list | the flow's stored `FlowOverrideModel`, else an unsaved one naming its slug |
+| `impex.channels` | list | the stored `ChannelModel`, else an unsaved one naming the configured channel |
+| `impex.channel-create` | detail | none |
+| `impex.channel` | detail | the stored channel, else an unsaved one naming it |
+| `impex.subscriptions` | list | each subscription |
+| `impex.subscription` | detail | the subscription |
+
+Each has the standard slots: `header.actions` (after the page's own actions),
+`before` and `after` (around the content), plus `aside` (a right-hand column,
+shown only when it has a visible section) on a detail screen or `row.actions`
+(in each row's last cell) on a list. An open registered tab's panel replaces
+the page; only `header.actions` stays. With nothing registered the pages are
+unchanged. The unsaved stand-ins have `exists` false; check it before treating
+a row as stored.
+
+A `permission()` on an extension is asked as Impex's own pages ask it, through
+`ScreenAccess::allows()` (operators included), of the record or row, or of the
+screen's model class when there is none.
+
 ## History
 
-With an audit log ([refactor-circus/keen](https://github.com/Refactor-Circus/Keen)) installed,
-the run and message pages end with that record's history, and the runs page
-with the whole of Impex's, through Atrium's audit trail:
-
-```blade
-<x-atrium::audit-trail source="impex" :subject="$run" />
-<x-atrium::audit-trail source="impex" />
-```
-
-Without one, nothing renders. Run steps are not part of it: the step timeline
-records execution, not changes.
+History comes from [refactor-circus/keen](https://github.com/Refactor-Circus/Keen),
+which attaches it to every Atrium screen, Impex's included. Impex renders no
+history of its own and its sidebar group has no History item; install Keen to
+keep History. Run steps are not part of it: the step timeline records
+execution, not changes.
 
 ## Who sees what
 
