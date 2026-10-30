@@ -47,6 +47,8 @@ return [
     'all_triggers' => 'All triggers',
     'filter' => 'Filter',
     'clear' => 'Clear',
+    'open_run' => 'Open run',
+    'open_run_flow' => 'Open run :flow',
 
     // Run actions
     'cancel' => 'Cancel',
