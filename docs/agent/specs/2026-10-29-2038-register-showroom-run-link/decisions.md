@@ -67,3 +67,9 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: Already decided by D-020 and the suite rule ("conflict refactor-circus/atrium <0.1.0" in every package). Atrium's `v0.1.0` CHANGELOG section is an untagged placeholder; the registry sits under Unreleased, so the first tag (v0.1.0) carries it.
 - Date: 2026-10-30
 - Raised by: build (group 1)
+
+## D-031: Run link text: "Open run" or the flow name (build question)?
+- Choice: "Open run", with the escaped flow name in `aria-label` (as built).
+- Rationale: Settled by Showroom D-023 (the user's answer): Showroom keeps the plain flow name in its own cell and Impex's section renders "Open run". Criteria 4 and 6 updated to match.
+- Date: 2026-10-30
+- Raised by: build (group 2)

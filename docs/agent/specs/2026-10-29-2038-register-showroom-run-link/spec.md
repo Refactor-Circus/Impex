@@ -23,7 +23,7 @@ The workstreams ship as one spec and one PR (D-024): the screen declarations and
    - `Route::has('atrium.impex.runs.show')` is true, so a route-cache or plugin-loading mismatch hides the link instead of causing a 500.
 
    The closure checks the record type first and makes no query for other rows. The plugin-authorized check is memoized per request. A feature test with about 25 viewable run rows asserts a constant number of queries from the section (independent of the row count), and that the `view` policy check loads no relations. Tests cover each case false on its own: record not a `RunModel`, record unsaved, plugin not authorized for the request, `ScreenAccess` refuses, and route absent.
-4. **Rendering.** `impex::ui.screens.run-link` renders `<a href="{{ route('atrium.impex.runs.show', $record) }}" data-testid="impex-run-link">{{ $record->flow }}</a>`, styled with the classes Showroom uses today (`underline-offset-2 hover:underline`), and nothing else. `StylesTest` covers the view. A view render test asserts the exact anchor HTML for a given run, including a flow name containing markup, which is escaped.
+4. **Rendering.** `impex::ui.screens.run-link` renders `<a href="{{ route('atrium.impex.runs.show', $record) }}" data-testid="impex-run-link" aria-label="{{ __('impex::impex.open_run_flow', ['flow' => $record->flow]) }}">{{ __('impex::impex.open_run') }}</a>` (text "Open run", the escaped flow name in `aria-label`; D-031), styled with the classes Showroom uses today (`underline-offset-2 hover:underline`), and nothing else. `StylesTest` covers the view. A view render test asserts the exact anchor HTML for a given run, including a flow name containing markup, which is escaped.
 5. **Test host.** The tests use a workbench test-host screen, not Showroom as a dev dependency:
    - `Workbench\App\Http\Controllers\TestHostScreenController` serves `GET test-host/{key}` with `web` middleware, registered by the test case's `defineRoutes()`.
    - It declares `Screen::standard($key, Screen::LIST)` with a Gate-based `access()`, resolves it, and renders a workbench view.
@@ -32,7 +32,7 @@ The workstreams ship as one spec and one PR (D-024): the screen declarations and
    Tests key it `showroom.transfers`. `composer.json` gains no Showroom dependency (asserted by criterion 12's test).
    The link sits in its own `row.actions` fragment, beside the host's plain-text flow name; no dedicated title slot is asked of the host (D-023, D-026, D-029).
 6. **Behaviour.** `tests/Feature/Ui/RunLinkSectionTest.php`, on the test host keyed `showroom.transfers`, with rows of two runs the viewer may view, one run they may not, and one workbench `User` row, asserts:
-   - each viewable run's row has one `impex-run-link` to its `atrium.impex.runs.show` URL with its flow name escaped (a flow name containing markup is tested)
+   - each viewable run's row has one `impex-run-link` to its `atrium.impex.runs.show` URL, reading "Open run", with its flow name escaped in `aria-label` (a flow name containing markup is tested)
    - the run the viewer may not view and the `User` row have no link
    - with `impex.atrium.show_all = true` and authorization on, an operator sees the link on a run they don't own
    - with the `impex.atrium.features` entry that gates `atrium.impex.runs.show` turned off (the key is named in `config/impex.php`; the test sets it to `false` through config and lives in the default suite), no link renders, and the same holds when the plugin is not authorized for the request
@@ -142,3 +142,8 @@ The workstreams ship as one spec and one PR (D-024): the screen declarations and
 ## Changelog
 
 - 2026-10-29, approved: folded D-020 (both-ways no-Atrium proof and the Atrium `conflict`, criteria 12 and 14), D-021 (throw in local/testing, report and skip in production, criterion 2 and Design), D-022, D-025 and D-028 (both proofs), D-023, D-026 and D-029 (separate `row.actions` fragment, standard slots only), D-024 (one spec and PR). D-027 (skip and log, rethrow only in debug) is superseded by the suite rule D-021. The merged placeholder criterion 14 was removed and criteria 15 to 17 renumbered 14 to 16. Open questions Q-1 to Q-3 removed as decided.
+
+
+## Addendum 2026-10-30
+
+- D-031: the run link reads "Open run" and carries the escaped flow name in `aria-label` (Showroom D-023), since Showroom keeps the plain flow name in its own cell.
