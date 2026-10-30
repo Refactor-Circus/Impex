@@ -7,7 +7,7 @@ files: composer.json, tests/ArchTest.php, tests/TestCase.php, tests/Pest.php, te
 criteria: 5, 11, 12, 13, 14
 
 - [x] 1.1 Write tests: ComposerTest (require only keystone among refactor-circus, atrium in suggest with registry minimum and Keen, atrium in require-dev, atrium conflict starting with `<`, no showroom anywhere), the WithoutAtrium assertions of criterion 14, and a test-host smoke test that the list screen renders its rows with the standard slots.
-- [x] 1.2 Move refactor-circus/atrium from require to require-dev (dev-main), add its suggest description, and add a conflict on Atrium older than the screen-registry release (`<1.0.0` if Atrium is untagged, recorded in the PR).
+- [x] 1.2 Move refactor-circus/atrium from require to require-dev (dev-main), add its suggest description, and add a conflict on Atrium older than the screen-registry release (exactly `<0.1.0`, D-020).
 - [x] 1.3 Add the arch rule `only the Atrium layer uses Atrium` to tests/ArchTest.php.
 - [x] 1.4 Build the workbench TestHostScreenController and test-host view (screen-tabs, screen-tab-panel, header.actions, before, after and per-row row.actions sections) and wire it plus ResetsScreenExtensions into tests/TestCase.php and tests/Pest.php.
 - [x] 1.5 Add phpunit.without-atrium.xml, tests/WithoutAtrium/bootstrap.php (removes the Atrium PSR-4 prefix before any Atrium class loads) and its test case (explicit providers, no Atrium discovery, no workbench Atrium code), exclude it from phpunit.xml.dist, add the `test:without-atrium` script called by `composer test` after `@test:unit`, and add the `without-atrium` CI job (remove Atrium and dependents, `composer update`).

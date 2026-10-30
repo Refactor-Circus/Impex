@@ -61,3 +61,9 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: The user accepted the recommendation.
 - Date: 2026-10-29
 - Raised by: spec review; the user accepted all recommendations (2026-10-29)
+
+## D-025: Which Atrium `conflict` constraint should Impex ship (build question)?
+- Choice: Keep `<0.1.0` across the suite; criterion 12's `<1.0.0` fallback text is replaced.
+- Rationale: Already decided by D-020 and the suite rule ("conflict refactor-circus/atrium <0.1.0" in every package). Atrium's `v0.1.0` CHANGELOG section is an untagged placeholder; the registry sits under Unreleased, so the first tag (v0.1.0) carries it.
+- Date: 2026-10-30
+- Raised by: build (group 1)

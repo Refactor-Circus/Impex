@@ -71,7 +71,7 @@ The workstreams ship as one spec and one PR (D-024): the screen declarations and
     - `tests/Feature/Ui/AuditTrailTest.php`: deleted.
     - `tests/Feature/HistoryNavigationTest.php`, `links its own audit log from its sidebar group`: replaced by criterion 10's assertion.
     - `tests/Pest.php` and `tests/TestCase.php`: gain `ResetsScreenExtensions` and the test-host route.
-12. **Composer.** `refactor-circus/atrium` moves from `require` to `require-dev` (keeping its current `dev-main` constraint), and it is added to `suggest` with a description. Keystone stays the only suite package in `require`. `composer.json` gains a `conflict` entry for `refactor-circus/atrium` on versions older than the first release that contains the screen-extensions registry (Atrium PR #16), so a mismatched install fails at `composer update` (D-020). The constraint is `<V`, where V is that Atrium release; Atrium has no tag yet, so the builder takes V from Atrium's release at grouped-merge time and, if none is tagged when the group is built, uses `<1.0.0` and records that in the PR. A test reads `composer.json` and asserts:
+12. **Composer.** `refactor-circus/atrium` moves from `require` to `require-dev` (keeping its current `dev-main` constraint), and it is added to `suggest` with a description. Keystone stays the only suite package in `require`. `composer.json` gains a `conflict` entry for `refactor-circus/atrium` on versions older than the first release that contains the screen-extensions registry (Atrium PR #16), so a mismatched install fails at `composer update` (D-020). The constraint is exactly `<0.1.0` (D-020): Atrium has no tags, and v0.1.0 is its first release and carries the registry; the `v0.1.0` section in Atrium's CHANGELOG is an untagged placeholder. A test reads `composer.json` and asserts:
     - `require` has no `refactor-circus/*` key other than `refactor-circus/keystone`
     - `suggest` has `refactor-circus/atrium`, its description saying the screen-extensions registry release is the minimum and mentioning Keen for History
     - `require-dev` has `refactor-circus/atrium`
@@ -135,7 +135,7 @@ The workstreams ship as one spec and one PR (D-024): the screen declarations and
 
 - **Grouped merge.** Atrium PR #16 removes the history components, and Showroom drops its inline link. Merge Atrium, Keen, Showroom and Impex together, or the link disappears in between (D-024).
 - **Moving Atrium to `require-dev`** breaks apps that relied on Impex pulling it in. The `conflict` refuses an Atrium older than the registry, registration is also guarded on `ScreenExtensions`, and the `suggest` text and CHANGELOG state the minimum version.
-- **Atrium version for `conflict`.** Atrium has no release tag yet; the constraint needs the version that ships PR #16 (criterion 12). If it is not tagged when the group is built, `<1.0.0` is used and the PR records it, so Atrium's registry release must be 1.0.0 or later.
+- **Atrium version for `conflict`.** Atrium has no release tag yet; the suite uses `<0.1.0` (D-020), so Atrium's first tag, v0.1.0, must include PR #16.
 - **Production config errors.** A malformed `run_link.screens` entry is skipped apart from one report in production, so that link is missing until the report is acted on.
 - **Link placement.** Showroom's first column shows the flow name as plain text with the link in a separate `row.actions` fragment (D-026); an app can move it through config if Showroom later adds another slot.
 
