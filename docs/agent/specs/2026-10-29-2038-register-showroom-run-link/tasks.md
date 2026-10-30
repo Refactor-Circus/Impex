@@ -11,7 +11,7 @@ criteria: 5, 11, 12, 13, 14
 - [x] 1.3 Add the arch rule `only the Atrium layer uses Atrium` to tests/ArchTest.php.
 - [x] 1.4 Build the workbench TestHostScreenController and test-host view (screen-tabs, screen-tab-panel, header.actions, before, after and per-row row.actions sections) and wire it plus ResetsScreenExtensions into tests/TestCase.php and tests/Pest.php.
 - [x] 1.5 Add phpunit.without-atrium.xml, tests/WithoutAtrium/bootstrap.php (removes the Atrium PSR-4 prefix before any Atrium class loads) and its test case (explicit providers, no Atrium discovery, no workbench Atrium code), exclude it from phpunit.xml.dist, add the `test:without-atrium` script called by `composer test` after `@test:unit`, and add the `without-atrium` CI job (remove Atrium and dependents, `composer update`).
-- [ ] 1.6 Run vendor/bin/pest; all green
+- [x] 1.6 Run vendor/bin/pest; all green
 
 ## Group 2: Run link on other packages' screens
 package: Impex

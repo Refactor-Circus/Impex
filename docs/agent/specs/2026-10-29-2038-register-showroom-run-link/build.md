@@ -15,3 +15,13 @@
 **Conflict constraint.** The constraint is `<0.1.0`, as the salvage instructions require. Task 1.2's text says `<1.0.0` if Atrium is untagged. The PR has to record which constraint shipped.
 
 **Left.** Task 1.6 (`vendor/bin/pest` all green) was not run, because the salvage instructions say the gate runs the suite. Only `pint --test` was run on the group's PHP files, and it passed. The CI lane is verified only by a workflow run.
+
+## Group 1
+
+**Files.** No code changed in this round. Tasks 1.1 to 1.5 were already committed in the salvaged round above (7ecf257). The salvaged commit contains every file the group needs: `composer.json`, `tests/ArchTest.php` (`only the Atrium layer uses Atrium`), `tests/TestCase.php`, `tests/Pest.php`, `tests/Feature/ComposerTest.php`, `tests/Feature/Ui/TestHostScreenTest.php`, the workbench `TestHostScreenController` with its `test-host` and `test-host-marker` views, `phpunit.xml.dist`, `phpunit.without-atrium.xml`, `tests/WithoutAtrium/` and the `without-atrium` job in `.github/workflows/tests.yml`. This round ticks task 1.6 only.
+
+**Tests.** Task 1.6 is ticked without running the suite here: the job's instructions leave `vendor/bin/pest` to the gate after the build.
+
+**Deviations.**
+- The `conflict` constraint is `"refactor-circus/atrium": "<0.1.0"` (as are the `suggest` text and Polycart's matching job). Criterion 12 and the spec's Risks say that while Atrium has no release tag, the constraint must be `<1.0.0`, recorded in the PR. Atrium has no tags today, local or remote. Atrium's CHANGELOG already has a `v0.1.0` section from before the screen-extensions registry, so `<0.1.0` would not refuse that release if it were ever tagged. The constraint was left as committed and raised for a decision, because changing it moves the minimum version across the suite. `tests/Feature/ComposerTest.php` only asserts a non-empty constraint starting with `<`, so it passes with either value.
+- Unchanged from the salvaged round: `tests/Feature/Ui/TestHostScreenTest.php` and `workbench/resources/views/test-host-marker.blade.php` sit outside the group's file list. `AGENTS.md` has an unrelated uncommitted change, still left alone.
