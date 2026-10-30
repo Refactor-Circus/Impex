@@ -561,6 +561,40 @@ return [
         */
 
         'show_all' => false,
+
+        /*
+        |----------------------------------------------------------------------
+        | Run Link On Other Packages' Screens
+        |----------------------------------------------------------------------
+        |
+        | Where Impex adds its run link (the `impex.run-link` section, an
+        | "Open run" link to the run's page) to other packages' Atrium
+        | screens: screen keys mapped to the slot to render in, a row slot
+        | such as 'row.actions' (once per row) or a normal slot such as
+        | 'aside' (for the screen's record). By default the transfers rows
+        | of refactor-circus/showroom; a screen nobody declares renders
+        | nothing, so the default is harmless without Showroom.
+        |
+        | The link shows only on a saved Impex run, only while Impex is on
+        | in Atrium (every feature under `features` above is on, so the run
+        | page exists), only when the viewer may view that run (the
+        | policies, `impex.authorization` and operators under `show_all`
+        | apply, as on Impex's own screens) and only while the run page's
+        | route is loaded. It reveals nothing a viewer could not open.
+        |
+        | Set it to [] to add the link nowhere. A missing key (a config
+        | published before it existed) uses this default. A malformed entry
+        | (no screen key, no slot, a name Atrium rejects) throws at boot in
+        | the local and testing environments; elsewhere it is reported once
+        | and skipped, and the other entries still register.
+        |
+        */
+
+        'run_link' => [
+            'screens' => [
+                'showroom.transfers' => 'row.actions',
+            ],
+        ],
     ],
 
     /*

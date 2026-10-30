@@ -7,6 +7,7 @@ namespace RefactorCircus\Impex;
 use Illuminate\Support\Facades\Blade;
 use RefactorCircus\Impex\Atrium\ImpexPlugin;
 use RefactorCircus\Impex\Atrium\ScreenAccess;
+use RefactorCircus\Impex\Atrium\ScreenRegistrations;
 use RefactorCircus\Impex\Console\Commands\PruneCommand;
 use RefactorCircus\Impex\Domains\DomainServiceProvider;
 use RefactorCircus\Impex\Mcp\ImpexServer;
@@ -60,7 +61,12 @@ class ImpexServiceProvider extends PackageServiceProvider
         // A missing record on an Impex route answers a plain "Not found.".
         $this->registerNotFoundResponses();
 
+        // Before the Atrium registrations, whose labels are translated.
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'impex');
+
         $this->registerAtriumPlugin(ImpexPlugin::class);
+
+        $this->registerAtriumScreens();
 
         $this->registerMcpServer();
 
@@ -73,8 +79,6 @@ class ImpexServiceProvider extends PackageServiceProvider
         // @impexCan('cancel', $run) ... @endimpexCan: shown exactly when the
         // action behind the control would be allowed.
         Blade::if('impexCan', ScreenAccess::allows(...));
-
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'impex');
 
         if (! $this->app->runningInConsole()) {
             return;
@@ -97,5 +101,21 @@ class ImpexServiceProvider extends PackageServiceProvider
         ], ['impex', 'impex-migrations']);
 
         $this->commands([PruneCommand::class]);
+    }
+
+    /**
+     * Impex's sections on other packages' Atrium screens (the run link from
+     * `impex.atrium.run_link.screens`), behind the same guard as
+     * `registerAtriumPlugin()`: Atrium installed and `impex.ui.enabled`
+     * exactly true. The class is named as a string, so no Atrium class
+     * loads without Atrium.
+     */
+    private function registerAtriumScreens(): void
+    {
+        if (! class_exists('RefactorCircus\Atrium\Atrium') || config('impex.ui.enabled') !== true) {
+            return;
+        }
+
+        ScreenRegistrations::register();
     }
 }
