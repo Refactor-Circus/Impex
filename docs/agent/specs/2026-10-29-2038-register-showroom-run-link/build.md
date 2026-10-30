@@ -126,3 +126,17 @@ The full `composer test` script itself was left to the gate.
 **Deviations.**
 - `src/Atrium/ScreenRegistrations.php` and the three `tests/Feature/Ui` test files are outside the group's original file list. The job prompt assigned them for task 4.0.
 - `ImpexPluginTest`'s navigation test is a forced change that criterion 11's expected list does not name. The PR's list of changed tests should include it.
+
+## Group 4 (retry)
+
+**Files.** No code or doc changes. Tasks 4.0 to 4.4 were already committed in e77f1af (the test fixes) and fdb2220 (docs and changelog), and the worktree was clean. I checked them again against criterion 15:
+- `DocsTest` asserts the README, CHANGELOG, `docs/11-dashboard.md` and Boost skill strings.
+- The CHANGELOG upgrade note covers all seven topics.
+- The `conflict` is exactly `"refactor-circus/atrium": "<0.1.0"`.
+- The `impex-config` publish tag that the note names exists.
+
+`composer.local.json` was not regenerated.
+
+**Tests.** None were run in this round. The gate runs `composer test` (including `test:without-atrium`) and `vendor/bin/pest`.
+
+**Deviations.** None beyond those recorded in "Group 4" above.
