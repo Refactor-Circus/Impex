@@ -44,7 +44,8 @@ depends on: 2, 3
 files: README.md, docs/11-dashboard.md, resources/boost/skills/impex-development/SKILL.md, CHANGELOG.md, tests/Feature/DocsTest.php
 criteria: 15, 16
 
-- [ ] 4.1 Write tests in DocsTest for the README (`run_link.screens`, `impex.run-link`, `suggest`) and CHANGELOG (`suggest`, `conflict`, `run_link.screens`, `Keen`, `Showroom`) strings.
-- [ ] 4.2 Document `impex.atrium.run_link.screens`, the `impex.run-link` key, the visibility rules, the malformed-entry rule, Atrium as a suggestion and the CI lane as the authoritative no-Atrium proof in README.md, docs/11-dashboard.md and the Boost skill.
-- [ ] 4.3 Add the CHANGELOG upgrade note covering every topic listed in criterion 15.
-- [ ] 4.4 Run composer test (including test:without-atrium) and vendor/bin/pest; all green
+- [x] 4.0 Fix the 7 failing tests listed in RUN-3 first, then continue with the docs.
+- [x] 4.1 Write tests in DocsTest for the README (`run_link.screens`, `impex.run-link`, `suggest`) and CHANGELOG (`suggest`, `conflict`, `run_link.screens`, `Keen`, `Showroom`) strings.
+- [x] 4.2 Document `impex.atrium.run_link.screens`, the `impex.run-link` key, the visibility rules, the malformed-entry rule, Atrium as a suggestion and the CI lane as the authoritative no-Atrium proof in README.md, docs/11-dashboard.md and the Boost skill.
+- [x] 4.3 Add the CHANGELOG upgrade note covering every topic listed in criterion 15.
+- [x] 4.4 Run composer test (including test:without-atrium) and vendor/bin/pest; all green

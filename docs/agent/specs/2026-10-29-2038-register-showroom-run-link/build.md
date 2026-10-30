@@ -79,3 +79,50 @@
 **Tests.** Task 3.6 is ticked without running `vendor/bin/pest`, because the job's instructions leave the suite to the gate. The tests have not been run yet in any round. If the gate fails, look first at the spots named in the salvaged section: the `Dom\HTMLDocument` region checks in `DeclaredScreensTest` and the `?tab=` replacement assertions.
 
 **Deviations.** None beyond those recorded in the salvaged section. The uncommitted "Keep this checkout on `main`" line in `AGENTS.md` is still unstaged. It is not part of this group.
+
+## Group 4
+
+**Failing tests fixed (task 4.0).** The RUN-3 list was not handed over, so I ran the default suite and the named files to find the failures. There were seven:
+- `tests/Feature/Ui/ImpexPluginTest.php`, `contributes navigation for every section`: it still expected the `Audit log` item, which criterion 10 removes. It now expects the five items without it. This is a forced test change, and it belongs in the PR's criterion 11 list beside `HistoryNavigationTest`.
+- `tests/Feature/Ui/TestHostScreenTest.php`, all four tests: `User::factory()` resolved to a factory class that does not exist (`Database\Factories\Models\UserFactory`). The viewer is now made with `User::forceCreate()`, as `RunLinkSectionTest` does.
+- `tests/Feature/Ui/ScreenRegistrationsTest.php`, `reports a malformed entry once in production and registers the valid one`: the environment stayed `production` into teardown, where a confirmable command asked a question. The test switches back to `testing` right after the registration it exercises. The `local` test resets the environment the same way.
+- `tests/ArchTest.php`, the `php` preset: `ScreenRegistrations` used `var_export()` in its error message. It now uses a private `describe()` that gives JSON, or the value's type when JSON fails. The message is unchanged apart from that formatting.
+
+These are in commit e77f1af.
+
+**Files.**
+- `tests/Feature/DocsTest.php` (new). It checks:
+  - the README has `run_link.screens`, `impex.run-link`, `suggest` and `without-atrium`
+  - `docs/11-dashboard.md` and the Boost skill have `impex.atrium.run_link.screens`, `impex.run-link` and `suggest`
+  - the CHANGELOG has `suggest`, `conflict`, `<0.1.0`, `run_link.screens`, `Keen` and `Showroom`
+- `README.md`:
+  - The Dashboard section says Atrium is suggested, with the 0.1.0 minimum and the `<0.1.0` conflict.
+  - A new "Run links on other packages' screens" subsection covers the config key and its default, row and normal slots, `[]`, the missing-key fallback, the four visibility rules and the malformed-entry rule.
+  - A new "Without Atrium" subsection explains the in-process suite and says the CI lane is the authoritative proof, verified only by the workflow run.
+  - The Testing section has a note on the same.
+- `docs/11-dashboard.md`:
+  - Setup says Atrium is suggested, with the minimum, the conflict and Keen for History.
+  - A new "Run links on other packages' screens" section has the visibility rules as a table and the malformed-entry rule.
+  - A new "Without Atrium" section says the CI lane is the authoritative proof.
+- `resources/boost/skills/impex-development/SKILL.md`: the "Watch it" step covers Atrium in `suggest`, the minimum and conflict, the Atrium-layer boundary, both no-Atrium proofs, the run link config, its visibility rules and the malformed-entry rule.
+- `CHANGELOG.md`: a new "Upgrading" subsection under Unreleased. It covers every topic in criterion 15:
+  - the grouped merge with Atrium, Keen and Showroom
+  - Atrium moved to `suggest`, with the minimum and the `conflict` on `<0.1.0`
+  - Keen for History, and the history UI removed
+  - the new config key
+  - republishing `config/impex.php`, with the missing-key fallback
+  - the malformed-entry rule
+
+  The unreleased "Added" entry for the Audit log sidebar link is gone, since that link is removed before release.
+
+**Tests.** I ran the following, and all of them pass:
+- `vendor/bin/pest --parallel`: 476 tests
+- `composer test:without-atrium`: 6 tests
+- `pint --test` on the changed PHP files
+- `composer analyse`: 0 errors
+
+The full `composer test` script itself was left to the gate.
+
+**Deviations.**
+- `src/Atrium/ScreenRegistrations.php` and the three `tests/Feature/Ui` test files are outside the group's original file list. The job prompt assigned them for task 4.0.
+- `ImpexPluginTest`'s navigation test is a forced change that criterion 11's expected list does not name. The PR's list of changed tests should include it.

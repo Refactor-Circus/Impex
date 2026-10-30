@@ -534,7 +534,13 @@ About how it works:
 
 ## Dashboard
 
-Impex renders its dashboard through [Atrium](https://github.com/Refactor-Circus/Atrium), which it requires. Define Atrium's gate and Impex appears in the sidebar:
+Impex renders its dashboard through [Atrium](https://github.com/Refactor-Circus/Atrium), which it suggests rather than requires: Keystone is Impex's only suite dependency. Install Atrium, at least the screen-extensions registry release (0.1.0), to get the dashboard; `composer.json` has a `conflict` on `refactor-circus/atrium` `<0.1.0`, so an older Atrium is refused at `composer update`. Without Atrium, Impex boots and serves its HTTP API and MCP server, and no `atrium.` route exists (see [Without Atrium](#without-atrium)).
+
+```bash
+composer require refactor-circus/atrium
+```
+
+Define Atrium's gate and Impex appears in the sidebar:
 
 ```php
 use Illuminate\Support\Facades\Gate;
@@ -551,6 +557,35 @@ The screens follow Atrium's screen conventions: actions are icon buttons whose l
 History comes from [refactor-circus/keen](https://github.com/Refactor-Circus/Keen), which attaches it to every Atrium screen; Impex renders no history of its own, so install Keen to keep it. Run steps stay in the step timeline: they record execution, not changes.
 
 Every Impex screen declares itself to Atrium's screen registry (`impex.runs`, `impex.run`, `impex.messages`, `impex.message`, `impex.flows`, `impex.channels`, `impex.channel-create`, `impex.channel`, `impex.subscriptions`, `impex.subscription`) with the standard slots, so other packages can add tabs and sections through `Atrium::screens()`. On the flows and channels lists, a row without a stored model gets an unsaved stand-in (`new FlowOverrideModel(['slug' => ...])`, `new ChannelModel(['name' => ...])`) whose `exists` is false, as does a configured channel's page. A section's `permission()` is asked through `ScreenAccess::allows()`, operators included. See [docs/11-dashboard.md](docs/11-dashboard.md#screen-extensions).
+
+### Run links on other packages' screens
+
+Impex links any row whose record is an Impex run to that run's Atrium page. It places the link only where `impex.atrium.run_link.screens` says, as one `impex.run-link` section per entry, keyed by screen key with a slot name as the value:
+
+```php
+// config/impex.php
+'atrium' => [
+    'run_link' => [
+        'screens' => [
+            'showroom.transfers' => 'row.actions', // the default
+            // 'acme.jobs' => 'aside',
+        ],
+    ],
+],
+```
+
+In a row slot (`row.actions`) the link is drawn per row, beside the host's own cells; in any other slot it uses the screen's record. It reads "Open run" and names the flow in its `aria-label`. Impex names no host in its code: the hosts come from this config alone, and a screen nobody declares never renders. Set `screens` to `[]` to place the link nowhere. A config published before this key existed has no `run_link` entry and gets the default; only an explicit `[]` registers nothing.
+
+The link shows only when all of these hold:
+
+- the row (or, outside a row slot, the screen's record) is a saved `RunModel`
+- Impex's Atrium plugin is authorized for the request, so its features and its run page are on
+- the viewer may `view` the run through `ScreenAccess::allows()`, operators (`impex.atrium.show_all`) included
+- the `atrium.impex.runs.show` route is loaded, so a route-cache or plugin-loading mismatch hides the link instead of failing the page
+
+Other rows cost no query, and the plugin check runs once per request.
+
+Each entry needs a non-empty string screen key and a non-empty string slot name. A malformed entry, or one Atrium rejects, throws `InvalidArgumentException` at boot in the `local` and `testing` environments; anywhere else (production) it is reported once with `report()` and skipped, and the other entries still register. The links are registered only while Atrium is installed and `impex.ui.enabled` is on.
 
 ### Who sees what
 
@@ -611,6 +646,12 @@ Feature::for(null)->deactivate(ImpexSupportFeature::class);
 Without PennantPlus the class is skipped and nothing is checked. Name a subclass (to default it off, say) or your own feature instead; an empty list removes the switch.
 
 > **Gate this carefully.** The dashboard renders every payload that has crossed your application boundary.
+
+### Without Atrium
+
+Atrium is in Impex's `suggest`, not its `require`. Without it Impex boots, registers no `atrium.` route and no screen, and serves its HTTP API and MCP server as usual. Only the code in `RefactorCircus\Impex\Atrium` uses Atrium, which an arch test checks, and it is reached only while `RefactorCircus\Atrium\Atrium` exists and `impex.ui.enabled` is on.
+
+Two checks prove it. `composer test` runs `composer test:without-atrium`, which hides Atrium's classes from the autoloader in process and boots Impex, its API and MCP without them. That run cannot see a classmap or Composer `files` leak, so the authoritative proof is the `without-atrium` CI lane: it uninstalls `refactor-circus/atrium` (and every dev dependency that requires it), runs `composer update`, and runs `composer test:without-atrium` against a vendor directory with no Atrium in it. Only the workflow run verifies that lane; `composer test` does not.
 
 ## Child workflows
 
@@ -839,6 +880,8 @@ Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Ke
 ```bash
 composer test
 ```
+
+`composer test` includes `composer test:without-atrium`, the in-process no-Atrium suite. The `without-atrium` CI lane, which uninstalls Atrium, is the authoritative no-Atrium proof (see [Without Atrium](#without-atrium)).
 
 ## License
 
