@@ -25,12 +25,6 @@ beforeEach(function (): void {
     ]);
 });
 
-it('mounts the dashboard through atrium', function (): void {
-    // The dashboard renders every payload that has crossed the application
-    // boundary, so it sits behind Atrium's authorization gate.
-    expect(app('router')->getRoutes()->getByName('atrium.impex.runs.index'))->not->toBeNull();
-});
-
 it('lists the registered flows with their effective schedule', function (): void {
     config()->set('impex.schedule', ['linear' => '0 * * * *']);
 

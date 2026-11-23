@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
 use RefactorCircus\Impex\Domains\Artifact\Models\ArtifactModel;
 use RefactorCircus\Impex\Domains\Artifact\Policies\ArtifactPolicy;
 use RefactorCircus\Impex\Domains\Batch\Models\BatchItemModel;
@@ -349,9 +348,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Impex keeps no audit log of its own. With refactor-circus/keen
-    | installed, Keen records every change Impex makes, and Impex shows the
-    | history on its Atrium pages, its `GET /impex/history` route and its
-    | history MCP tool. Without Keen none of that exists.
+    | installed, Keen records every change Impex makes, and Impex offers the
+    | history through its `GET /impex/history` route and its history MCP
+    | tool. Without Keen neither exists.
     |
     | enabled: Set to false to keep Impex out of the audit log even while
     |          Keen is installed: Keen records nothing of Impex's, and Impex
@@ -506,95 +505,6 @@ return [
         'enabled' => true,
         'server' => 'impex',
         'tools' => null,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard UI
-    |--------------------------------------------------------------------------
-    |
-    | Impex renders its dashboard through Atrium, which owns the path,
-    | middleware and authorization gate. Gate it carefully: the dashboard
-    | exposes every payload that has crossed the application boundary.
-    |
-    */
-
-    'ui' => [
-
-        /*
-        | Whether Impex registers itself with the Atrium dashboard. The JSON
-        | API is unaffected by this switch.
-        */
-
-        'enabled' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Atrium Features
-    |--------------------------------------------------------------------------
-    |
-    | Features that switch Impex in Atrium on and off as a whole: while any is
-    | off its navigation, widgets, settings and search are hidden and its
-    | pages answer 404. With refactor-circus/pennantplus installed, ImpexSupportFeature
-    | is on until its global value is set; per-user values are ignored, so
-    | who sees what stays with the policies above. Without PennantPlus the
-    | class is skipped and nothing is checked. Name a subclass, or your own
-    | feature, to change it; an empty list turns the switch off.
-    |
-    */
-
-    'atrium' => [
-        'features' => [
-            ImpexSupportFeature::class,
-        ],
-
-        /*
-        | Operators on the dashboard. With authorization on, the screens show
-        | each user only the runs they own, so runs with no owner — scheduled
-        | and channel runs — appear to nobody. An operator sees every run,
-        | message, count, widget and search result, and may use every Impex
-        | control on them, on the Atrium screens only: the JSON API and MCP
-        | tools still apply the policies. false: nobody is an operator. true:
-        | everyone past Atrium's gate is. A string: the name of a Gate
-        | ability, and those it allows are, e.g. 'impex-operator'.
-        */
-
-        'show_all' => false,
-
-        /*
-        |----------------------------------------------------------------------
-        | Run Link On Other Packages' Screens
-        |----------------------------------------------------------------------
-        |
-        | Where Impex adds its run link (the `impex.run-link` section, an
-        | "Open run" link to the run's page) to other packages' Atrium
-        | screens: screen keys mapped to the slot to render in, a row slot
-        | such as 'row.actions' (once per row) or a normal slot such as
-        | 'aside' (for the screen's record). By default the transfers rows
-        | of refactor-circus/showroom; a screen nobody declares renders
-        | nothing, so the default is harmless without Showroom.
-        |
-        | The link shows only on a saved Impex run, only while Impex is on
-        | in Atrium (every feature under `features` above is on, so the run
-        | page exists), only when the viewer may view that run (the
-        | policies, `impex.authorization` and operators under `show_all`
-        | apply, as on Impex's own screens) and only while the run page's
-        | route is loaded. It reveals nothing a viewer could not open.
-        |
-        | Set it to [] to add the link nowhere. A missing key (a config
-        | published before it existed) uses this default. A malformed entry
-        | (no screen key, no slot, a name Atrium rejects) throws at boot in
-        | the local and testing environments; elsewhere it is reported once
-        | and skipped, and the other entries still register.
-        |
-        */
-
-        'run_link' => [
-            'screens' => [
-                'showroom.transfers' => 'row.actions',
-            ],
-        ],
     ],
 
     /*

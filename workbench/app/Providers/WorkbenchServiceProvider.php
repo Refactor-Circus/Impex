@@ -5,7 +5,6 @@ namespace Workbench\App\Providers;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 use Workbench\App\Flows\ExportOrdersFlow;
@@ -49,8 +48,8 @@ class WorkbenchServiceProvider extends ServiceProvider
                 'signature_header' => 'X-Storefront-Signature',
                 'store_headers' => ['content-type'],
             ],
-            // Deliberately left without a secret: the Channels page flags it,
-            // and every request to it is recorded and refused.
+            // Deliberately left without a secret: every request to it is
+            // recorded and refused.
             'legacy-erp' => [
                 'direction' => 'inbound',
                 'path' => 'erp/notify',
@@ -61,18 +60,9 @@ class WorkbenchServiceProvider extends ServiceProvider
             'partner-sftp' => ['direction' => 'outbound'],
         ]);
 
-        // Drive runs as soon as they start, so the Run, Signal, Cancel and
-        // Retry buttons work without a queue worker.
+        // Drive runs as soon as they start, so runs triggered, signalled,
+        // cancelled or retried through the API finish without a queue worker.
         config()->set('queue.default', 'sync');
-
-        // refactor-circus/pennantplus's layered store: users who follow a feature's
-        // global value store nothing, as in a real application.
-        config()->set('pennant.default', 'pennantplus');
-        config()->set('pennant.stores.pennantplus', [
-            'driver' => 'pennantplus',
-            'connection' => null,
-            'table' => 'features',
-        ]);
     }
 
     /**
@@ -86,14 +76,6 @@ class WorkbenchServiceProvider extends ServiceProvider
                 $kernel->appendMiddlewareToGroup('web', SignInWorkbenchUser::class);
             }
         });
-
-        // The workbench dashboard is open so `composer serve` is usable
-        // without logging in. A real application defines a real gate.
-        Gate::define('viewAtrium', fn ($user = null): bool => true);
-
-        // Show every run on the dashboard, including scheduled and channel
-        // runs nobody owns, as an operator dashboard would.
-        config()->set('impex.atrium.show_all', true);
 
         // The upstreams the demo flows call are stubs, so their traffic still
         // lands in the ledger without leaving the machine.

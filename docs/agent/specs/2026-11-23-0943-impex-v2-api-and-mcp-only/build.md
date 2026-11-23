@@ -126,3 +126,61 @@ Settings summary endpoint: `GET impex/settings-summary` (`impex.settings-summary
 
 - As in groups 1 and 2, the read action dispatches the event pair (criterion 8) and uses the package's `execute()`/`perform()` shape. Its starting event carries no input because the action takes none.
 - `SettingsSummary` takes its state through a readonly constructor, like `RunStats`, rather than the value-objects standard's `public private(set)` properties with fluent setters. The spec calls for a readonly value object.
+
+## Group 4
+
+Remove the Atrium UI, its config, composer entries and tests. Criteria 10, 11, 12, 13, 14.
+
+### Files
+
+- Deleted:
+  - `src/Atrium/**`, `resources/views/**` and `lang/**`
+  - `tests/Feature/Ui/**`, `tests/PennantPlus/**`, `tests/PennantPlusTestCase.php`, `tests/WithoutAtrium/**` and `tests/Fixtures/Features/**`
+  - `tests/Feature/HistoryNavigationTest.php` and `tests/Feature/NavigationSectionTest.php`
+  - `phpunit.without-atrium.xml`
+  - `workbench/app/Http/Controllers/TestHostScreenController.php` and `workbench/resources/views/test-host.blade.php` and `test-host-marker.blade.php`
+- `src/ImpexServiceProvider.php`: dropped the Atrium imports, the `Blade` import, `loadTranslationsFrom()`, `registerAtriumPlugin()`, `registerAtriumScreens()` (the call and the method), `loadViewsFrom()`, `Blade::if('impexCan')`, and the `impex-views` and `impex-lang` publishes. `registerCortex()`, `registerPolicies()`, `registerNotFoundResponses()`, `registerMcpServer()`, `loadHistoryRoutes()`, the config and migration publishes and the prune command stay.
+- `src/Domains/Flow/Policies/FlowOverridePolicy.php`: the docblock says changes are denied by default, and that an application points `impex.policies` at its own policy to allow them.
+- `config/impex.php`: dropped the `ui` and `atrium` sections and the `ImpexSupportFeature` import. The `audit` banner named "its Atrium pages", so it now names only the history route and MCP tool. `routes`, `mcp` and `cortex` are unchanged.
+- `composer.json`:
+  - Dropped `refactor-circus/atrium` from `require-dev`, `suggest` and `conflict`.
+  - Dropped `refactor-circus/pennantplus` from `require-dev` and `suggest`, along with its VCS repository.
+  - Dropped `extra.atrium`, the `test:without-atrium` script and its `test` entry.
+  - Added `dedoc/scramble` `^0.13.55` to `require-dev`; see Deviations.
+  - The Atrium VCS repository stays (D-007).
+- `testbench.yaml`: dropped the Atrium provider, the Pennant migrations and `atrium-assets`. `start` is `/`; group 5 sets `/docs/api`.
+- `phpunit.xml.dist`: dropped the PennantPlus suite and the WithoutAtrium comment.
+- `.github/workflows/tests.yml`: removed the `without-atrium` job.
+- `workbench/app/Providers/WorkbenchServiceProvider.php`: dropped the `viewAtrium` gate, `impex.atrium.show_all`, the Pennant store setup and the unused `Gate` import. Two comments that described dashboard buttons and the Channels page now describe the API.
+- `tests/TestCase.php`: dropped `AtriumServiceProvider`, `atrium.disabled`, `defineRoutes()` and the test-host import.
+- `tests/Pest.php`: dropped `ResetsScreenExtensions`, the PennantPlus `uses()` and a stale dashboard comment.
+- `tests/CortexTestCase.php`: unchanged. Cortex v0.1.0 boots with `AiServiceProvider` and `CortexServiceProvider` alone, because it guards its Atrium code with `class_exists()`, so it does not need Atrium's provider.
+- `tests/ArchTest.php`: the rule is now `arch('nothing uses Atrium')->expect('RefactorCircus\Impex')->not->toUse('RefactorCircus\Atrium')`, with no `ignoring()`.
+- `tests/Feature/ApiTest.php`: removed "mounts the dashboard through atrium".
+- `tests/Feature/NoHistoryUiTest.php`: kept the audit-trail and `historyNavItem` scan, with its docblock reworded to drop Atrium. Dropped the test that `docs/11-dashboard.md` mentions Keen, because group 7 rewrites that doc as a pointer to Atrium v2.
+- `tests/Feature/ComposerTest.php`: rewritten for criterion 13.
+- New `tests/Feature/AtriumRemovedTest.php`.
+
+### Tests
+
+- `AtriumRemovedTest` covers these cases:
+  - no route name starts with `atrium.impex.`
+  - `src/Atrium`, `resources/views` and `lang` are not directories
+  - no file under `src/` or `config/` contains "atrium" in any letter case
+  - `impex.ui` and `impex.atrium` are null, and `impex.cortex` and `impex.routes` equal their shipped values
+  - `ImpexSupportFeature` does not exist
+  - `ServiceProvider::publishableGroups()` has `impex-config` but neither `impex-views` nor `impex-lang`
+- `ComposerTest` covers these cases:
+  - Keystone is the only suite package in `require`
+  - Atrium is absent from `require`, `require-dev`, `suggest` and `conflict`, and there is no `extra.atrium`
+  - PennantPlus is absent from `require-dev` and `suggest`
+  - Showroom is never a dependency
+  - there is no `test:without-atrium` script, and `test` does not call one
+  - `dedoc/scramble` is in `require-dev` and not in `require`
+- `composer update` ran. It removed `refactor-circus/atrium`, `refactor-circus/pennantplus` and `laravel/pennant`, and installed `dedoc/scramble` v0.13.55. It also moved `refactor-circus/keystone` and `refactor-circus/cortex` from the previously installed dev-main to the tagged `v0.1.1` and `v0.1.0` that `^0.1` resolves to.
+- `composer analyse` passes, and Pint passes on the changed files. A targeted run of `AtriumRemovedTest`, `ComposerTest`, `NoHistoryUiTest`, `ArchTest` and `tests/Cortex` passed: 46 tests. Following the prompt, the full suite and `composer test` were left to the gate.
+
+### Deviations
+
+- `dedoc/scramble` went into `require-dev` here rather than in group 5 (task 5.2). Criterion 13, which this group proves, requires it in `ComposerTest`, and the assertion would fail until group 5 without it. v0.13.55 requires `illuminate/contracts ^10|^11|^12|^13` and `php ^8.1`, so it supports Laravel 13 and PHP 8.5. In tests it is never loaded: Testbench ignores package discovery outside the workbench. Group 5 only needs to configure it.
+- Spec risk note: `refactor-circus/cortex` lists Atrium only in `require-dev`, not `require`. Atrium is therefore no longer installed in development at all, and the Atrium VCS repository kept under D-007 now resolves nothing.
