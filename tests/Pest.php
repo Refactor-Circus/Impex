@@ -43,9 +43,9 @@ function mcpTool(string $tool, array $arguments = []): TestResponse
  * @var array<string, string>
  */
 const MCP_EXCEPTIONS = [
-    // Nothing yet: every Action currently has a tool. An artifact download
-    // would land here when it is added, because a binary stream has no
-    // sensible MCP shape.
+    // An artifact download would land here when it is added, because a
+    // binary stream has no sensible MCP shape.
+    'ShowRunStatsAction' => 'A dashboard aggregate for the Atrium v2 integration; agents use list-runs-tool and its filters (D-005).',
 ];
 
 /**
