@@ -340,3 +340,14 @@ The suite was not run: the prompt left it to the gate. A grep of the owned docs 
 
 - None from the spec.
 - Docs outside this group's files still say "the dashboard" in passing: `docs/04-rollback.md:54`, `docs/07-ledger.md:54`, `docs/16-children.md:4`, `docs/18-channels.md:303` and `docs/19-subscriptions.md:14,1070-1073`. The last of these is a "Subscriptions screen" paragraph that links `11-dashboard.md#subscriptions`, an anchor that no longer exists. None of them names an Atrium key, step or class, and criterion 23 does not list them. A follow-up can reword them.
+
+### Retry
+
+The retry found tasks 7.1–7.6 already done in the previous group 7 commit, and nothing was left to finish. It checked the owned docs against criteria 21–23 again:
+
+- README covers the endpoints, `openapi.json`, the client, `client:generate` and Atrium v2, with no Atrium install or config steps.
+- The CHANGELOG `## [v2.0.0]` upgrade note covers every bullet of criterion 22, including D-006.
+- `CLAUDE.md` is a symlink to `AGENTS.md`.
+- The remaining Atrium mentions only point to Atrium v2.
+
+A targeted `pest tests/Feature/DocsTest.php` passed: 18 tests, 146 assertions. The gate runs the full suite.
