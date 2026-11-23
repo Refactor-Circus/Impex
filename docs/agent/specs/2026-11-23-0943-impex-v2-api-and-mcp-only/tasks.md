@@ -65,12 +65,12 @@ depends on: 5
 files: client/package.json, client/package-lock.json, client/tsconfig.json, client/README.md, client/src/index.ts, client/src/schema.d.ts, client/openapi.sha256, composer.json, .gitignore, .github/workflows/tests.yml, tests/Feature/ClientTest.php
 criteria: 17, 18, 19
 
-- [ ] 6.1 Write `tests/Feature/ClientTest.php`: `client/package.json` has name `@refactor-circus/impex-client`, version `2.0.0`, `openapi-fetch` in `dependencies`, and exact versions (no `^` or `~`) for `openapi-typescript` and `typescript`; `client/package.json` has the `generate` and `typecheck` scripts; `client/src/index.ts` exports `createImpexClient` and the `paths`, `components` and `operations` types; `client/openapi.sha256` equals the sha256 of `openapi.json`; `composer.json` `client:generate` runs the four steps of criterion 18 in order.
-- [ ] 6.2 Create `client/`: `package.json` (`type: module`, `exports: ./src/index.ts`), `tsconfig.json` (strict, `noEmit`), `src/index.ts` (the `createImpexClient(options)` wrapper over `createClient<paths>`), and `README.md`. The README covers usage, consuming the client as a git dependency (pnpm `path:/client`), and regeneration.
-- [ ] 6.3 Add the `client:generate` composer script and `/client/node_modules` to `.gitignore`; leave `.gitattributes` alone (client/ and openapi.json stay in the git tree Atrium pins).
-- [ ] 6.4 Run `composer client:generate`. Commit `package-lock.json`, `src/schema.d.ts` and `openapi.sha256`, then run `npm --prefix client run typecheck`.
-- [ ] 6.5 Add a `client` job to `.github/workflows/tests.yml`: PHP 8.5, Node LTS, `composer update`, `composer client:generate`, `git diff --exit-code -- openapi.json client`, then the typecheck.
-- [ ] 6.6 Run vendor/bin/pest; all green
+- [x] 6.1 Write `tests/Feature/ClientTest.php`: `client/package.json` has name `@refactor-circus/impex-client`, version `2.0.0`, `openapi-fetch` in `dependencies`, and exact versions (no `^` or `~`) for `openapi-typescript` and `typescript`; `client/package.json` has the `generate` and `typecheck` scripts; `client/src/index.ts` exports `createImpexClient` and the `paths`, `components` and `operations` types; `client/openapi.sha256` equals the sha256 of `openapi.json`; `composer.json` `client:generate` runs the four steps of criterion 18 in order.
+- [x] 6.2 Create `client/`: `package.json` (`type: module`, `exports: ./src/index.ts`), `tsconfig.json` (strict, `noEmit`), `src/index.ts` (the `createImpexClient(options)` wrapper over `createClient<paths>`), and `README.md`. The README covers usage, consuming the client as a git dependency (pnpm `path:/client`), and regeneration.
+- [x] 6.3 Add the `client:generate` composer script and `/client/node_modules` to `.gitignore`; leave `.gitattributes` alone (client/ and openapi.json stay in the git tree Atrium pins).
+- [x] 6.4 Run `composer client:generate`. Commit `package-lock.json`, `src/schema.d.ts` and `openapi.sha256`, then run `npm --prefix client run typecheck`.
+- [x] 6.5 Add a `client` job to `.github/workflows/tests.yml`: PHP 8.5, Node LTS, `composer update`, `composer client:generate`, `git diff --exit-code -- openapi.json client`, then the typecheck.
+- [x] 6.6 Run vendor/bin/pest; all green
 
 ## Group 7: Docs for v2.0.0
 depends on: 4, 5, 6

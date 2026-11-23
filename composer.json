@@ -100,6 +100,12 @@
         "openapi:generate": [
             "@php vendor/bin/testbench scramble:export --path=openapi.json"
         ],
+        "client:generate": [
+            "@php vendor/bin/testbench scramble:export --path=openapi.json",
+            "npm --prefix client ci",
+            "npm --prefix client run generate",
+            "@php -r \"file_put_contents('client/openapi.sha256', hash_file('sha256', 'openapi.json').PHP_EOL);\""
+        ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"
         ],
