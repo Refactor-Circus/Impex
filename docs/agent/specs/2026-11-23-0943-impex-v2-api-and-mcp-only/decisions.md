@@ -91,3 +91,9 @@
 - Rationale: The user asked for this job to proceed without stopping and without spec review.
 - Date: 2026-11-23
 - Raised by: write-spec; default chosen because the user asked to proceed without stopping
+
+## D-014: impex.flows.index has no resource class; is checking flows against ListFlowsTool::outputSchema() enough?
+- Choice: Yes. Keep ListFlowsTool::outputSchema() as the source for flows in the workbench ResourceResponses and the OpenAPI test, as built. A FlowResource can come in a later spec.
+- Rationale: Same payload, already declared; adding a resource would change src/ outside the group. Recommended option.
+- Date: 2026-11-23
+- Raised by: factory build (group 5); default chosen because the user asked to proceed without stopping
