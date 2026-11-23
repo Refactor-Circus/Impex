@@ -2,9 +2,13 @@
 
 namespace Workbench\App\Providers;
 
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\Operation;
+use Dedoc\Scramble\Support\RouteInfo;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Client\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 use Workbench\App\Flows\ExportOrdersFlow;
@@ -12,6 +16,7 @@ use Workbench\App\Flows\ImportCustomersFlow;
 use Workbench\App\Flows\PurchaseApprovalFlow;
 use Workbench\App\Flows\SupplierStockSyncFlow;
 use Workbench\App\Http\Middleware\SignInWorkbenchUser;
+use Workbench\App\OpenApi\ResourceResponses;
 
 class WorkbenchServiceProvider extends ServiceProvider
 {
@@ -63,6 +68,28 @@ class WorkbenchServiceProvider extends ServiceProvider
         // Drive runs as soon as they start, so runs triggered, signalled,
         // cancelled or retried through the API finish without a queue worker.
         config()->set('queue.default', 'sync');
+
+        // The OpenAPI document (`composer openapi:generate`, committed as
+        // openapi.json). Every value is fixed so the export is byte-stable.
+        config()->set('scramble.api_path', 'impex');
+        config()->set('scramble.info.version', '2.0.0');
+        config()->set('scramble.info.description', 'The Impex operator API.');
+        config()->set('scramble.ui.title', 'Impex');
+        config()->set('scramble.servers', ['Impex' => 'http://localhost/impex']);
+        // The workbench user reads the docs at /docs/api in any environment.
+        config()->set('scramble.middleware', ['web']);
+
+        // Scramble reads model columns when their tables exist, so a migrated
+        // workbench database would change the export. It always reads an
+        // empty one instead.
+        if ($this->app->runningConsoleCommand('scramble:export')) {
+            config()->set('database.connections.openapi', [
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+                'prefix' => '',
+            ]);
+            config()->set('database.default', 'openapi');
+        }
     }
 
     /**
@@ -96,5 +123,23 @@ class WorkbenchServiceProvider extends ServiceProvider
             },
             'supplier.example.test/*' => Http::response(['status' => 'received', 'reference' => 'SUP-88412'], 201),
         ]);
+
+        $this->configureOpenApi();
+    }
+
+    /**
+     * Document the package's own `impex.*` routes, each under its route name.
+     * The per-channel inbound routes (`impex.channels.receive.{channel}`) come
+     * from the workbench's channel config, not the package, so they stay out.
+     */
+    private function configureOpenApi(): void
+    {
+        Scramble::configure()
+            ->routes(fn (Route $route): bool => str_starts_with((string) $route->getName(), 'impex.')
+                && ! str_starts_with((string) $route->getName(), 'impex.channels.receive.'))
+            ->withOperationTransformers(function (Operation $operation, RouteInfo $routeInfo): void {
+                $operation->setOperationId($routeInfo->route->getName());
+            })
+            ->withOperationTransformers(ResourceResponses::class);
     }
 }

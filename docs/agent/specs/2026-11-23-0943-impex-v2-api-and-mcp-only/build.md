@@ -184,3 +184,45 @@ Remove the Atrium UI, its config, composer entries and tests. Criteria 10, 11, 1
 
 - `dedoc/scramble` went into `require-dev` here rather than in group 5 (task 5.2). Criterion 13, which this group proves, requires it in `ComposerTest`, and the assertion would fail until group 5 without it. v0.13.55 requires `illuminate/contracts ^10|^11|^12|^13` and `php ^8.1`, so it supports Laravel 13 and PHP 8.5. In tests it is never loaded: Testbench ignores package discovery outside the workbench. Group 5 only needs to configure it.
 - Spec risk note: `refactor-circus/cortex` lists Atrium only in `require-dev`, not `require`. Atrium is therefore no longer installed in development at all, and the Atrium VCS repository kept under D-007 now resolves nothing.
+
+## Group 5
+
+OpenAPI export with Scramble. Criteria 15, 16, 20.
+
+### Files
+
+- `composer.json`: `dedoc/scramble` `^0.13.55` was already in `require-dev` from group 4 (installed v0.13.55, which supports Laravel 13 and PHP 8.5). This group adds the `openapi:generate` script, `@php vendor/bin/testbench scramble:export --path=openapi.json`.
+- `workbench/app/Providers/WorkbenchServiceProvider.php`:
+  - `register()` sets `scramble.api_path` to `impex`, `info.version` to `2.0.0`, a description, `ui.title` `Impex`, the fixed server `http://localhost/impex`, and `scramble.middleware` `['web']`, so `/docs/api` opens in any environment.
+  - While `scramble:export` runs, `register()` also points `database.default` at an empty in-memory SQLite connection. Scramble reads model columns whenever their tables exist, so without this a workbench migrated by `composer build` would export a different document from CI.
+  - `boot()` documents only routes named `impex.*`. It leaves out `impex.channels.receive.{channel}`, which the workbench's `legacy-erp` channel config adds; the package does not ship it. Every operation id is set to the route name, and `ResourceResponses` is registered as an operation transformer.
+- `workbench/app/OpenApi/ResourceResponses.php`: a Scramble `OperationExtension`. `responses(JsonSchema)` maps each criterion 16 route name to its success body, built from the resource's `schema()`:
+  - single resources use `{data: schema()}`
+  - plain lists (search, channels) use `{data: [schema()]}`
+  - cursor-paginated lists (runs, messages, subscriptions) use `collectionSchema()` with their Data's `pagination()`, which adds `meta`
+  - flows has no resource class, so it uses `ListFlowsTool::outputSchema()`, the same payload
+
+  `handle()` replaces the operation's 2xx response with that body as raw JSON Schema (valid OpenAPI 3.1) and keeps the error responses. Scramble left `impex.flows.index` and `impex.channels.index` untyped (`data: string`), so the fallback was needed. It covers all nine routes so that the document states what `schema()` promises.
+- `config/impex.php`: the `routes` banner says the operator API is described by `openapi.json` and the `@refactor-circus/impex-client` package.
+- `testbench.yaml`: `start` is `/docs/api`.
+- `openapi.json`: exported with `composer openapi:generate`. It is OpenAPI 3.1.2 with 53 operations.
+- `tests/Feature/OpenApiTest.php`: new.
+
+### Tests
+
+`OpenApiTest` covers these cases:
+
+- the document is OpenAPI 3.1 at version `2.0.0`
+- a fresh export through `Process` (`PHP_BINARY vendor/bin/testbench scramble:export --path=<tmp>`, run from the package root) equals the committed `openapi.json`, with line endings normalized and trailing whitespace trimmed
+- every route in the test app named `impex.*` under `impex.routes.prefix` has an operation whose `operationId` is the route name, the three new routes included
+- for each of the nine criterion 16 operations, the 200 response is an object whose `data` (or each `data` item) is an object whose properties include every key of the resource's `schema()`. For flows, the keys come from `ListFlowsTool::outputSchema()`.
+- `ResourceResponses::responses()` maps exactly the nine criterion 16 routes
+- no file under `src/` or `config/` contains `Dedoc\Scramble`
+
+A targeted run of `tests/Feature/OpenApiTest.php` passed: 14 tests. `pint --test` passed on the changed PHP files. The gate runs the full suite.
+
+### Deviations
+
+- `impex.flows.index` has no resource class, because `IndexFlowsRequest` answers a plain array. Its documented response and its criterion 16 check use `ListFlowsTool::outputSchema()`, which declares the same payload. Adding a `FlowResource` in `src/` was outside this group's files.
+- The `client/openapi.sha256` check that the spec's design puts in `OpenApiTest` is left to group 6, whose task 6.1 places it in `ClientTest`.
+- `impex.history.index` comes from Keystone and still shows a loosely typed (`string`) response. Criterion 16 does not list it.

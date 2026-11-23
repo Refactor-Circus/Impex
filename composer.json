@@ -97,6 +97,9 @@
             "@test:types",
             "@test:unit"
         ],
+        "openapi:generate": [
+            "@php vendor/bin/testbench scramble:export --path=openapi.json"
+        ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"
         ],

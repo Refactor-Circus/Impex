@@ -15,7 +15,7 @@ seeders:
   - Workbench\Database\Seeders\DatabaseSeeder
 
 workbench:
-  start: '/'
+  start: '/docs/api'
   user: test@example.com
   install: true
   health: false

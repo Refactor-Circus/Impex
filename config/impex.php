@@ -438,6 +438,9 @@ return [
     | they trigger and cancel workflows and expose the ledger of every
     | payload that has crossed the application boundary.
     |
+    | The operator API is described by `openapi.json` at the package root
+    | and the `@refactor-circus/impex-client` TypeScript package.
+    |
     | `channel_middleware` is the separate stack for the inbound channel
     | receive endpoints. Those authenticate per request with the channel's
     | signing secret rather than with an operator token, so the operator

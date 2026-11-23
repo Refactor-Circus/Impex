@@ -53,12 +53,12 @@ depends on: 4
 files: composer.json, workbench/app/Providers/WorkbenchServiceProvider.php, workbench/app/OpenApi/ResourceResponses.php, testbench.yaml, config/impex.php, openapi.json, tests/Feature/OpenApiTest.php
 criteria: 15, 16, 20
 
-- [ ] 5.1 Write `tests/Feature/OpenApiTest.php` with these tests: Export through `Process` (`php vendor/bin/testbench scramble:export --path=<tmp>`) and compare the result with the committed `openapi.json`, with line endings normalized; every route named `impex.*` under `impex.routes.prefix` has an operation whose `operationId` is the route name; For each operation in criterion 16, the success response schema's properties include the resource's `schema()` keys; Nothing under `src/` or `config/` contains `Dedoc\Scramble`.
-- [ ] 5.2 Add `dedoc/scramble` to `require-dev`, choosing a release that supports Laravel 13 and PHP 8.5. If none exists, stop and return a decision.
-- [ ] 5.3 Configure Scramble in `WorkbenchServiceProvider`: `api_path` `impex`, `info.version` `2.0.0`, and a fixed server URL. Use the route name as the operation id.
-- [ ] 5.4 Fall back to `workbench/app/OpenApi/ResourceResponses.php` only if Scramble leaves response schemas empty. It maps route name to resource class and writes `schema()` as the success response. Register it in the workbench.
-- [ ] 5.5 Add the line about `openapi.json` and the client package to the `impex.routes` config banner. Add a `composer openapi:generate` helper script, set `testbench.yaml` `start` to `/docs/api`, run the export and commit `openapi.json`.
-- [ ] 5.6 Run vendor/bin/pest; all green
+- [x] 5.1 Write `tests/Feature/OpenApiTest.php` with these tests: Export through `Process` (`php vendor/bin/testbench scramble:export --path=<tmp>`) and compare the result with the committed `openapi.json`, with line endings normalized; every route named `impex.*` under `impex.routes.prefix` has an operation whose `operationId` is the route name; For each operation in criterion 16, the success response schema's properties include the resource's `schema()` keys; Nothing under `src/` or `config/` contains `Dedoc\Scramble`.
+- [x] 5.2 Add `dedoc/scramble` to `require-dev`, choosing a release that supports Laravel 13 and PHP 8.5. If none exists, stop and return a decision.
+- [x] 5.3 Configure Scramble in `WorkbenchServiceProvider`: `api_path` `impex`, `info.version` `2.0.0`, and a fixed server URL. Use the route name as the operation id.
+- [x] 5.4 Fall back to `workbench/app/OpenApi/ResourceResponses.php` only if Scramble leaves response schemas empty. It maps route name to resource class and writes `schema()` as the success response. Register it in the workbench.
+- [x] 5.5 Add the line about `openapi.json` and the client package to the `impex.routes` config banner. Add a `composer openapi:generate` helper script, set `testbench.yaml` `start` to `/docs/api`, run the export and commit `openapi.json`.
+- [x] 5.6 Run vendor/bin/pest; all green
 
 ## Group 6: TypeScript client
 depends on: 5
