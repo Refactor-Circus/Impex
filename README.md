@@ -19,8 +19,13 @@ application can send through channels, record its mail, receive webhooks, run
 flows and offer subscriptions to its own data. A package such as refactor-circus/showroom
 uses Impex by registering a stream; Impex does not know it exists.
 
-> **Status: complete through the dashboard.** Everything below is built and
-> tested — engine, ledger, HTTP API, MCP server, and UI.
+Impex 2 ships two surfaces and no UI: a JSON API, described by the committed
+`openapi.json` and the typed `@refactor-circus/impex-client` TypeScript
+package, and an MCP server. Both call the same Actions. The optional UI is
+[Atrium v2](#ui-atrium-v2-optional), which renders Impex through that client.
+
+> **Status: v2.0.0.** Everything below is built and tested: engine, ledger,
+> JSON API, OpenAPI document, TypeScript client and MCP server.
 
 ## Installation
 
@@ -272,8 +277,8 @@ reads any of them back.
 
 A channel is a named way in or out. Applications define them in
 `impex.channels`; others are stored at runtime — a subscriber's webhook
-endpoint, an integration an operator adds — through the API, MCP or the
-dashboard. A stored channel of the same name wins over a configured one.
+endpoint, an integration an operator adds — through the API or MCP. A stored
+channel of the same name wins over a configured one.
 
 Inbound:
 
@@ -410,8 +415,8 @@ Without an endpoint a subscription is feed-only:
 subscriber can ask for a full export (`POST …/export`), which writes every
 subject the subscription covers to one file and moves the cursor past it.
 
-Operators manage subscribers and subscriptions over the operator API, MCP and
-the dashboard. Built for scale: nothing on the write path is per subscriber,
+Operators manage subscribers and subscriptions over the operator API and MCP.
+Built for scale: nothing on the write path is per subscriber,
 filters are matched as rules rather than expanded, fan-out writes one narrow
 row per match, and payloads are built at send time — never copied per
 subscriber.
@@ -438,12 +443,25 @@ GET    impex/subscriptions                GET    impex/subscriptions/{subscripti
 PATCH  impex/subscriptions/{subscription} DELETE impex/subscriptions/{subscription}
 POST   impex/subscriptions/{subscription}/ping|export|rotate-secret|subjects
 GET    impex/subscriptions/{subscription}/events|deliveries
+GET    impex/stats                        GET    impex/search?q=
+GET    impex/settings-summary
 GET    impex/history
 ```
 
 The subscriber API serves `streams` and the `subscriptions` routes again under
 `impex/subscriber`, scoped to the calling subscriber. See
 [HTTP API](docs/09-api.md).
+
+Three read endpoints serve a dashboard, so a UI never computes them itself:
+
+| Endpoint | Name | Answers |
+| --- | --- | --- |
+| `GET impex/stats` | `impex.stats.show` | Runs per status (every status, zero-filled), the active run count, the five latest failed runs, and inbound and outbound message counts over the last 24 hours (`messages` is `null` when the caller may not list messages) |
+| `GET impex/search?q=` | `impex.search.index` | Runs whose flow contains `q` or whose id starts with it, newest first, as a plain run collection; `limit` is 1–25, default 5 |
+| `GET impex/settings-summary` | `impex.settings-summary.show` | The effective `retention`, `limits` and `artifacts` settings and `preview_bytes`, a fixed list of keys and nothing a host adds |
+
+Each asks `viewAny` on `RunModel`. With `impex.authorization` on, the counts,
+failures and search cover only the caller's own runs and those runs' messages.
 
 Run listing filters on `status`, `flow`, `trigger`, `owner_type`+`owner_id`,
 `tag[key]=value`, `since`, `until`, and `parent`, with cursor pagination.
@@ -472,6 +490,45 @@ channel endpoints stay signature-authenticated, never user-authorized. See [Owne
 Every table name is configurable under `impex.tables`, keyed by a short name
 (`'runs' => 'impex_runs'`). Rename before running the migrations; a published
 config that lists only some tables keeps the defaults for the rest.
+
+## OpenAPI and TypeScript client
+
+The operator API is described by `openapi.json`, an OpenAPI 3.1 document
+committed at the package root. Every operation's `operationId` is its route
+name (`impex.runs.index`, `impex.stats.show`, ...), and the success responses
+of the run, message, flow, channel, subscription, stats, search and settings
+summary operations carry their resources' schemas.
+
+`client/` holds `@refactor-circus/impex-client`, a typed fetch client generated
+from that document with `openapi-typescript` and wrapped around `openapi-fetch`:
+
+```ts
+import { createImpexClient } from '@refactor-circus/impex-client';
+
+const impex = createImpexClient({ baseUrl: 'https://app.test/impex' });
+
+const { data: stats } = await impex.GET('/stats');
+const { data: runs } = await impex.GET('/search', { params: { query: { q: 'import' } } });
+```
+
+It ships TypeScript source, with no build step, and is not on an npm registry:
+pin it as a git dependency on the Impex release tag, with a package manager
+that can install a subfolder (pnpm: `github:refactor-circus/impex#v2.0.0&path:/client`).
+See [client/README.md](client/README.md).
+
+Both are generated, never edited by hand. After changing a route, a request or
+a resource, regenerate them and commit the result:
+
+```bash
+composer client:generate
+```
+
+It exports `openapi.json` through Scramble from the Testbench workbench, runs
+`npm ci` and `npm run generate` in `client/`, and writes
+`client/openapi.sha256`. A Pest test fails when a fresh export differs from
+`openapi.json` or the checksum does not match it, and the CI `client` job
+regenerates everything and fails on any diff. Scramble is a development
+dependency only; nothing in `src/` or `config/` uses it.
 
 ## MCP
 
@@ -509,6 +566,10 @@ schema: that `run-flow-tool` is asynchronous and `show-run-tool` must be polled,
 `waiting` run is blocked on a signal, that payloads are never inlined in
 listings, and how channels, streams, subscriptions and deliveries fit together.
 
+The stats, search and settings summary endpoints have no tools: they are
+dashboard aggregates, declared as exceptions to the parity rule, and agents use
+`list-runs-tool` and its filters instead.
+
 ## Cortex
 
 When [`refactor-circus/cortex`](https://github.com/Refactor-Circus/cortex) is installed, Impex connects its MCP server to it. Nothing needs registering in your app.
@@ -532,126 +593,27 @@ About how it works:
 - **Your config wins:** a name already registered with Cortex, for example in your own `config/cortex.php`, is left alone.
 - **Tool list from the server:** the tools come from `ImpexServer::TOOLS`, which is also the catalog the server serves, so a tool added to Impex reaches Cortex without any change in your app.
 
-## Dashboard
+## UI: Atrium v2 (optional)
 
-Impex renders its dashboard through [Atrium](https://github.com/Refactor-Circus/Atrium), which it suggests rather than requires: Keystone is Impex's only suite dependency. Install Atrium, at least the screen-extensions registry release (0.1.0), to get the dashboard; `composer.json` has a `conflict` on `refactor-circus/atrium` `<0.1.0`, so an older Atrium is refused at `composer update`. Without Atrium, Impex boots and serves its HTTP API and MCP server, and no `atrium.` route exists (see [Without Atrium](#without-atrium)).
+Impex ships no UI. [Atrium v2](https://github.com/Refactor-Circus/Atrium) is
+the optional one: its Impex integration renders runs, the ledger, flows,
+channels and subscriptions, the dashboard widgets, search and the settings
+panel by calling this package's JSON API through
+`@refactor-circus/impex-client`. Install and configure it on Atrium's side;
+its settings live under `atrium.integrations.impex.*`, and Impex itself needs
+none.
 
-```bash
-composer require refactor-circus/atrium
-```
+What a viewer sees follows the API's own authorization: `impex.routes.middleware`
+decides who may call it, and with `impex.authorization` on each call is checked
+against the policies in `impex.policies` and scoped to the caller's own runs.
+There is no operator mode that shows every run yet; a host that needs one can
+serve the API with `impex.authorization` off on an operator-only route stack.
 
-Define Atrium's gate and Impex appears in the sidebar:
+Impex needs nothing from Atrium, and an arch test checks that no Impex class
+uses one. See [Dashboard](docs/11-dashboard.md).
 
-```php
-use Illuminate\Support\Facades\Gate;
-
-Gate::define('viewAtrium', fn ($user) => $user->is_admin);
-```
-
-Screens: runs filterable by status, flow, trigger, owner and tag; run detail with the step timeline, the rollback path, and a signal form for a waiting run; the message ledger in both directions; the flow catalogue with a trigger form; and channel health.
-
-Impex also contributes three dashboard widgets — run status counts, recent failures and message volume. They are **offered** in Atrium's widget picker; none is placed on anyone's dashboard automatically.
-
-The screens follow Atrium's screen conventions: actions are icon buttons whose label is the tooltip, run, step, flow and signature states are status dots (`info` is kept for pending: a run waiting to start or waiting on a signal), and each nav item has an icon. `RefactorCircus\Impex\Atrium\Badges` is the one place that maps states to colours. Impex ships no stylesheet and no Blade components: its screens use Atrium's components (`x-atrium::description-list`, `x-atrium::flash`, `x-atrium::status-dot` and so on) and the utilities Atrium's stylesheet already contains, which a test checks with `RefactorCircus\Atrium\Testing\AtriumStyles`.
-
-History comes from [refactor-circus/keen](https://github.com/Refactor-Circus/Keen), which attaches it to every Atrium screen; Impex renders no history of its own, so install Keen to keep it. Run steps stay in the step timeline: they record execution, not changes.
-
-Every Impex screen declares itself to Atrium's screen registry (`impex.runs`, `impex.run`, `impex.messages`, `impex.message`, `impex.flows`, `impex.channels`, `impex.channel-create`, `impex.channel`, `impex.subscriptions`, `impex.subscription`) with the standard slots, so other packages can add tabs and sections through `Atrium::screens()`. On the flows and channels lists, a row without a stored model gets an unsaved stand-in (`new FlowOverrideModel(['slug' => ...])`, `new ChannelModel(['name' => ...])`) whose `exists` is false, as does a configured channel's page. A section's `permission()` is asked through `ScreenAccess::allows()`, operators included. See [docs/11-dashboard.md](docs/11-dashboard.md#screen-extensions).
-
-### Run links on other packages' screens
-
-Impex links any row whose record is an Impex run to that run's Atrium page. It places the link only where `impex.atrium.run_link.screens` says, as one `impex.run-link` section per entry, keyed by screen key with a slot name as the value:
-
-```php
-// config/impex.php
-'atrium' => [
-    'run_link' => [
-        'screens' => [
-            'showroom.transfers' => 'row.actions', // the default
-            // 'acme.jobs' => 'aside',
-        ],
-    ],
-],
-```
-
-In a row slot (`row.actions`) the link is drawn per row, beside the host's own cells; in any other slot it uses the screen's record. It reads "Open run" and names the flow in its `aria-label`. Impex names no host in its code: the hosts come from this config alone, and a screen nobody declares never renders. Set `screens` to `[]` to place the link nowhere. A config published before this key existed has no `run_link` entry and gets the default; only an explicit `[]` registers nothing.
-
-The link shows only when all of these hold:
-
-- the row (or, outside a row slot, the screen's record) is a saved `RunModel`
-- Impex's Atrium plugin is authorized for the request, so its features and its run page are on
-- the viewer may `view` the run through `ScreenAccess::allows()`, operators (`impex.atrium.show_all`) included
-- the `atrium.impex.runs.show` route is loaded, so a route-cache or plugin-loading mismatch hides the link instead of failing the page
-
-Other rows cost no query, and the plugin check runs once per request.
-
-Each entry needs a non-empty string screen key and a non-empty string slot name. A malformed entry, or one Atrium rejects, throws `InvalidArgumentException` at boot in the `local` and `testing` environments; anywhere else (production) it is reported once with `report()` and skipped, and the other entries still register. The links are registered only while Atrium is installed and `impex.ui.enabled` is on.
-
-### Who sees what
-
-With `impex.authorization` on, the dashboard asks exactly what the JSON API and MCP tools ask, of the same policy, so a nav item, widget, card or button is shown only when the action behind it would be allowed — and the action is refused (403) when it is not:
-
-| Shown when the user may... | Nav item, widget or control |
-| --- | --- |
-| `viewAny` on `RunModel` | Runs nav item (its badge counts their active runs), run status and recent failures widgets, search |
-| `viewAny` on `MessageModel` | Messages nav item, message volume widget, a run's messages card |
-| `viewAny` on `FlowOverrideModel` | Flows nav item |
-| sign in (no policy, as the API) | Channels nav item |
-| `view` the run | run page |
-| `cancel` / `retry` the run | Cancel / Retry buttons |
-| `create` a `SignalModel` for the run | Send signal card (while the run waits) |
-| `viewAny` `RunStepModel` / `RunOwnerModel` for the run | Steps / Owners cards |
-| `view` the message | message page |
-| `create` a `RunModel` for the flow | a flow's Run form |
-
-Lists, counts and search cover only the runs the user owns (and those runs' messages), and a run started from the dashboard is owned by whoever started it — as with the API. Under the bundled policies a run with no owners, such as a scheduled run, is therefore hidden; make some users operators with `impex.atrium.show_all` (below), give them a policy of your own (see `impex.policies`), or turn `impex.authorization` off, which shows everything to anyone past Atrium's gate. In your own views, `@impexCan('cancel', $run) ... @endimpexCan` asks the same question, through `RefactorCircus\Impex\Atrium\ScreenAccess`, which asks Atrium's shared `RefactorCircus\Atrium\Support\ScreenAccess::allows('impex', ...)` once operators (below) are let through.
-
-To let some dashboard users see and handle every run — scheduled and channel runs included — make them operators with `impex.atrium.show_all`:
-
-```php
-// config/impex.php
-'atrium' => [
-    'show_all' => false,            // nobody (the default)
-    // 'show_all' => true,          // everyone past Atrium's gate
-    // 'show_all' => 'impex-operator', // those Gate::allows('impex-operator')
-],
-```
-
-An operator's lists, nav badge, widgets and search cover every run and message, and every Impex control is shown and allowed to them (view, cancel, retry, signal, start a flow, steps, owners and messages cards). This applies to the Atrium screens only: the JSON API and MCP tools still ask the policies, so an operator calling the API sees only their own runs. With `impex.authorization` off nothing is scoped or refused, so the setting has no effect.
-
-### Switching it off
-
-Atrium owns the path, the middleware and the gate, so Impex has two switches:
-
-```php
-// config/impex.php
-'ui' => ['enabled' => true],
-
-'atrium' => [
-    'features' => [\RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature::class],
-],
-```
-
-Set `ui.enabled` to `false` to keep the JSON API without adding Impex to the dashboard.
-
-`atrium.features` switches Impex in Atrium on and off at runtime: while any feature listed is off, its navigation, widgets, settings and search are hidden and its pages answer 404. With [refactor-circus/pennantplus](https://github.com/Refactor-Circus/PennantPlus) installed, `ImpexSupportFeature` is on until its **global** value is set — per-user values are ignored, so who sees what stays with the policies:
-
-```php
-use RefactorCircus\Impex\Atrium\Features\ImpexSupportFeature;
-use Laravel\Pennant\Feature;
-
-Feature::for(null)->deactivate(ImpexSupportFeature::class);
-```
-
-Without PennantPlus the class is skipped and nothing is checked. Name a subclass (to default it off, say) or your own feature instead; an empty list removes the switch.
-
-> **Gate this carefully.** The dashboard renders every payload that has crossed your application boundary.
-
-### Without Atrium
-
-Atrium is in Impex's `suggest`, not its `require`. Without it Impex boots, registers no `atrium.` route and no screen, and serves its HTTP API and MCP server as usual. Only the code in `RefactorCircus\Impex\Atrium` uses Atrium, which an arch test checks, and it is reached only while `RefactorCircus\Atrium\Atrium` exists and `impex.ui.enabled` is on.
-
-Two checks prove it. `composer test` runs `composer test:without-atrium`, which hides Atrium's classes from the autoloader in process and boots Impex, its API and MCP without them. That run cannot see a classmap or Composer `files` leak, so the authoritative proof is the `without-atrium` CI lane: it uninstalls `refactor-circus/atrium` (and every dev dependency that requires it), runs `composer update`, and runs `composer test:without-atrium` against a vendor directory with no Atrium in it. Only the workflow run verifies that lane; `composer test` does not.
+> **Gate the API carefully.** It reads every payload that has crossed your
+> application boundary.
 
 ## Child workflows
 
@@ -763,7 +725,7 @@ Impex fires three families of events:
 
 - **Engine events** describe what a run does as it executes: `RunStarted`, `RunCompleted`, `RunFailed`, `StepCompleted`, `StepFailed` and `MessageRecorded`.
 - **Model events** fire for every Eloquent lifecycle hook of every Impex model, one class per hook.
-- **Action events** are a start and a finish event for every action, whether it runs from code, the HTTP API, MCP, a Cortex agent or the dashboard.
+- **Action events** are a start and a finish event for every action, whether it runs from code, the HTTP API, MCP or a Cortex agent.
 
 ### Model events
 
@@ -806,8 +768,11 @@ Starting a flow is named `FlowRunningActionEvent` / `FlowRanActionEvent`, so it 
 | `ListRunsAction` | `RunsListingActionEvent` (`filters`, `viewer`) | `RunsListedActionEvent` (`runs`, `viewer`) |
 | `RetryRunAction` | `RunRetryingActionEvent` (`run`) | `RunRetriedActionEvent` (`run`) |
 | `RunFlowAction` | `FlowRunningActionEvent` (`slug`, `data`, `trigger`, `owner`) | `FlowRanActionEvent` (`run`) |
+| `SearchRunsAction` | `RunsSearchingActionEvent` (`data`, `viewer`) | `RunsSearchedActionEvent` (`runs`, `viewer`) |
 | `ShowMessageAction` | `MessageShowingActionEvent` (`message`) | `MessageShownActionEvent` (`message`) |
 | `ShowRunAction` | `RunShowingActionEvent` (`run`) | `RunShownActionEvent` (`run`) |
+| `ShowRunStatsAction` | `RunStatsShowingActionEvent` (`viewer`, `withMessages`) | `RunStatsShownActionEvent` (`stats`, `viewer`) |
+| `ShowSettingsSummaryAction` | `SettingsSummaryShowingActionEvent` (none) | `SettingsSummaryShownActionEvent` (`summary`) |
 | `SignalRunAction` | `RunSignallingActionEvent` (`run`, `data`) | `RunSignalledActionEvent` (`run`, `signal`) |
 
 ### Listening to a whole family
@@ -839,7 +804,7 @@ The code is organised into domain modules under `src/Domains`, each with its own
 | `Subscription` | Streams, subscribers, subscriptions, change detection, fan-out, delivery, the feed |
 | `Artifact` | Artifacts and the `PayloadStore` |
 
-Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows`, `impex:prune` and the Atrium screens in `Atrium`.
+Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows` and `impex:prune`. There is no UI code: the stats, search and settings summary endpoints live in the `Run` domain.
 
 Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Keystone), the shared runtime of the Refactor Circus suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`RefactorCircus\Keystone\...`), so every package of the suite behaves the same way. The queued jobs keep their `RefactorCircus\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 
@@ -871,9 +836,9 @@ Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Ke
 - [x] Messages ledger, inbound channels, outbound recorder
 - [x] Run owners and the HTTP API
 - [x] MCP server with API parity
-- [x] Dashboard
 - [x] Outbound channels and transports (http, mail, file), signing, mail recording
 - [x] Streams, subscriptions, push delivery and the feed
+- [x] Dashboard endpoints, `openapi.json` and the TypeScript client; the UI moved to Atrium v2
 
 ## Testing
 
@@ -881,7 +846,7 @@ Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Ke
 composer test
 ```
 
-`composer test` includes `composer test:without-atrium`, the in-process no-Atrium suite. The `without-atrium` CI lane, which uninstalls Atrium, is the authoritative no-Atrium proof (see [Without Atrium](#without-atrium)).
+`composer test` runs static analysis, the format check, type coverage and the Pest suite, which includes the `openapi.json` staleness check and needs no Node. Regenerate the OpenAPI document and the client with `composer client:generate`, and type-check the client with `npm --prefix client run typecheck`.
 
 ## License
 

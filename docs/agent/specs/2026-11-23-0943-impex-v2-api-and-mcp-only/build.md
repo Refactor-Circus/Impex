@@ -263,3 +263,80 @@ TypeScript client. Criteria 17, 18, 19.
 ### Deviations
 
 - None from the spec.
+
+
+## Group 7
+
+Docs for v2.0.0. Criteria 21, 22, 23.
+
+### Files
+
+- `tests/Feature/DocsTest.php`: rewritten. It no longer asserts the 0.1.0 Atrium-suggest and run-link promises.
+- `README.md`: the intro now describes Impex as a JSON API plus MCP. It has no UI, and the status line reads v2.0.0. The HTTP API block lists `impex/stats`, `impex/search?q=` and `impex/settings-summary`, with a table of the three endpoints (name, payload) and how they are authorized. New sections are "OpenAPI and TypeScript client" (`openapi.json`, `@refactor-circus/impex-client`, the pnpm git pin, `composer client:generate`, the staleness checks) and "UI: Atrium v2 (optional)" (settings under `atrium.integrations.impex.*`, authorization, no operator mode per D-006). The README also notes that the three endpoints have no MCP tools. Removed: the Dashboard, run link, "Who sees what", operator, "Switching it off" and "Without Atrium" sections, the dashboard mentions under Channels, Subscriptions and Events, the Atrium entry in Package layout, and the `without-atrium` note under Testing. The action events table gains the three new actions.
+- `CHANGELOG.md`: adds `## [v2.0.0]` (compare `v0.1.0...v2.0.0`, no date because tagging is out of scope), and Unreleased now compares from `v2.0.0`. The upgrade note covers:
+  - the UI was removed; install Atrium v2
+  - the four removed keys, which move to `atrium.integrations.impex.*`
+  - `ImpexSupportFeature`
+  - the `impex-views` and `impex-lang` tags
+  - operator mode (D-006, with the path to `decisions.md`)
+  - `@impexCan` and `ScreenAccess`
+  - the dropped `suggest` and `conflict` entries
+
+  It then lists Added (the three endpoints and their events, `openapi.json`, the client, `client:generate` and `openapi:generate`) and Removed.
+- `AGENTS.md` (`CLAUDE.md` is a symlink to it):
+  - The Layout paragraph is rewritten. It places the dashboard endpoints in `Domains\Run`, and a new paragraph covers:
+    - API plus MCP, no UI
+    - the two Atrium guards
+    - `openapi.json` and Scramble in `workbench/`
+    - `client/`
+    - regenerating with `composer client:generate`
+  - `registerAtriumPlugin()` and the Atrium-controller `XData::from` note are dropped.
+  - The "Atrium screens" heading and its four Atrium bullets are removed. The Events, Tables, HTTP requests, outside-a-request, `ImpexException`, Policy and `ResumableAction` bullets now sit under Keystone.
+  - An `MCP_EXCEPTIONS` note names the three actions.
+  - Quick Commands gains `composer client:generate`, `composer openapi:generate` and the client typecheck.
+- `resources/boost/skills/impex-development/SKILL.md`: "Watch it" is rewritten. It covers:
+  - API plus MCP, with Atrium v2 as the optional UI
+  - authorization and the missing operator mode
+  - the three endpoints
+  - `openapi.json` and `composer client:generate`
+
+  The run-link, operator, Pennant, Badges and screen-registry text is gone. Stored channels are managed over the API or MCP, not the Atrium Channels screens, and the references list names the client and `11-dashboard.md`.
+- `docs/09-api.md`:
+  - Adds a "Dashboard endpoints" section covering the three endpoints: example payloads, `q` and `limit` rules, 401/403/422, scoping, and `messages: null`.
+  - Adds an "OpenAPI and the TypeScript client" section.
+  - Adds the three route names to the route table and a pointer in the intro.
+  - Fixes the `rolling back` status typo to `rolling_back`, matching `RunStatus`.
+- `docs/11-dashboard.md`: rewritten as a pointer to Atrium v2. It covers what the integration renders, `atrium.integrations.impex.*`, which endpoint feeds which widget, who sees what (no operator mode, D-006), and an upgrade pointer to the CHANGELOG.
+- `docs/13-configuration.md`:
+  - The `ui` and `atrium` sections are removed.
+  - `routes` gains the `openapi.json` and client line.
+  - `audit` no longer names Atrium pages.
+  - The `schedule` text no longer says "the dashboard".
+- `docs/01-installation.md`:
+  - The publish tags table drops `impex-views` and `impex-lang`, and the `atrium-assets` note is gone.
+  - It now says Impex ships no UI and points to Atrium v2.
+  - A new "Exposing the API" section covers auth middleware, `openapi.json` and the client.
+- `docs/08-ownership.md`:
+  - The `FlowOverridePolicy` note no longer cites Atrium's gate.
+  - The ability table gains the three endpoints.
+  - The operator paragraph now says there is no operator mode (D-006).
+- `docs/README.md`: the intro covers the API, `openapi.json`, the client, MCP and Atrium v2. The HTTP API and Dashboard rows are reworded.
+
+### Tests
+
+`DocsTest` covers:
+
+- README contains `openapi.json`, `@refactor-circus/impex-client`, `client:generate`, `impex/stats`, `impex/search`, `impex/settings-summary` and `Atrium v2`, and does not contain `composer require refactor-circus/atrium`, `impex.atrium.` or `without-atrium`.
+- CHANGELOG has `## [v2.0.0]` above `## [v0.1.0]`. It names the four removed keys, `atrium.integrations.impex`, `ImpexSupportFeature`, `impex-views`, `impex-lang`, `D-006`, the three endpoints and the client.
+- `AGENTS.md` and the Boost skill (dataset) contain `client:generate` and `openapi.json`. They do not contain `src/Atrium`, `registerAtriumPlugin`, `impex.atrium.` or `without-atrium`.
+- `docs/09-api.md` documents `GET impex/stats`, `GET impex/search` and `GET impex/settings-summary` with their route names, plus `openapi.json`, the client and `client:generate`.
+- `docs/11-dashboard.md` names Atrium v2, `atrium.integrations.impex` and the client. It has no install instructions, `impex.atrium.`, `impexCan` or `without-atrium`.
+- The nine owned docs (dataset) contain none of `composer require refactor-circus/atrium`, `impex.atrium.`, `impex.ui.enabled`, `atrium-assets`, `viewAtrium`, `impex-views`, `impex-lang` or `ImpexSupportFeature`.
+- `docs/13-configuration.md` has no `ui` or `atrium` section and mentions `openapi.json`.
+
+The suite was not run: the prompt left it to the gate. A grep of the owned docs for every forbidden string returned nothing, and every required string is present. `pint --test` passed on `DocsTest.php`. No other test reads these docs for removed strings; `NoHistoryUiTest` scans for `audit-trail` and `historyNavItem` only, and neither was added.
+
+### Deviations
+
+- None from the spec.
+- Docs outside this group's files still say "the dashboard" in passing: `docs/04-rollback.md:54`, `docs/07-ledger.md:54`, `docs/16-children.md:4`, `docs/18-channels.md:303` and `docs/19-subscriptions.md:14,1070-1073`. The last of these is a "Subscriptions screen" paragraph that links `11-dashboard.md#subscriptions`, an anchor that no longer exists. None of them names an Atrium key, step or class, and criterion 23 does not list them. A follow-up can reword them.

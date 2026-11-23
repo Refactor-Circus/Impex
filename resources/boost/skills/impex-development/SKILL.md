@@ -170,45 +170,31 @@ repeat a side effect.
 
 ### 9. Watch it
 
-The dashboard renders through Atrium, which Impex lists in `suggest`, not
-`require` (at least the screen-extensions registry release, 0.1.0; a `conflict`
-refuses `refactor-circus/atrium` `<0.1.0`). Without Atrium, Impex still serves
-its API and MCP; only `RefactorCircus\Impex\Atrium` may use Atrium classes, so
-never import one elsewhere. `composer test:without-atrium` checks this in
-process, and the `without-atrium` CI lane (Atrium uninstalled) is the
-authoritative proof. Define Atrium's `viewAtrium` gate and
-Impex appears in its sidebar (set `impex.ui.enabled` to `false` to leave it
-out). Atrium's gate decides who may load the dashboard, `impex.routes.middleware`
-decides who may call the API. With `impex.authorization` on, the dashboard asks
-the same policies as the API: a nav item, card or button shows only when its
-action would be allowed (`@impexCan('cancel', $run)` in Blade, `ScreenAccess`
-in PHP), and lists cover only the user's own runs. `impex.atrium.show_all`
-(`true`, or a Gate ability name) makes users dashboard operators, who see every
-run (unowned ones included) and may use every Impex control — on the Atrium
-screens only, never the API or MCP. With `refactor-circus/pennantplus`,
-`Feature::for(null)->deactivate(ImpexSupportFeature::class)` hides Impex in
-Atrium (`impex.atrium.features`). Statuses are Atrium status dots coloured by
-`RefactorCircus\Impex\Atrium\Badges` (`info` only for pending/waiting, through the
-`impex::ui.partials.status-dot` partial); actions are icon buttons. Impex ships
-no stylesheet and no components: views use `x-atrium::*` components and Atrium's
-safelisted utilities only, never `<style>` or `style=` (a test runs
-`AtriumStyles::missingClasses()` / `inlineStyles()`). History comes from
-refactor-circus/keen, which attaches it to every Atrium screen; Impex renders
-none itself. Each Impex screen declares itself with `Screens::declare()`
-(`impex.runs`, `impex.run`, ... `impex.subscription`; the standard slots, an
-`access()` through `ScreenAccess::allows()`), so packages extend it through
-`Atrium::screens()`; flow and channel rows without a stored model are unsaved
-stand-ins (`exists` false). To link runs from another package's screen, add
-an entry to `impex.atrium.run_link.screens` (screen key => slot name; default
-`['showroom.transfers' => 'row.actions']`, `[]` for none, a missing key falls
-back to the default): Impex registers one `impex.run-link` section per entry,
-reading "Open run" with the flow in its `aria-label`, and never names the host
-in PHP. It shows only for a saved `RunModel` row or record, while Impex's
-Atrium plugin is authorized for the request, the viewer may `view` the run
-through `ScreenAccess::allows()` (operators included), and the
-`atrium.impex.runs.show` route exists. A malformed entry (not a non-empty
-string key and slot, or one Atrium rejects) throws `InvalidArgumentException`
-at boot in `local` and `testing`; elsewhere it is reported once and skipped.
+Impex is a JSON API plus an MCP server; it ships no UI, views or Blade, and
+no Impex class may use Atrium (an arch test checks it). For a UI, install
+Atrium v2: its Impex integration calls the API through the generated
+`@refactor-circus/impex-client` package, and its settings live under
+`atrium.integrations.impex.*` on Atrium's side, never in `config/impex.php`.
+`impex.routes.middleware` decides who may call the API, and with
+`impex.authorization` on every call asks the policies and lists only the
+caller's own runs. There is no operator mode: to show every run, serve the
+API with `impex.authorization` off on an operator-only route stack.
+
+A dashboard reads three endpoints rather than computing figures itself:
+`GET impex/stats` (runs per status, active runs, the five latest failures,
+24-hour inbound and outbound message counts, `messages` `null` when the
+caller may not list messages), `GET impex/search?q=&limit=` (runs by flow or
+id prefix, newest first, `limit` 1–25, default 5) and
+`GET impex/settings-summary` (retention, limits, artifacts and preview size,
+a fixed list of keys). Each asks `viewAny` on `RunModel`. They have no MCP
+tools; agents use `list-runs-tool`.
+
+The API is described by `openapi.json` at the package root (OpenAPI 3.1, each
+`operationId` the route name), and `client/` holds the TypeScript client
+generated from it. After changing a route, request, Data or resource, run
+`composer client:generate` in the package and commit `openapi.json` and
+`client/`; a Pest test fails while either is stale.
+
 Over MCP the tools sit behind `search_tools` and
 `execute_tools`; use `list-runs-tool` and `show-run-tool`. A run at `waiting` is
 blocked on a signal or a timer, not stuck. A failed run may have rolled back —
@@ -233,7 +219,8 @@ Read before executing:
 
 The package's own `docs/` directory carries the full reference: the DSL
 (`02-flows.md`), rollback (`04-rollback.md`), scale (`06-scale.md`),
-the ledger (`07-ledger.md`), the API (`09-api.md`), MCP (`10-mcp.md`),
+the ledger (`07-ledger.md`), the API, `openapi.json` and the client
+(`09-api.md`), MCP (`10-mcp.md`), the Atrium v2 UI (`11-dashboard.md`),
 extending (`12-extending.md`), every config key (`13-configuration.md`),
 every table (`14-schema.md`), channels and transports (`18-channels.md`), and
 subscriptions (`19-subscriptions.md`).
@@ -316,8 +303,8 @@ Pausing a flow (its `impex_flows` row, `enabled = false`) stops every
 trigger: `Impex::run()` throws `DisabledFlowException`, and an inbound channel
 bound to it answers `503` with `Retry-After`. The row's `queue` and
 `queue_connection` route new runs, and its `defaults` fill `handle()` parameters
-a caller left out, by name. Stored channels can be managed on the
-Atrium Channels screens. Measure the subscription pipeline with
+a caller left out, by name. Stored channels are managed over the
+`/impex/channels` API or the MCP channel tools. Measure the subscription pipeline with
 `vendor/bin/testbench impex:bench` in the package workbench.
 
 ## Examples

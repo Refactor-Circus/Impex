@@ -36,6 +36,10 @@ Every endpoint is one line of controller: validation rules come from an Action's
 static `rules()`, and the request's `persist()` calls that same Action. The MCP
 surface calls the same Actions, so the two cannot drift.
 
+The operator API is described by `openapi.json` and wrapped by the
+`@refactor-circus/impex-client` TypeScript package; see
+[OpenAPI and the TypeScript client](#openapi-and-the-typescript-client).
+
 ## Flows
 
 ### `GET impex/flows`
@@ -104,7 +108,7 @@ retries once the flow is back on.
 
 | Filter | Notes |
 |---|---|
-| `status` | `pending` `running` `waiting` `rolling back` `completed` `failed` `cancelled` |
+| `status` | `pending` `running` `waiting` `rolling_back` `completed` `failed` `cancelled` |
 | `flow` | slug |
 | `trigger` | `api` `mcp` `command` `schedule` `channel` `code` `child` |
 | `owner_type` + `owner_id` | both required together |
@@ -495,6 +499,146 @@ GET    impex/subscriber/subscriptions/{subscription}/deliveries
 Same bodies and responses as the operator routes above. See
 [Subscriptions](19-subscriptions.md#the-subscriber-api).
 
+## Dashboard endpoints
+
+Three read endpoints give a UI such as [Atrium v2](11-dashboard.md) the
+figures it shows, so it never computes them itself. Each authorizes `viewAny`
+on `RunModel`: with `impex.authorization` on, a guest gets `401` and a user
+the policy refuses `403`, and every count, failure and search result covers
+only the runs the caller owns (and those runs' messages). With authorization
+off nothing is scoped. They only read, and have no MCP tools: agents use
+`list-runs-tool` and its filters.
+
+### `GET impex/stats`
+
+`impex.stats.show`. Runs per status, the active run count, the latest
+failures, and the message volume over the last day:
+
+```json
+{
+  "data": {
+    "runs": {
+      "by_status": {
+        "pending": 2, "running": 1, "waiting": 4, "rolling_back": 0,
+        "completed": 318, "failed": 7, "cancelled": 3
+      },
+      "active": 7,
+      "recent_failures": [
+        { "id": "01JQ9B…", "flow": "extract-products", "status": "failed", "…": "…" }
+      ]
+    },
+    "messages": { "window_hours": 24, "inbound": 1204, "outbound": 388 }
+  }
+}
+```
+
+- `by_status` has a key for every run status, zero when no run has it.
+- `active` counts the runs that may still be driven or signalled
+  (`RunModel::query()->active()`).
+- `recent_failures` holds up to five failed runs, newest `finished_at` first,
+  each shaped like a run in `GET impex/runs`.
+- `messages` counts ledger rows in each direction whose `occurred_at` is
+  within the last 24 hours. It is `null` when the caller may not `viewAny`
+  `MessageModel`.
+
+### `GET impex/search`
+
+`impex.search.index`. Runs whose `flow` contains `q`, or whose `id` starts with
+it (compared in lowercase), newest `created_at` first, then by id.
+
+| Parameter | Rules |
+|---|---|
+| `q` | Required. Trimmed, then 1–255 characters. `%`, `_` and `\` match literally. |
+| `limit` | Optional integer, 1–25, default 5. |
+
+```
+GET impex/search?q=extract&limit=10
+```
+
+```json
+{ "data": [ { "id": "01JQ7X…", "flow": "extract-products", "status": "completed", "…": "…" } ] }
+```
+
+A plain collection of runs, in the `GET impex/runs` shape, with no pagination.
+A missing or blank `q`, or a `limit` out of range or not an integer, answers
+`422`.
+
+### `GET impex/settings-summary`
+
+`impex.settings-summary.show`. The effective engine settings, read from config
+with a cast and a default for each key:
+
+```json
+{
+  "data": {
+    "retention": {
+      "completed_runs_days": 90, "failed_runs_days": 365, "messages_days": 90,
+      "artifacts_days": 365, "events_days": 30, "deliveries_days": 30
+    },
+    "limits": {
+      "max_step_seconds": 840, "resume_margin_seconds": 30, "lease_seconds": 900,
+      "lock_seconds": 120, "max_resumptions": 10000, "fan_out_max": 100,
+      "sync_seconds": 15
+    },
+    "artifacts": { "disk": null, "path": "impex", "inline_threshold": 65536, "memo_bytes": 16777216 },
+    "preview_bytes": 2048
+  }
+}
+```
+
+Only these keys are sent. A key your application adds under `retention`,
+`limits` or `artifacts` is never exposed. `artifacts.disk` is `null` when the
+application's default disk is used.
+
+## OpenAPI and the TypeScript client
+
+`openapi.json`, at the package root, is an OpenAPI 3.1 document of every
+`impex.*` route served under `impex.routes.prefix`. Each operation's
+`operationId` is its route name (`impex.runs.index`, `impex.stats.show`, ...),
+and the success responses of `impex.runs.index`, `impex.runs.show`,
+`impex.messages.index`, `impex.flows.index`, `impex.channels.index`,
+`impex.subscriptions.index`, `impex.stats.show`, `impex.search.index` and
+`impex.settings-summary.show` carry their resources' schemas. It is exported by
+[Scramble](https://scramble.dedoc.co) from the package's Testbench workbench.
+Scramble is a development dependency; nothing in `src/` or `config/` uses it.
+
+`client/` is `@refactor-circus/impex-client`, a typed client generated from
+that document by `openapi-typescript`:
+
+```ts
+import { createImpexClient } from '@refactor-circus/impex-client';
+
+const impex = createImpexClient({
+  baseUrl: 'https://app.test/impex',   // the host's URL and impex.routes.prefix
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+const { data: stats } = await impex.GET('/stats');
+const { data: hits } = await impex.GET('/search', { params: { query: { q: 'extract' } } });
+```
+
+`createImpexClient(options)` takes `baseUrl` plus any of `openapi-fetch`'s
+`ClientOptions` and returns its `Client<paths>`; the `paths`, `components` and
+`operations` types are exported too. The package ships TypeScript source with
+no build step, and is not on an npm registry. Pin it as a git dependency on the
+Impex tag your host runs; npm cannot install a subfolder of a repository, so
+use pnpm (`github:refactor-circus/impex#v2.0.0&path:/client`) or Bun. See
+`client/README.md`.
+
+Both files are generated. After changing a route, request, Data or resource,
+regenerate them in the package and commit the result:
+
+```bash
+composer client:generate
+```
+
+It runs `scramble:export` through `vendor/bin/testbench` into `openapi.json`,
+`npm ci` and `npm run generate` in `client/` (which writes
+`client/src/schema.d.ts`), and writes `client/openapi.sha256`. A Pest test
+fails when a fresh export differs from `openapi.json` or the checksum does not
+match it; the CI `client` job regenerates everything, fails on any diff and
+type-checks the client.
+
 ## History
 
 ### `GET impex/history`
@@ -556,6 +700,9 @@ Every route is named, so you can `route()` them from your own code.
 | `POST subscribers/{subscriber}/subscriptions` | `impex.subscriptions.store` |
 | `subscriptions…` | `impex.subscriptions.index`, `.show`, `.update`, `.destroy`, `.ping`, `.export`, `.rotate-secret`, `.subjects`, `.events`, `.deliveries` |
 | `subscriber/…` | `impex.subscriber.streams.index`, `impex.subscriber.subscriptions.store`, and `impex.subscriber.subscriptions.*` as above |
+| `GET stats` | `impex.stats.show` |
+| `GET search` | `impex.search.index` |
+| `GET settings-summary` | `impex.settings-summary.show` |
 | `GET history` | `impex.history.index` |
 
 The receive routes were renamed with the Channel domain: the generic endpoint

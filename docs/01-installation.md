@@ -46,13 +46,29 @@ it the ledger and the event sequence grow forever.
 | Tag | Contents |
 |---|---|
 | `impex-config` | `config/impex.php` |
-| `impex-migrations` | the eight migrations |
-| `impex-views` | the dashboard's Blade views, if you want to customise them |
-| `impex-lang` | translation strings |
-| `impex` | all of the above |
+| `impex-migrations` | the migrations |
+| `impex` | both of the above |
 
-The dashboard's stylesheet and scripts belong to Atrium and are published with
-its own `atrium-assets` tag. See [Dashboard](11-dashboard.md).
+Impex ships no views, translations or assets: it has no UI of its own. For a
+dashboard, install Atrium v2 and set up its Impex integration on Atrium's side;
+it calls Impex's JSON API. See [Dashboard](11-dashboard.md).
+
+## Exposing the API
+
+The JSON API is on by default (`impex.routes.enabled`) under `impex/`. Add
+your authentication middleware before exposing it, because it triggers and
+cancels workflows and reads every payload that has crossed the boundary:
+
+```php
+// config/impex.php
+'routes' => [
+    'middleware' => ['api', 'auth:sanctum'],
+],
+```
+
+The API is described by `openapi.json` at the package root, and a typed
+TypeScript client, `@refactor-circus/impex-client`, lives in its `client/`
+folder. See [HTTP API](09-api.md#openapi-and-the-typescript-client).
 
 ## Recording mail
 

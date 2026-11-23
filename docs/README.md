@@ -8,6 +8,10 @@ subscriptions. Built for Vapor.
 Impex stands alone: any Laravel application can use every part of it, and
 domain packages such as refactor-circus/showroom build on it by registering streams.
 
+It is operated through a JSON API, described by `openapi.json` and the
+`@refactor-circus/impex-client` TypeScript package, and an MCP server. It ships
+no UI; the optional one is Atrium v2, which calls the API through that client.
+
 ## Guides
 
 | | |
@@ -20,9 +24,9 @@ domain packages such as refactor-circus/showroom build on it by registering stre
 | [Scale](06-scale.md) | `fanOut`, `batch`, and resumable actions |
 | [The ledger](07-ledger.md) | Every crossing recorded: inbound channels, outbound sends, bodies |
 | [Ownership](08-ownership.md) | Polymorphic owners and scoping |
-| [HTTP API](09-api.md) | Every endpoint, with requests and responses |
+| [HTTP API](09-api.md) | Every endpoint, with requests and responses; `openapi.json` and the TypeScript client |
 | [MCP](10-mcp.md) | Every tool, and how parity is enforced |
-| [Dashboard](11-dashboard.md) | The Atrium pages, widgets, settings and search |
+| [Dashboard](11-dashboard.md) | The optional Atrium v2 UI and the endpoints it reads |
 | [Extending](12-extending.md) | Registering flows from a package, contracts, events |
 | [Configuration](13-configuration.md) | Every config key |
 | [Schema](14-schema.md) | Every table and column |
