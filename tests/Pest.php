@@ -46,6 +46,7 @@ const MCP_EXCEPTIONS = [
     // An artifact download would land here when it is added, because a
     // binary stream has no sensible MCP shape.
     'ShowRunStatsAction' => 'A dashboard aggregate for the Atrium v2 integration; agents use list-runs-tool and its filters (D-005).',
+    'SearchRunsAction' => 'The Atrium v2 global search source; agents use list-runs-tool and its filters (D-005).',
 ];
 
 /**

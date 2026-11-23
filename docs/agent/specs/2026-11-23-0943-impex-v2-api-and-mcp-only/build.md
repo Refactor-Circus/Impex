@@ -41,3 +41,44 @@ Stats endpoint: `GET impex/stats` (`impex.stats.show`). Criteria 1, 2, 3, 8, 9.
 ### Deviations
 
 - The actions-events standard says read actions dispatch no events. Criterion 8 and the package's existing read actions (`ShowRunAction`, `ListRunsAction`) require the pair, so the action dispatches them. It also follows the package's `execute()`/`perform()` shape rather than a Keystone `Action` base with `handle()`, as every Impex action does today.
+
+## Group 2
+
+Search endpoint: `GET impex/search` (`impex.search.index`). Criteria 4, 5, 8, 9.
+
+### Files
+
+- `src/Domains/Run/Data/SearchRunsData.php`: `final readonly`, with `q` (`required|string|min:1|max:255`) and `limit = 5` (`sometimes|integer|min:1|max:25`), and `rules()`.
+- `src/Domains/Run/Events/RunsSearchingActionEvent.php` (data, viewer) and `RunsSearchedActionEvent.php` (runs, viewer).
+- `src/Domains/Run/Actions/SearchRunsAction.php`: `execute(SearchRunsData $data, ?Model $viewer = null): Collection<int, RunModel>`. It matches `flow like %q%` or `id like lower(q)%`. Both use `escape '!'`, with `!`, `%` and `_` escaped in `q`. That makes `%`, `_` and `\` literal on SQLite, MySQL and PostgreSQL. A backslash escape character is not portable in a MySQL string literal. Results are scoped by `whereOwnedBy($viewer)` when there is a viewer, ordered `created_at` desc then `id` desc, and limited to `limit`. There is no transaction.
+- `src/Domains/Run/Http/Requests/IndexRunSearchRequest.php`: trims a string `q` in `prepareForValidation()`, authorizes `viewAny` on `RunModel`, uses `SearchRunsData::rules()`, and builds with `SearchRunsData::fromValidated()`. It passes `actor()` as the viewer and answers `RunResource::collection($runs)->response()`, which gives `{"data": [...]}` with no pagination.
+- `src/Domains/Run/Http/Controllers/RunSearchController.php`: `index()` returns `$request->persist()`.
+- `src/Domains/Run/routes.php`: `Route::get('search', ...)->name('search.index')`.
+- `tests/Pest.php`: `SearchRunsAction` is in `MCP_EXCEPTIONS` with the D-005 reason.
+- `tests/Feature/Actions/SearchRunsActionTest.php` and `tests/Feature/Api/RunSearchApiTest.php`.
+- Outside the group's list: in `tests/Feature/EventsTest.php`, the asserted action count goes from 36 to 37, as group 1 noted. Group 3 must raise it to 38.
+
+### Tests
+
+- Action tests cover these cases:
+  - `flow` contains `q`
+  - the `id` prefix matches, from both a lowercase and an uppercase `q`, and a mid-id match does not count
+  - `%`, `_` and `\` match literally, and a lone `%` or `_` does not widen the match
+  - newest first, with ties broken by id
+  - the default limit of 5, and limits of 2 and 25
+  - viewer scoping, and no scoping without a viewer
+  - the event pair carries the Data, the result and the viewer
+- API tests cover these cases:
+  - 200 with a `RunResource` collection, newest first, and only a `data` key
+  - `q` is trimmed and `limit` applies
+  - 422 for a missing, blank (after trim) or 256-character `q`; 255 characters are accepted
+  - 422 for `limit` 0, 26 or `abc`
+  - 401 for a guest and 403 under `RefusingRunPolicy`
+  - owner scoping with authorization on
+  - the route uses the configured prefix and middleware, and is absent when `impex.routes.enabled` is false
+- A targeted run of these two files plus `ArchTest.php`, `EventsTest.php` and `tests/Modes/RenamedTables` passed. `pint --test` and `phpstan` on `src/Domains/Run` pass. The gate runs the full suite.
+
+### Deviations
+
+- As in group 1, the read action dispatches the event pair (criterion 8) and uses the package's `execute()`/`perform()` shape.
+- `whereRaw()` uses the plain column names `flow` and `id` rather than grammar-wrapped ones, because PHPStan requires a literal SQL string. Neither name is reserved in the supported databases.

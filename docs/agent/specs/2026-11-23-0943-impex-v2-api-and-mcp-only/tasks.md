@@ -18,11 +18,11 @@ depends on: 1
 files: src/Domains/Run/Actions/SearchRunsAction.php, src/Domains/Run/Data/SearchRunsData.php, src/Domains/Run/Events/RunsSearchingActionEvent.php, src/Domains/Run/Events/RunsSearchedActionEvent.php, src/Domains/Run/Http/Requests/IndexRunSearchRequest.php, src/Domains/Run/Http/Controllers/RunSearchController.php, src/Domains/Run/routes.php, tests/Pest.php, tests/Feature/Actions/SearchRunsActionTest.php, tests/Feature/Api/RunSearchApiTest.php
 criteria: 4, 5, 8, 9
 
-- [ ] 2.1 Write action tests in `tests/Feature/Actions/SearchRunsActionTest.php`: `flow` contains `q`; `id` prefix matches, including from an uppercase `q`; `%` and `_` in `q` match literally; results are newest first with ties broken by id; `limit` caps the results (default 5); a viewer sees only owned runs; the event pair is dispatched.
-- [ ] 2.2 Write API wiring tests in `tests/Feature/Api/RunSearchApiTest.php` (route `impex.search.index`): 200 with a `RunResource` collection; 422 for a missing, blank (after trim) or 256-character `q`, and for `limit` 0, 26 or `abc`; with authorization on, a guest gets 401 and a refusing policy gets 403.
-- [ ] 2.3 Implement `SearchRunsData` (`q`, `limit = 5`, `rules()`), the event pair, `SearchRunsAction` (escape LIKE wildcards, lowercase `q` for the id prefix), `IndexRunSearchRequest` (trim `q` in `prepareForValidation()`, `viewAny` on `RunModel`, `SearchRunsData::fromValidated()`), `RunSearchController::index`, and `Route::get('search', ...)->name('search.index')`.
-- [ ] 2.4 Add `SearchRunsAction` to `MCP_EXCEPTIONS` in `tests/Pest.php`.
-- [ ] 2.5 Run vendor/bin/pest; all green
+- [x] 2.1 Write action tests in `tests/Feature/Actions/SearchRunsActionTest.php`: `flow` contains `q`; `id` prefix matches, including from an uppercase `q`; `%` and `_` in `q` match literally; results are newest first with ties broken by id; `limit` caps the results (default 5); a viewer sees only owned runs; the event pair is dispatched.
+- [x] 2.2 Write API wiring tests in `tests/Feature/Api/RunSearchApiTest.php` (route `impex.search.index`): 200 with a `RunResource` collection; 422 for a missing, blank (after trim) or 256-character `q`, and for `limit` 0, 26 or `abc`; with authorization on, a guest gets 401 and a refusing policy gets 403.
+- [x] 2.3 Implement `SearchRunsData` (`q`, `limit = 5`, `rules()`), the event pair, `SearchRunsAction` (escape LIKE wildcards, lowercase `q` for the id prefix), `IndexRunSearchRequest` (trim `q` in `prepareForValidation()`, `viewAny` on `RunModel`, `SearchRunsData::fromValidated()`), `RunSearchController::index`, and `Route::get('search', ...)->name('search.index')`.
+- [x] 2.4 Add `SearchRunsAction` to `MCP_EXCEPTIONS` in `tests/Pest.php`.
+- [x] 2.5 Run vendor/bin/pest; all green
 
 ## Group 3: Settings summary endpoint
 depends on: 2
