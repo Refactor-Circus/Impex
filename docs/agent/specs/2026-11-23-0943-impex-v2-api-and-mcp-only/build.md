@@ -82,3 +82,47 @@ Search endpoint: `GET impex/search` (`impex.search.index`). Criteria 4, 5, 8, 9.
 
 - As in group 1, the read action dispatches the event pair (criterion 8) and uses the package's `execute()`/`perform()` shape.
 - `whereRaw()` uses the plain column names `flow` and `id` rather than grammar-wrapped ones, because PHPStan requires a literal SQL string. Neither name is reserved in the supported databases.
+
+## Group 3
+
+Settings summary endpoint: `GET impex/settings-summary` (`impex.settings-summary.show`). Criteria 6, 7, 8, 9.
+
+### Files
+
+- `src/Domains/Run/Data/SettingsSummary.php`: a `final readonly` value object with these properties:
+  - `retention`, `limits` and `artifacts`, each an array with a fixed shape
+  - `previewBytes` (int)
+- `src/Domains/Run/Events/SettingsSummaryShowingActionEvent.php` carries nothing, because the action takes no input. `SettingsSummaryShownActionEvent.php` carries the summary.
+- `src/Domains/Run/Actions/ShowSettingsSummaryAction.php`: `execute(): SettingsSummary`.
+  - It reads each whitelisted key on its own, with `(int) (config($key) ?? $default)`. The hard defaults match `config/impex.php`.
+  - `artifacts.path` is cast to string, with the default `impex`.
+  - `artifacts.disk` is null when it is unset or an empty string.
+  - `preview_bytes` comes from `impex.messages.preview_bytes`.
+  - Keys are read one by one and never as whole sections, so a key a host adds is never sent. There is no transaction.
+- `src/Domains/Run/Http/Resources/SettingsSummaryResource.php`: final, with `schema()`. Every field is `required()`, and `artifacts.disk` is `nullable()`.
+- `src/Domains/Run/Http/Requests/ShowSettingsSummaryRequest.php`: authorizes `viewAny` on `RunModel`. `persist()` calls the action and answers with the resource.
+- `src/Domains/Run/Http/Controllers/SettingsSummaryController.php`: `show()` returns `$request->persist()`.
+- `src/Domains/Run/routes.php`: `Route::get('settings-summary', ...)->name('settings-summary.show')`.
+- `tests/Pest.php`: `ShowSettingsSummaryAction` is in `MCP_EXCEPTIONS` with the D-005 reason.
+- `tests/Feature/Actions/ShowSettingsSummaryActionTest.php` and `tests/Feature/Api/SettingsSummaryApiTest.php`.
+- Outside the group's list: in `tests/Feature/EventsTest.php`, the asserted action count goes from 37 to 38, as group 2 noted.
+
+### Tests
+
+- Action tests cover these cases:
+  - string config values are cast to integers
+  - every key falls back to its hard default when its section is empty
+  - keys a host adds under `retention`, `limits` and `artifacts` are left out
+  - `artifacts.disk` is null when it is null or empty
+  - the event pair is dispatched, and the finished event carries the result
+- API tests cover these cases:
+  - 200 with exactly the keys of criterion 6, all integers where required, and host-added keys absent
+  - 401 for a guest and 403 under `RefusingRunPolicy`
+  - 200 for an allowed signed-in user
+  - the route uses the configured prefix and middleware, and is absent when `impex.routes.enabled` is false
+- A targeted run of these two files plus `EventsTest.php` and `ArchTest.php` passed: 36 tests. `pint --test` on the changed files and `phpstan` on `src/Domains/Run` pass. The gate runs the full suite.
+
+### Deviations
+
+- As in groups 1 and 2, the read action dispatches the event pair (criterion 8) and uses the package's `execute()`/`perform()` shape. Its starting event carries no input because the action takes none.
+- `SettingsSummary` takes its state through a readonly constructor, like `RunStats`, rather than the value-objects standard's `public private(set)` properties with fluent setters. The spec calls for a readonly value object.

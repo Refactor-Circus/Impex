@@ -47,6 +47,7 @@ const MCP_EXCEPTIONS = [
     // binary stream has no sensible MCP shape.
     'ShowRunStatsAction' => 'A dashboard aggregate for the Atrium v2 integration; agents use list-runs-tool and its filters (D-005).',
     'SearchRunsAction' => 'The Atrium v2 global search source; agents use list-runs-tool and its filters (D-005).',
+    'ShowSettingsSummaryAction' => 'A dashboard settings panel for the Atrium v2 integration that only echoes config; agents use list-runs-tool and its filters (D-005).',
 ];
 
 /**

@@ -29,11 +29,11 @@ depends on: 2
 files: src/Domains/Run/Actions/ShowSettingsSummaryAction.php, src/Domains/Run/Data/SettingsSummary.php, src/Domains/Run/Events/SettingsSummaryShowingActionEvent.php, src/Domains/Run/Events/SettingsSummaryShownActionEvent.php, src/Domains/Run/Http/Requests/ShowSettingsSummaryRequest.php, src/Domains/Run/Http/Controllers/SettingsSummaryController.php, src/Domains/Run/Http/Resources/SettingsSummaryResource.php, src/Domains/Run/routes.php, tests/Pest.php, tests/Feature/Actions/ShowSettingsSummaryActionTest.php, tests/Feature/Api/SettingsSummaryApiTest.php
 criteria: 6, 7, 8, 9
 
-- [ ] 3.1 Write action tests in `tests/Feature/Actions/ShowSettingsSummaryActionTest.php`: values come from config with integer casts; a missing key falls back to its hard default; a host-added key under `retention`, `limits` or `artifacts` is not included; `artifacts.disk` is null when unset; the event pair is dispatched.
-- [ ] 3.2 Write API wiring tests in `tests/Feature/Api/SettingsSummaryApiTest.php` (route `impex.settings-summary.show`): 200 with exactly the keys of criterion 6; with authorization on, a guest gets 401 and a refusing policy gets 403.
-- [ ] 3.3 Implement `SettingsSummary`, the event pair, `ShowSettingsSummaryAction`, `SettingsSummaryResource` (final, with `schema()`), `ShowSettingsSummaryRequest`, `SettingsSummaryController::show`, and `Route::get('settings-summary', ...)->name('settings-summary.show')`.
-- [ ] 3.4 Add `ShowSettingsSummaryAction` to `MCP_EXCEPTIONS` in `tests/Pest.php`.
-- [ ] 3.5 Run vendor/bin/pest; all green
+- [x] 3.1 Write action tests in `tests/Feature/Actions/ShowSettingsSummaryActionTest.php`: values come from config with integer casts; a missing key falls back to its hard default; a host-added key under `retention`, `limits` or `artifacts` is not included; `artifacts.disk` is null when unset; the event pair is dispatched.
+- [x] 3.2 Write API wiring tests in `tests/Feature/Api/SettingsSummaryApiTest.php` (route `impex.settings-summary.show`): 200 with exactly the keys of criterion 6; with authorization on, a guest gets 401 and a refusing policy gets 403.
+- [x] 3.3 Implement `SettingsSummary`, the event pair, `ShowSettingsSummaryAction`, `SettingsSummaryResource` (final, with `schema()`), `ShowSettingsSummaryRequest`, `SettingsSummaryController::show`, and `Route::get('settings-summary', ...)->name('settings-summary.show')`.
+- [x] 3.4 Add `ShowSettingsSummaryAction` to `MCP_EXCEPTIONS` in `tests/Pest.php`.
+- [x] 3.5 Run vendor/bin/pest; all green
 
 ## Group 4: Remove the Atrium UI, its config, composer entries and tests
 depends on: 3

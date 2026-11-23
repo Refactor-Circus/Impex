@@ -112,7 +112,7 @@ it('gives every action exactly one start and one finish event', function (): voi
         }
     }
 
-    expect($actions)->toHaveCount(37)
+    expect($actions)->toHaveCount(38)
         ->and($unpaired)->toBe([]);
 });
 
