@@ -116,3 +116,20 @@ it('keeps the module sources out of the dist archive, but ships dist', function 
     expect($attributes)->toMatch('#^/atrium\s+export-ignore$#m')
         ->not->toMatch('#^/dist\S*\s+export-ignore#m');
 });
+
+it('points extra.atrium.integration at the built impex manifest', function (): void {
+    /** @var array<string, mixed> $composer */
+    $composer = json_decode((string) file_get_contents(atriumModuleRoot().'/composer.json'), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($composer['extra']['atrium']['integration'])->toBe('dist/atrium/integration.json');
+
+    $path = atriumModuleRoot().'/'.$composer['extra']['atrium']['integration'];
+
+    expect($path)->toBeFile();
+
+    /** @var array<string, mixed> $manifest */
+    $manifest = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($manifest['key'])->toBe('impex')
+        ->and($manifest['version'])->toBe(1);
+});

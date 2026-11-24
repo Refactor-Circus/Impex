@@ -2,18 +2,17 @@ import type { Component } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RouteRecordNormalized } from 'vue-router'
 import { screens } from '../src/atrium'
-import fixture from '@refactor-circus/atrium/fixtures/integrations/impex.json'
+import fixture from '../src/integration.json'
 import { settle } from '@refactor-circus/atrium/testing'
 import { watchPackageApis } from '@refactor-circus/atrium/testing'
 import { atriumApi, leaveImpex, resetImpex } from './support'
 import { clearAtriumData, mockAtriumApi, mountSuspended, useRouter } from '@refactor-circus/atrium/testing'
 
 /*
- * Impex's pages against what `ImpexIntegration` declares (AC 49, 56): the
- * PHP test writes the declarations to `fixtures/integrations/impex.json`;
- * every declared screen has a page at its declared path, `screens` maps each
- * key to that page's route, and each page asks `atrium.screens.show` with
- * its key, its record and the open tab.
+ * Impex's pages against what its manifest, `src/integration.json`, declares
+ * (AC 49, 56): every declared screen has a page at its declared path,
+ * `screens` maps each key to that page's route, and each page asks
+ * `atrium.screens.show` with its key, its record and the open tab.
  */
 
 const { api } = vi.hoisted(() => ({ api: vi.fn() }))
@@ -55,7 +54,7 @@ describe('the Impex pages', () => {
     const paths = fixture.screens.map(screen => screen.path)
 
     for (const item of fixture.navigation) {
-      expect(paths).toContain(item.link.path)
+      expect(paths).toContain(item.path)
     }
   })
 })

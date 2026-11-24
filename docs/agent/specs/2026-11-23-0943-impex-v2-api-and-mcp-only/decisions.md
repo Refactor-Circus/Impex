@@ -109,3 +109,9 @@
 - Rationale: The user said "move the vue files for each module back into their respective modules. modules need to register their js. js should be injected into the blade file. modules are responsible for their own frontend and cjs clients from now on". It refines the spec's "API and MCP only, no UI" to "no PHP UI".
 - Date: 2026-11-24
 - Raised by: user
+
+## D-017: Where does Impex's Atrium integration declaration live?
+- Choice: In Impex, as a static JSON manifest: `atrium/src/integration.json` (Atrium's `integration.schema.json`, version 1, key `impex`) declares the `impex.atrium` feature, nav (Runs with the `impex.active-runs` live badge), the three widgets, the settings panel, the `impex` search source, the ten screens and the `impex.run-link` hook (format `map`, config `atrium.integrations.impex.run_link.screens`, default `showroom.transfers` → `row.actions`). The Atrium preset validates it and writes `dist/atrium/integration.json`, which `extra.atrium.integration` names. The SDK pin moves to Atrium `009b5bc503cb6c15c5d1a8ffce0c4bdca5bf7c9d`. `atrium/test/integration.test.ts` checks the manifest against the module's registrations; `AtriumModuleTest` checks the built manifest from PHP. Still no Atrium PHP and no Composer dependency.
+- Rationale: The user said "move the php declarations": each package owns its Atrium integration, and Atrium (PR #20) reads it from a manifest instead of declaring it in PHP. The run-link hook is Impex's because the component calls Impex's API.
+- Date: 2026-11-24
+- Raised by: user

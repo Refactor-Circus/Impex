@@ -608,6 +608,20 @@ its page; the module calls this package's JSON API through
 settings live under `atrium.integrations.impex.*`, and Impex itself needs none.
 Hosts never run Node.
 
+What Impex adds to Atrium is declared in a static JSON manifest,
+`atrium/src/integration.json` (Atrium's integration schema, version 1): the
+`impex.atrium` feature, the nav items (Runs carries the `impex.active-runs`
+badge), the three dashboard widgets, the settings panel, the `impex` search
+source, the ten screens, and the `impex.run-link` hook, a "Run" section that
+Impex adds to other packages' screens (by default Showroom's
+`showroom.transfers` row actions; a host replaces the placement with
+`atrium.integrations.impex.run_link.screens`). The build validates it and
+copies it to `dist/atrium/integration.json`, which `extra.atrium.integration`
+points Atrium at. To change what Impex declares, edit
+`atrium/src/integration.json` and rebuild; every screen, widget and hook key it
+names must be registered by `atrium/src/atrium.ts` (`atrium/test/integration.test.ts`
+checks).
+
 To change the module, edit `atrium/` and rebuild it with pnpm 10.18:
 `pnpm -C atrium install`, `pnpm -C atrium typecheck`, `pnpm -C atrium test`,
 `pnpm -C atrium build`, then commit `dist/atrium/`. A Pest test fails when the

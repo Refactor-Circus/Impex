@@ -21,7 +21,7 @@ import impex_en from './locales/impex.en.json'
 import { routes } from './routes'
 
 /**
- * Each Impex screen key (as `ImpexIntegration` declares it) to the layer
+ * Each Impex screen key (as `integration.json` declares it) to the layer
  * route that renders it.
  */
 export const screens: Record<string, string> = {
