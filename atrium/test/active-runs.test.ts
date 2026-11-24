@@ -78,7 +78,9 @@ describe('the impex.active-runs live resolver', () => {
     mockPackageApi('impex', { 'GET /stats': { data: stats } })
     await useShell(integrationShell([integrationEntry('impex')], { navigation: structuredClone(sections) }))
 
-    const wrapper = await mountSuspended(AtriumNavigation)
+    // The panel shows the section owning the route (Atrium D-096): mount on
+    // the Impex group's page, not the dashboard's `/`.
+    const wrapper = await mountSuspended(AtriumNavigation, { route: '/impex/runs' })
     await settle()
 
     expect(wrapper.find('a[href="/impex/runs"]').text()).toContain('3')
