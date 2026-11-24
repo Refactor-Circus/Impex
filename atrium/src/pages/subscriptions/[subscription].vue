@@ -150,11 +150,11 @@ async function ping(): Promise<void> {
           </UCard>
 
           <UCard>
-            <UForm :state="{ replay_from: replayFrom }" class="flex flex-wrap items-end gap-3" data-testid="impex-subscription-replay" @submit="replay">
+            <UForm :state="{ replay_from: replayFrom }" class="flex flex-wrap items-start gap-3" data-testid="impex-subscription-replay" @submit="replay">
               <UFormField :label="t('impex.subscription.replay_from')" class="w-48">
                 <UInput v-model="replayFrom" name="replay_from" type="number" min="0" />
               </UFormField>
-              <UButton type="submit" icon="i-lucide-rotate-ccw" :loading="action.busy.value">{{ t('impex.subscription.replay') }}</UButton>
+              <UButton type="submit" icon="i-lucide-rotate-ccw" :loading="action.busy.value" class="mt-field-label">{{ t('impex.subscription.replay') }}</UButton>
             </UForm>
           </UCard>
 

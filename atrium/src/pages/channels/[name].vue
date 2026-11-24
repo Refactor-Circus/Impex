@@ -147,7 +147,7 @@ async function destroy(): Promise<void> {
               <h2 class="font-medium">{{ t('impex.channel.edit') }}</h2>
             </template>
             <UForm :state="form" class="flex flex-col gap-4" data-testid="impex-channel-update" @submit="update">
-              <div class="flex flex-wrap items-end gap-3">
+              <div class="flex flex-wrap items-start gap-3">
                 <ImpexChannelFields :form="form" />
               </div>
               <div>

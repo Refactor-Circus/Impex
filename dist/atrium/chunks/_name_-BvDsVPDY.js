@@ -15,7 +15,7 @@ var F = {
 }, I = {
 	key: 0,
 	class: "space-y-4"
-}, L = { class: "font-medium" }, R = { class: "flex flex-wrap items-end gap-3" }, z = { class: "font-medium" }, B = {
+}, L = { class: "font-medium" }, R = { class: "flex flex-wrap items-start gap-3" }, z = { class: "font-medium" }, B = {
 	class: "overflow-x-auto rounded-md bg-elevated p-2 text-xs",
 	"data-testid": "impex-channel-options"
 }, V = { class: "mt-2 text-sm text-muted" }, H = /* @__PURE__ */ w({

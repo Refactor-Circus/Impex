@@ -176,7 +176,7 @@ var F = {
 						T(m, null, {
 							default: M(() => [T(k, {
 								state: { replay_from: j(J) },
-								class: "flex flex-wrap items-end gap-3",
+								class: "flex flex-wrap items-start gap-3",
 								"data-testid": "impex-subscription-replay",
 								onSubmit: oe
 							}, {
@@ -195,7 +195,8 @@ var F = {
 								}, 8, ["label"]), T(a, {
 									type: "submit",
 									icon: "i-lucide-rotate-ccw",
-									loading: j(q).busy.value
+									loading: j(q).busy.value,
+									class: "mt-field-label"
 								}, {
 									default: M(() => [w(A(j(H)("impex.subscription.replay")), 1)]),
 									_: 1

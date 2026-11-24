@@ -51,7 +51,7 @@ async function create(): Promise<void> {
 
         <UCard>
           <UForm :state="form" class="flex flex-col gap-4" data-testid="impex-channel-create-form" @submit="create">
-            <div class="flex flex-wrap items-end gap-3">
+            <div class="flex flex-wrap items-start gap-3">
               <UFormField :label="t('impex.channels.name')" :hint="t('impex.channel.name_hint')" class="w-64">
                 <UInput v-model="form.name" name="name" required />
               </UFormField>

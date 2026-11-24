@@ -10,7 +10,7 @@ import { useRouter as A } from "vue-router";
 var j = {
 	class: "space-y-4",
 	"data-testid": "impex-channel-create"
-}, M = { class: "space-y-4" }, N = { class: "flex flex-wrap items-end gap-3" }, P = /* @__PURE__ */ C({
+}, M = { class: "space-y-4" }, N = { class: "flex flex-wrap items-start gap-3" }, P = /* @__PURE__ */ C({
 	__name: "create",
 	setup(C) {
 		let { t: P } = k(), F = A(), { client: I } = d("impex"), L = n(), R = T({
