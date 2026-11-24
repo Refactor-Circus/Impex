@@ -52,7 +52,8 @@ describe('impex.flows', () => {
     expect(started).toHaveLength(1)
     expect(started[0]!.path).toBe('/flows/orders.sync/runs')
     expect(started[0]!.body).toEqual({ arguments: { since: '2026-11-01' } })
-    expect(useRouter().currentRoute.value.path).toBe('/impex/runs/run-1')
+    // The page opens lazily on its first visit, which can outlast settle(); wait for the navigation.
+    await vi.waitFor(() => expect(useRouter().currentRoute.value.path).toBe('/impex/runs/run-1'))
   })
 
   it('runs a flow with no arguments', async () => {

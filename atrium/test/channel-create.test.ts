@@ -56,7 +56,8 @@ describe('impex.channel-create', () => {
       options: { url: 'https://erp.example.com' },
       credentials: { signing_secret: 's3cret' }
     })
-    expect(useRouter().currentRoute.value.path).toBe('/impex/channels/erp')
+    // The page opens lazily on its first visit, which can outlast settle(); wait for the navigation.
+    await vi.waitFor(() => expect(useRouter().currentRoute.value.path).toBe('/impex/channels/erp'))
   })
 
   it('sends no credentials when no signing secret is typed', async () => {
