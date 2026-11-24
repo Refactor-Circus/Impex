@@ -2,7 +2,7 @@
 
 ## Goal
 
-Impex 2.0.0 ships only its JSON API and MCP server. The Atrium plugin goes; Atrium v2 hosts the UI. To support it, Impex adds the three read endpoints the Blade UI used to compute in PHP, a committed OpenAPI document and a committed, generated TypeScript client (`@refactor-circus/impex-client`). Atrium's Nuxt layer calls Impex through that client.
+Impex 2.0.0 ships only its JSON API and MCP server. The Atrium plugin goes; Atrium v2 hosts the UI. To support it, Impex adds the three read endpoints the Blade UI used to compute in PHP, a committed OpenAPI document and a committed, generated TypeScript client (`@refactor-circus/impex-client`). Impex's own Atrium module (`atrium/`, shipped prebuilt in `dist/atrium/` and loaded by Atrium v2's Blade-served Vue app) calls Impex through that client.
 
 ## Acceptance criteria
 

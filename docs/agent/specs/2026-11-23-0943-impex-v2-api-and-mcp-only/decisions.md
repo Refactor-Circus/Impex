@@ -53,7 +53,7 @@
 
 ## D-008: Does the client ship compiled JS or TypeScript source?
 - Choice: TypeScript source only (`exports: ./src/index.ts`), with no build step and no committed `dist`. The wrapper is `createImpexClient(options)` over `openapi-fetch`'s `createClient<paths>`. Generator versions are pinned exactly in `client/package.json`, and `package-lock.json` is committed.
-- Rationale: The one consumer is Atrium's Nuxt layer, which compiles TypeScript itself. A committed `dist` would be a third artifact to keep fresh. Exact pins keep the generated `schema.d.ts` byte-stable for the staleness check.
+- Rationale: The one consumer is Impex's own Atrium module (`atrium/`), whose Vite build compiles TypeScript itself. A committed `dist` would be a third artifact to keep fresh. Exact pins keep the generated `schema.d.ts` byte-stable for the staleness check.
 - Date: 2026-11-23
 - Raised by: write-spec; default chosen because the user asked to proceed without stopping
 

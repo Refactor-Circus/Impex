@@ -8,7 +8,7 @@ Risk: high
 - `composer.json` drops Atrium and PennantPlus requirements and adds `dedoc/scramble` as a dev dependency. README, CHANGELOG (v2.0.0 upgrade note), docs, AGENTS.md and the Boost skill are rewritten for API plus MCP.
 
 ## Why
-Impex 2.0.0 ships only its JSON API and MCP server, and Atrium v2 hosts the UI. The three endpoints replace numbers the Blade UI computed in PHP, and the OpenAPI document plus client let Atrium's Nuxt layer call Impex with types. Decisions that shaped it:
+Impex 2.0.0 ships only its JSON API and MCP server, and Atrium v2 hosts the UI. The three endpoints replace numbers the Blade UI computed in PHP, and the OpenAPI document plus client let Impex's Atrium module (prebuilt into `dist/atrium/`, loaded by Atrium v2's Vue app) call Impex with types. Decisions that shaped it:
 - D-001: the API stays on by default.
 - D-005: no MCP tools for the new endpoints.
 - D-006: operator mode has no replacement in v2.0.0, so under `impex.authorization` stats and search cover the caller's own runs only.
