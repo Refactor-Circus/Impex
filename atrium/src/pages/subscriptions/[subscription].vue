@@ -2,8 +2,9 @@
 import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
-import { endpointOf, formatDate, isOn, useImpexAction, useImpexResource } from '../../components/shared'
+import { endpointOf, formatDate, isOn, messagePath, NUMERIC_COLUMN, useImpexAction, useImpexResource } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
+import type { TableColumn } from '@nuxt/ui'
 
 /**
  * `impex.subscription`: one subscription (`impex.subscriptions.show`) with
@@ -23,6 +24,13 @@ const deliveries = useImpexResource(async client => integrationData(await client
 
 const action = useImpexAction()
 const replayFrom = ref<string | number>('')
+
+const deliveryColumns = computed<TableColumn<NonNullable<typeof deliveries.data.value>[number]>[]>(() => [
+  { accessorKey: 'status', header: t('impex.subscriptions.status') },
+  { accessorKey: 'events', header: t('impex.subscription.events'), meta: NUMERIC_COLUMN },
+  { accessorKey: 'duration_ms', header: t('impex.message.duration'), meta: NUMERIC_COLUMN },
+  { accessorKey: 'attempted_at', header: t('impex.messages.when') }
+])
 
 const endpoint = computed(() => endpointOf(subscription.data.value?.endpoint))
 const lastError = computed(() => {
@@ -98,23 +106,20 @@ async function ping(): Promise<void> {
     <AtriumIntegrationScreen screen-key="impex.subscription" :record="id">
       <ImpexState :error="subscription.error.value" :ready="subscription.data.value !== null">
         <div v-if="subscription.data.value" class="space-y-4">
-          <header class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <h1 class="text-xl font-semibold">{{ subscription.data.value.stream }}</h1>
+          <AtriumPageHeader :title="subscription.data.value.stream">
+            <template #meta>
               <ImpexStatusBadge :status="subscription.data.value.status" />
-            </div>
-            <div class="flex gap-2">
-              <UButton v-if="subscription.data.value.status === 'active'" variant="outline" icon="i-lucide-pause" :loading="action.busy.value" data-testid="impex-subscription-pause" @click="pause">
-                {{ t('impex.subscription.pause') }}
-              </UButton>
-              <UButton v-else variant="outline" icon="i-lucide-play" :loading="action.busy.value" data-testid="impex-subscription-resume" @click="resume">
-                {{ t('impex.subscription.resume') }}
-              </UButton>
-              <UButton v-if="endpoint" variant="outline" icon="i-lucide-send" :loading="action.busy.value" data-testid="impex-subscription-ping" @click="ping">
-                {{ t('impex.subscription.ping') }}
-              </UButton>
-            </div>
-          </header>
+            </template>
+            <UButton v-if="subscription.data.value.status === 'active'" variant="outline" icon="i-lucide-pause" :loading="action.busy.value" data-testid="impex-subscription-pause" @click="pause">
+              {{ t('impex.subscription.pause') }}
+            </UButton>
+            <UButton v-else variant="outline" icon="i-lucide-play" :loading="action.busy.value" data-testid="impex-subscription-resume" @click="resume">
+              {{ t('impex.subscription.resume') }}
+            </UButton>
+            <UButton v-if="endpoint" variant="outline" icon="i-lucide-send" :loading="action.busy.value" data-testid="impex-subscription-ping" @click="ping">
+              {{ t('impex.subscription.ping') }}
+            </UButton>
+          </AtriumPageHeader>
 
           <ImpexFlash :action="action" />
 
@@ -132,12 +137,12 @@ async function ping(): Promise<void> {
           </UCard>
 
           <UCard>
-            <form class="flex flex-wrap items-end gap-3" data-testid="impex-subscription-replay" @submit.prevent="replay">
+            <UForm :state="{ replay_from: replayFrom }" class="flex flex-wrap items-end gap-3" data-testid="impex-subscription-replay" @submit="replay">
               <UFormField :label="t('impex.subscription.replay_from')" class="w-48">
                 <UInput v-model="replayFrom" name="replay_from" type="number" min="0" />
               </UFormField>
               <UButton type="submit" icon="i-lucide-rotate-ccw" :loading="action.busy.value">{{ t('impex.subscription.replay') }}</UButton>
-            </form>
+            </UForm>
           </UCard>
 
           <UCard>
@@ -145,28 +150,24 @@ async function ping(): Promise<void> {
               <h2 class="font-medium">{{ t('impex.subscription.deliveries') }}</h2>
             </template>
             <ImpexState :error="deliveries.error.value" :ready="deliveries.data.value !== null">
-              <p v-if="(deliveries.data.value ?? []).length === 0" class="text-sm text-muted">{{ t('impex.subscription.no_deliveries') }}</p>
-              <table v-else class="w-full text-left text-sm" data-testid="impex-subscription-deliveries">
-                <thead class="text-muted">
-                  <tr>
-                    <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.status') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('impex.subscription.events') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('impex.message.duration') }}</th>
-                    <th class="py-2 font-medium">{{ t('impex.messages.when') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-default">
-                  <tr v-for="delivery in deliveries.data.value" :key="delivery.id" :data-testid="`impex-delivery-${delivery.id}`">
-                    <td class="py-2 pr-3"><ImpexStatusBadge :status="delivery.status" /> <span v-if="delivery.status_code" class="text-xs text-muted">{{ delivery.status_code }}</span></td>
-                    <td class="py-2 pr-3 tabular-nums">{{ delivery.events }}</td>
-                    <td class="py-2 pr-3">{{ delivery.duration_ms === null ? t('impex.common.none') : t('impex.message.milliseconds', { count: delivery.duration_ms }) }}</td>
-                    <td class="py-2">
-                      <RouterLink v-if="delivery.message_id" :to="`/impex/messages/${encodeURIComponent(delivery.message_id)}`" class="hover:underline">{{ formatDate(delivery.attempted_at) }}</RouterLink>
-                      <span v-else>{{ formatDate(delivery.attempted_at) }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <UTable :data="deliveries.data.value ?? []" :columns="deliveryColumns" data-testid="impex-subscription-deliveries">
+                <template #status-cell="{ row }">
+                  <span class="flex items-center gap-1.5" :data-testid="`impex-delivery-${row.original.id}`">
+                    <ImpexStatusBadge :status="row.original.status" />
+                    <span v-if="row.original.status_code" class="text-xs text-muted">{{ row.original.status_code }}</span>
+                  </span>
+                </template>
+                <template #duration_ms-cell="{ row }">
+                  {{ row.original.duration_ms === null ? t('impex.common.none') : t('impex.message.milliseconds', { count: row.original.duration_ms }) }}
+                </template>
+                <template #attempted_at-cell="{ row }">
+                  <ULink v-if="row.original.message_id" :to="messagePath(row.original.message_id)">{{ formatDate(row.original.attempted_at) }}</ULink>
+                  <span v-else>{{ formatDate(row.original.attempted_at) }}</span>
+                </template>
+                <template #empty>
+                  <AtriumState compact :title="t('impex.subscription.no_deliveries')" data-testid="impex-subscription-no-deliveries" />
+                </template>
+              </UTable>
             </ImpexState>
           </UCard>
         </div>

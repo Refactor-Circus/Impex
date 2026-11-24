@@ -34,6 +34,9 @@ export const CHANNEL_STATUSES: readonly Schemas['ChannelStatus'][] = ['active', 
 export const BODY_POLICIES: readonly Schemas['BodyPolicy'][] = ['all', 'failures', 'none']
 export const SUBSCRIPTION_STATUSES: readonly Schemas['SubscriptionStatus'][] = ['active', 'paused', 'disabled']
 
+/** A `UTable` column's meta for a number: right-aligned, tabular figures. */
+export const NUMERIC_COLUMN = { class: { th: 'text-right', td: 'text-right tabular-nums' } }
+
 type BadgeColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 
 /** The badge colour of a run, step, channel, subscription or delivery status. */
@@ -61,6 +64,11 @@ export function statusColor(status: string | null | undefined): BadgeColor {
 /** The layer path of a run's page. */
 export function runPath(id: string): string {
   return `/impex/runs/${encodeURIComponent(id)}`
+}
+
+/** The layer path of a message's page. */
+export function messagePath(id: string): string {
+  return `/impex/messages/${encodeURIComponent(id)}`
 }
 
 /** The layer path of a channel's page. */

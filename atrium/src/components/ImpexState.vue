@@ -13,10 +13,14 @@ const status = computed(() => atriumStatus(props.error))
 
 <template>
   <AtriumNoAccess v-if="status === 403" />
-  <div v-else-if="status === 404" class="rounded-md border border-default p-4 text-sm" role="status" data-testid="impex-not-found">
-    <p class="font-medium">{{ t('impex.common.not_found_title') }}</p>
-    <p class="text-muted">{{ t('impex.common.not_found_description') }}</p>
-  </div>
+  <AtriumState
+    v-else-if="status === 404"
+    kind="info"
+    icon="i-lucide-search-x"
+    :title="t('impex.common.not_found_title')"
+    :description="t('impex.common.not_found_description')"
+    data-testid="impex-not-found"
+  />
   <AtriumErrorCard v-else-if="error" :message="t('impex.common.load_failed')" />
   <USkeleton v-else-if="!ready" class="h-24" />
   <slot v-else />

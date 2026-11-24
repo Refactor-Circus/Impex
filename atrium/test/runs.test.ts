@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import RunsPage from '../src/pages/runs/index.vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, failedRun, leaveImpex, mountImpexPage, page, resetImpex, run } from './support'
+import { atriumApi, callsTo, failedRun, leaveImpex, mountImpexPage, page, resetImpex, run, tableRow } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -29,8 +29,8 @@ describe('impex.runs', () => {
     const wrapper = await mountImpexPage(RunsPage, '/impex/runs')
 
     expect(callsTo(calls, 'GET', '/runs').length).toBeGreaterThan(0)
-    expect(wrapper.find('[data-testid="impex-run-row-run-1"]').text()).toContain('orders.sync')
-    expect(wrapper.find('[data-testid="impex-run-row-run-2"] a').attributes('href')).toBe('/impex/runs/run-2')
+    expect(tableRow(wrapper, 'impex-run-row-run-1').text()).toContain('orders.sync')
+    expect(tableRow(wrapper, 'impex-run-row-run-2').find('a').attributes('href')).toBe('/impex/runs/run-2')
   })
 
   it('asks atrium.screens.show for impex.runs, with no record', async () => {
@@ -59,8 +59,8 @@ describe('impex.runs', () => {
     await settle()
 
     expect(callsTo(calls, 'GET', '/runs').some(call => call.query.cursor === 'next-1')).toBe(true)
-    expect(wrapper.find('[data-testid="impex-run-row-run-1"]').exists()).toBe(true)
-    expect(wrapper.find('[data-testid="impex-run-row-run-2"]').exists()).toBe(true)
+    expect(tableRow(wrapper, 'impex-run-row-run-1').exists()).toBe(true)
+    expect(tableRow(wrapper, 'impex-run-row-run-2').exists()).toBe(true)
   })
 
   it('shows the empty state', async () => {

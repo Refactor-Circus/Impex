@@ -1,3 +1,4 @@
+import { DOMWrapper } from '@vue/test-utils'
 import type { components } from '../../client/src/schema'
 import type { AtriumIntegrationScreenData } from '@refactor-circus/atrium'
 import { settle } from '@refactor-circus/atrium/testing'
@@ -225,4 +226,16 @@ export async function mountImpexPage<T>(component: T, path: string): ReturnType<
 /** The calls matching a method and route template. */
 export function callsTo(calls: readonly PackageCall[], method: string, route: string): PackageCall[] {
   return calls.filter(call => call.method === method && call.route === route)
+}
+
+/**
+ * The `UTable` row holding the element with `testid` (a page puts a row's
+ * test id on its first cell's content, since `UTable` sets no attributes on
+ * a `<tr>`). A wrapper that does not exist when no row holds it.
+ */
+export function tableRow(wrapper: { find: (selector: string) => DOMWrapper<Element> }, testid: string): DOMWrapper<Element> {
+  const marker = wrapper.find(`[data-testid="${testid}"]`)
+  const row = marker.exists() ? marker.element.closest('tr') : null
+
+  return row ? new DOMWrapper(row) : marker
 }

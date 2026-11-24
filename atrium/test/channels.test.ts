@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ChannelsPage from '../src/pages/channels/index.vue'
 import { mockPackageApi, type PackageBody, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, configuredChannel, leaveImpex, mountImpexPage, resetImpex, storedChannel } from './support'
+import { atriumApi, callsTo, configuredChannel, leaveImpex, mountImpexPage, resetImpex, storedChannel, tableRow } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -32,9 +32,9 @@ describe('impex.channels', () => {
     const wrapper = await mountImpexPage(ChannelsPage, '/impex/channels')
 
     expect(callsTo(calls, 'GET', '/channels').length).toBeGreaterThan(0)
-    expect(wrapper.find('[data-testid="impex-channel-row-erp"] a').attributes('href')).toBe('/impex/channels/erp')
-    expect(wrapper.find('[data-testid="impex-channel-row-erp"]').text()).toContain('Stored')
-    expect(wrapper.find('[data-testid="impex-channel-row-webhooks.in"]').text()).toContain('From config')
+    expect(tableRow(wrapper, 'impex-channel-row-erp').find('a').attributes('href')).toBe('/impex/channels/erp')
+    expect(tableRow(wrapper, 'impex-channel-row-erp').text()).toContain('Stored')
+    expect(tableRow(wrapper, 'impex-channel-row-webhooks.in').text()).toContain('From config')
     expect(api).toHaveBeenCalledWith('/screens/impex.channels', { query: { record: undefined, tab: undefined } })
   })
 

@@ -43,14 +43,14 @@ async function create(): Promise<void> {
 
 <template>
   <div class="space-y-4" data-testid="impex-channel-create">
-    <h1 class="text-xl font-semibold">{{ t('impex.channel.create_title') }}</h1>
+    <AtriumPageHeader :title="t('impex.channel.create_title')" />
 
     <AtriumIntegrationScreen screen-key="impex.channel-create">
       <div class="space-y-4">
         <ImpexFlash :action="action" />
 
         <UCard>
-          <form class="flex flex-col gap-4" data-testid="impex-channel-create-form" @submit.prevent="create">
+          <UForm :state="form" class="flex flex-col gap-4" data-testid="impex-channel-create-form" @submit="create">
             <div class="flex flex-wrap items-end gap-3">
               <UFormField :label="t('impex.channels.name')" :hint="t('impex.channel.name_hint')" class="w-64">
                 <UInput v-model="form.name" name="name" required />
@@ -63,7 +63,7 @@ async function create(): Promise<void> {
             <div>
               <UButton type="submit" icon="i-lucide-plus" :loading="action.busy.value" data-testid="impex-channel-create-submit">{{ t('impex.channel.create') }}</UButton>
             </div>
-          </form>
+          </UForm>
         </UCard>
       </div>
     </AtriumIntegrationScreen>

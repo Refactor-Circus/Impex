@@ -626,7 +626,10 @@ To change the module, edit `atrium/` and rebuild it with pnpm 10.18:
 `pnpm -C atrium install`, `pnpm -C atrium typecheck`, `pnpm -C atrium test`,
 `pnpm -C atrium build`, then commit `dist/atrium/`. A Pest test fails when the
 committed build is older than its sources, and the CI `ui` job rebuilds and
-diffs it.
+diffs it. The module's components compose Nuxt UI (`UTable`, `UForm`,
+`UButton`, `ULink`, ...) and the SDK's `Atrium*` components, never raw
+`<table>`, `<button>`, `<input>` or `<a href>`; `atrium/test/nuxt-ui-guard.test.ts`
+enforces it.
 
 What a viewer sees follows the API's own authorization: `impex.routes.middleware`
 decides who may call it, and with `impex.authorization` on each call is checked

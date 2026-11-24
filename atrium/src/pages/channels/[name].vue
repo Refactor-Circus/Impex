@@ -95,12 +95,8 @@ async function destroy(): Promise<void> {
     <AtriumIntegrationScreen screen-key="impex.channel" :record="name">
       <ImpexState :error="channel.error.value" :ready="channel.data.value !== null">
         <div v-if="channel.data.value" class="space-y-4">
-          <header class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 class="text-xl font-semibold">{{ channel.data.value.name }}</h1>
-              <p class="text-sm text-muted">{{ t(`impex.directions.${channel.data.value.direction}`) }} · {{ channel.data.value.transport }}</p>
-            </div>
-            <div v-if="channel.data.value.stored" class="flex gap-2">
+          <AtriumPageHeader :title="channel.data.value.name" :description="`${t(`impex.directions.${channel.data.value.direction}`)} · ${channel.data.value.transport}`">
+            <template v-if="channel.data.value.stored">
               <UButton variant="outline" icon="i-lucide-key-round" :loading="action.busy.value" data-testid="impex-channel-rotate" @click="rotateSecret">
                 {{ t('impex.channel.rotate_secret') }}
               </UButton>
@@ -115,8 +111,8 @@ async function destroy(): Promise<void> {
                   {{ t('impex.common.cancel') }}
                 </UButton>
               </template>
-            </div>
-          </header>
+            </template>
+          </AtriumPageHeader>
 
           <ImpexFlash :action="action" />
 
@@ -134,14 +130,14 @@ async function destroy(): Promise<void> {
             <template #header>
               <h2 class="font-medium">{{ t('impex.channel.edit') }}</h2>
             </template>
-            <form class="flex flex-col gap-4" data-testid="impex-channel-update" @submit.prevent="update">
+            <UForm :state="form" class="flex flex-col gap-4" data-testid="impex-channel-update" @submit="update">
               <div class="flex flex-wrap items-end gap-3">
                 <ImpexChannelFields :form="form" />
               </div>
               <div>
                 <UButton type="submit" :loading="action.busy.value">{{ t('impex.common.save') }}</UButton>
               </div>
-            </form>
+            </UForm>
           </UCard>
 
           <UCard v-else>

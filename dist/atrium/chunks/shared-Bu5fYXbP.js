@@ -29,8 +29,11 @@ var s = [
 	"active",
 	"paused",
 	"disabled"
-];
-function m(e) {
+], m = { class: {
+	th: "text-right",
+	td: "text-right tabular-nums"
+} };
+function h(e) {
 	switch (e) {
 		case "completed":
 		case "succeeded":
@@ -45,21 +48,24 @@ function m(e) {
 		default: return "neutral";
 	}
 }
-function h(e) {
+function g(e) {
 	return `/impex/runs/${encodeURIComponent(e)}`;
 }
-function g(e) {
-	return `/impex/channels/${encodeURIComponent(e)}`;
-}
 function _(e) {
-	return `/impex/subscriptions/${encodeURIComponent(e)}`;
+	return `/impex/messages/${encodeURIComponent(e)}`;
 }
 function v(e) {
+	return `/impex/channels/${encodeURIComponent(e)}`;
+}
+function y(e) {
+	return `/impex/subscriptions/${encodeURIComponent(e)}`;
+}
+function b(e) {
 	if (typeof e != "object" || !e) return null;
 	let { url: t, to: n } = e;
 	return typeof t == "string" && t !== "" ? t : typeof n == "string" && n !== "" ? n : null;
 }
-function y(e) {
+function x(e) {
 	return {
 		transport: e?.transport ?? "http",
 		status: e?.status ?? "active",
@@ -68,8 +74,8 @@ function y(e) {
 		options_json: JSON.stringify(e?.options ?? {}, null, 2)
 	};
 }
-function b(e) {
-	let t = w(e.options_json), n = t === void 0 ? {} : "value" in t ? t.value : null;
+function S(e) {
+	let t = E(e.options_json), n = t === void 0 ? {} : "value" in t ? t.value : null;
 	return typeof n != "object" || !n || Array.isArray(n) ? null : {
 		transport: e.transport,
 		status: e.status,
@@ -78,29 +84,29 @@ function b(e) {
 		...e.signing_secret === "" ? {} : { credentials: { signing_secret: e.signing_secret } }
 	};
 }
-function x(e) {
+function C(e) {
 	if (!e) return null;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? e : t.toLocaleString();
 }
-function S(e) {
+function w(e) {
 	let t = Array.isArray(e) ? e[0] : e;
 	return typeof t == "string" && t !== "" ? t : void 0;
 }
-function C(e) {
+function T(e) {
 	return e === !0 || e === 1 || e === "1" || e === "true";
 }
-function w(e) {
+function E(e) {
 	if (e.trim() !== "") try {
 		return { value: JSON.parse(e) };
 	} catch {
 		return { invalid: !0 };
 	}
 }
-function T(e) {
+function D(e) {
 	return e;
 }
-function E(e, t) {
+function O(e, t) {
 	let { client: r } = n("impex"), s = a(null), c = a(null), l = i(!1);
 	async function u() {
 		if (r) {
@@ -122,7 +128,7 @@ function E(e, t) {
 		reload: u
 	};
 }
-function D(e, t) {
+function k(e, t) {
 	let { client: r } = n("impex"), s = a([]), c = i(null), l = a(null), u = i(!1);
 	async function d(t) {
 		if (r) {
@@ -146,7 +152,7 @@ function D(e, t) {
 		loadMore: () => d(c.value ?? void 0)
 	};
 }
-function O() {
+function A() {
 	let t = i(!1), n = i({}), r = i(null), a = i(null), o = i(!1);
 	function s() {
 		n.value = {}, r.value = null, a.value = null, o.value = !1;
@@ -177,7 +183,7 @@ function O() {
 		reset: s
 	};
 }
-function k() {
+function j() {
 	return r("impex", "impex.stats.show", async (e) => t(await e.GET("/stats")).data);
 }
-export { k as C, E as S, h as _, s as a, O as b, b as c, v as d, x as f, S as g, w as h, l as i, g as l, T as m, u as n, c as o, C as p, d as r, p as s, f as t, y as u, m as v, D as x, _ as y };
+export { k as C, A as S, j as T, E as _, m as a, h as b, p as c, x as d, b as f, _ as g, D as h, l as i, S as l, T as m, u as n, s as o, C as p, d as r, c as s, f as t, v as u, w as v, O as w, y as x, g as y };

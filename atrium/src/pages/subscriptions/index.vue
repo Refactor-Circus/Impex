@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
-import { endpointOf, formatDate, queryValue, SUBSCRIPTION_STATUSES, subscriptionPath, useImpexList } from '../../components/shared'
+import { endpointOf, formatDate, NUMERIC_COLUMN, queryValue, SUBSCRIPTION_STATUSES, subscriptionPath, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
+import type { TableColumn } from '@nuxt/ui'
 
 /**
  * `impex.subscriptions`: every subscription the user may see, filtered by
@@ -29,6 +30,15 @@ const subscriptions = useImpexList(
   filters
 )
 
+const columns = computed<TableColumn<(typeof subscriptions.rows.value)[number]>[]>(() => [
+  { accessorKey: 'stream', header: t('impex.subscriptions.stream') },
+  { accessorKey: 'subscriber_id', header: t('impex.subscriptions.subscriber'), meta: { class: { td: 'font-mono text-xs' } } },
+  { accessorKey: 'endpoint', header: t('impex.subscriptions.endpoint'), meta: { class: { td: 'max-w-xs truncate' } } },
+  { accessorKey: 'status', header: t('impex.subscriptions.status') },
+  { accessorKey: 'failures', header: t('impex.subscriptions.failures'), meta: NUMERIC_COLUMN },
+  { accessorKey: 'last_delivered_at', header: t('impex.subscriptions.last_delivered') }
+])
+
 const statusItems = computed(() => SUBSCRIPTION_STATUSES.map(status => ({ label: t(`impex.statuses.${status}`), value: status })))
 
 function filter(): void {
@@ -42,43 +52,35 @@ function clear(): void {
 
 <template>
   <div class="space-y-4" data-testid="impex-subscriptions">
-    <h1 class="text-xl font-semibold">{{ t('impex.subscriptions.title') }}</h1>
+    <AtriumPageHeader :title="t('impex.subscriptions.title')" />
 
     <AtriumIntegrationScreen screen-key="impex.subscriptions">
       <div class="space-y-4">
-        <form class="atrium-querybar" data-testid="impex-subscriptions-filters" @submit.prevent="filter">
+        <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-subscriptions-filters" @submit="filter">
           <UInput v-model="form.stream" name="stream" :placeholder="t('impex.subscriptions.stream')" class="w-48" />
           <USelect v-model="form.status" :items="statusItems" :placeholder="t('impex.subscriptions.all_statuses')" class="w-44" :aria-label="t('impex.subscriptions.status')" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-subscriptions-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-subscriptions-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>
-        </form>
+        </UForm>
 
         <ImpexState :error="subscriptions.error.value" :ready="!subscriptions.pending.value || subscriptions.rows.value.length > 0">
-          <p v-if="subscriptions.rows.value.length === 0" class="atrium-empty" data-testid="impex-subscriptions-empty">{{ t('impex.subscriptions.empty') }}</p>
-          <table v-else class="w-full text-left text-sm">
-            <thead class="text-muted">
-              <tr>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.stream') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.subscriber') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.endpoint') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.status') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.subscriptions.failures') }}</th>
-                <th class="py-2 font-medium">{{ t('impex.subscriptions.last_delivered') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-default">
-              <tr v-for="subscription in subscriptions.rows.value" :key="subscription.id" :data-testid="`impex-subscription-row-${subscription.id}`">
-                <td class="py-2 pr-3">
-                  <RouterLink :to="subscriptionPath(subscription.id)" class="font-medium hover:underline">{{ subscription.stream }}</RouterLink>
-                </td>
-                <td class="py-2 pr-3 font-mono text-xs">{{ subscription.subscriber_id }}</td>
-                <td class="max-w-xs truncate py-2 pr-3">{{ endpointOf(subscription.endpoint) ?? t('impex.subscriptions.feed_only') }}</td>
-                <td class="py-2 pr-3"><ImpexStatusBadge :status="subscription.status" /></td>
-                <td class="py-2 pr-3 tabular-nums">{{ subscription.failures }}</td>
-                <td class="py-2">{{ formatDate(subscription.last_delivered_at) ?? t('impex.common.none') }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <UTable :data="subscriptions.rows.value" :columns="columns" :loading="subscriptions.pending.value" data-testid="impex-subscriptions-table">
+            <template #stream-cell="{ row }">
+              <ULink :to="subscriptionPath(row.original.id)" class="font-medium" :data-testid="`impex-subscription-row-${row.original.id}`">{{ row.original.stream }}</ULink>
+            </template>
+            <template #endpoint-cell="{ row }">
+              {{ endpointOf(row.original.endpoint) ?? t('impex.subscriptions.feed_only') }}
+            </template>
+            <template #status-cell="{ row }">
+              <ImpexStatusBadge :status="row.original.status" />
+            </template>
+            <template #last_delivered_at-cell="{ row }">
+              {{ formatDate(row.original.last_delivered_at) ?? t('impex.common.none') }}
+            </template>
+            <template #empty>
+              <AtriumState compact :title="t('impex.subscriptions.empty')" data-testid="impex-subscriptions-empty" />
+            </template>
+          </UTable>
 
           <UButton v-if="subscriptions.nextCursor.value" variant="outline" :loading="subscriptions.pending.value" data-testid="impex-load-more" @click="subscriptions.loadMore">
             {{ t('impex.common.load_more') }}

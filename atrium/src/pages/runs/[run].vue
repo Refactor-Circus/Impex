@@ -2,7 +2,7 @@
 import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
-import { formatDate, looseBody, parseJson, runPath, useImpexAction, useImpexResource } from '../../components/shared'
+import { formatDate, looseBody, messagePath, parseJson, runPath, useImpexAction, useImpexResource } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
 
 /**
@@ -98,20 +98,17 @@ async function sendSignal(): Promise<void> {
     <AtriumIntegrationScreen screen-key="impex.run" :record="id">
       <ImpexState :error="run.error.value" :ready="run.data.value !== null">
         <div v-if="run.data.value" class="space-y-4">
-          <header class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <h1 class="text-xl font-semibold">{{ run.data.value.flow }}</h1>
+          <AtriumPageHeader :title="run.data.value.flow">
+            <template #meta>
               <ImpexStatusBadge :status="run.data.value.status" />
-            </div>
-            <div class="flex gap-2">
-              <UButton v-if="!finished" variant="outline" icon="i-lucide-circle-stop" :loading="action.busy.value" data-testid="impex-run-cancel" @click="cancel">
-                {{ t('impex.run.cancel') }}
-              </UButton>
-              <UButton v-if="run.data.value.status === 'failed'" variant="outline" icon="i-lucide-rotate-cw" :loading="action.busy.value" data-testid="impex-run-retry" @click="retry">
-                {{ t('impex.run.retry') }}
-              </UButton>
-            </div>
-          </header>
+            </template>
+            <UButton v-if="!finished" variant="outline" icon="i-lucide-circle-stop" :loading="action.busy.value" data-testid="impex-run-cancel" @click="cancel">
+              {{ t('impex.run.cancel') }}
+            </UButton>
+            <UButton v-if="run.data.value.status === 'failed'" variant="outline" icon="i-lucide-rotate-cw" :loading="action.busy.value" data-testid="impex-run-retry" @click="retry">
+              {{ t('impex.run.retry') }}
+            </UButton>
+          </AtriumPageHeader>
 
           <ImpexFlash :action="action" />
 
@@ -124,7 +121,7 @@ async function sendSignal(): Promise<void> {
               <div v-if="run.data.value.idempotency_key"><dt class="text-muted">{{ t('impex.run.idempotency_key') }}</dt><dd class="font-mono">{{ run.data.value.idempotency_key }}</dd></div>
               <div v-if="run.data.value.parent_run_id">
                 <dt class="text-muted">{{ t('impex.run.parent') }}</dt>
-                <dd><RouterLink :to="runPath(run.data.value.parent_run_id)" class="font-mono hover:underline">{{ run.data.value.parent_run_id }}</RouterLink></dd>
+                <dd><ULink :to="runPath(run.data.value.parent_run_id)" class="font-mono">{{ run.data.value.parent_run_id }}</ULink></dd>
               </div>
               <div v-if="run.data.value.tags && Object.keys(run.data.value.tags).length" class="sm:col-span-2">
                 <dt class="text-muted">{{ t('impex.run.tags') }}</dt>
@@ -143,11 +140,11 @@ async function sendSignal(): Promise<void> {
             <template #header>
               <h2 class="font-medium">{{ t('impex.run.signal_title') }}</h2>
             </template>
-            <form class="flex flex-wrap items-end gap-3" data-testid="impex-run-signal" @submit.prevent="sendSignal">
+            <UForm :state="signal" class="flex flex-wrap items-end gap-3" data-testid="impex-run-signal" @submit="sendSignal">
               <UInput v-model="signal.name" name="name" :placeholder="t('impex.run.signal_name')" required class="w-56" />
               <UInput v-model="signal.payload" name="payload" :placeholder="t('impex.run.signal_payload')" class="w-72" />
               <UButton type="submit" icon="i-lucide-send" :loading="action.busy.value">{{ t('impex.run.send') }}</UButton>
-            </form>
+            </UForm>
           </UCard>
 
           <UCard>
@@ -184,9 +181,9 @@ async function sendSignal(): Promise<void> {
               <p v-if="(messages.data.value ?? []).length === 0" class="text-sm text-muted">{{ t('impex.run.no_messages') }}</p>
               <ul v-else class="divide-y divide-default text-sm" data-testid="impex-run-messages">
                 <li v-for="message in messages.data.value" :key="message.id" class="flex justify-between gap-2 py-2">
-                  <RouterLink :to="`/impex/messages/${encodeURIComponent(message.id)}`" class="hover:underline">
+                  <ULink :to="messagePath(message.id)">
                     {{ message.direction }} · {{ message.channel }}
-                  </RouterLink>
+                  </ULink>
                   <span class="text-xs text-muted">{{ formatDate(message.occurred_at) }}</span>
                 </li>
               </ul>

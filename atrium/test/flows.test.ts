@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import FlowsPage from '../src/pages/flows/index.vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, flow, leaveImpex, mountImpexPage, resetImpex, run } from './support'
+import { atriumApi, callsTo, flow, leaveImpex, mountImpexPage, resetImpex, run, tableRow } from './support'
 import { mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
 
 /*
@@ -31,7 +31,7 @@ describe('impex.flows', () => {
     const wrapper = await mountImpexPage(FlowsPage, '/impex/flows')
 
     expect(callsTo(calls, 'GET', '/flows').length).toBeGreaterThan(0)
-    expect(wrapper.find('[data-testid="impex-flow-row-orders.sync"]').text()).toContain('App\\Flows\\SyncOrders')
+    expect(tableRow(wrapper, 'impex-flow-row-orders.sync').text()).toContain('App\\Flows\\SyncOrders')
     expect(api).toHaveBeenCalledWith('/screens/impex.flows', { query: { record: undefined, tab: undefined } })
   })
 

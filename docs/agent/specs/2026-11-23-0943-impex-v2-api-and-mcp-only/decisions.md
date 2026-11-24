@@ -115,3 +115,9 @@
 - Rationale: The user said "move the php declarations": each package owns its Atrium integration, and Atrium (PR #20) reads it from a manifest instead of declaring it in PHP. The run-link hook is Impex's because the component calls Impex's API.
 - Date: 2026-11-24
 - Raised by: user
+
+## D-018: Is Impex's Atrium module built from Nuxt UI?
+- Choice: Yes, as Atrium's own components are (Atrium D-091). The six raw `<table>`s (runs, messages, subscriptions, flows, channels, a subscription's deliveries) are `UTable`s with TanStack column defs, cell slots for links and badges, `loading`, and an `empty` slot rendering the SDK's `AtriumState` (numbers right-aligned through `NUMERIC_COLUMN`); the nine `<form>`s are `UForm`s; the `.atrium-querybar` filter bars are `UForm` flex rows of `USelect`/`UInput`/`UButton`; the `.atrium-empty` states and the 404 panel are `AtriumState`; page headings are `AtriumPageHeader` (status badge in `meta`, actions in the default slot); `RouterLink`s are `ULink`; the field errors are a `UAlert`. Test ids, routes, API calls and strings are kept; `UTable` sets no attributes on a `<tr>`, so a row's test id moves onto its first cell's content and the suites find the row through `tableRow()`. `atrium/test/nuxt-ui-guard.test.ts` applies Atrium's guard rules (with its detector self-test) to `atrium/src`. The SDK pin moves to Atrium `f6d6f839ff1e728220e497ce562c18503ce6f1e0`.
+- Rationale: The user: "convert raw html"; every Atrium UI is built on Nuxt UI 4, so the module's tables and filter bars pick up the deck's theme instead of the plain-HTML fallback styling in `atrium.css`.
+- Date: 2026-11-24
+- Raised by: user

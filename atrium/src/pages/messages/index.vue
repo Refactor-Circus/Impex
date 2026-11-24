@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import ImpexState from '../../components/ImpexState.vue'
-import { CHANNEL_DIRECTIONS, formatDate, queryValue, useImpexList } from '../../components/shared'
+import { CHANNEL_DIRECTIONS, formatDate, messagePath, NUMERIC_COLUMN, queryValue, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
+import type { TableColumn } from '@nuxt/ui'
 
 /**
  * `impex.messages`: everything that crossed the boundary, newest first,
@@ -28,6 +29,14 @@ const messages = useImpexList(
   filters
 )
 
+const columns = computed<TableColumn<(typeof messages.rows.value)[number]>[]>(() => [
+  { accessorKey: 'direction', header: t('impex.messages.direction') },
+  { accessorKey: 'channel', header: t('impex.messages.channel') },
+  { accessorKey: 'endpoint', header: t('impex.messages.endpoint'), meta: { class: { td: 'max-w-xs truncate font-mono text-xs' } } },
+  { accessorKey: 'status_code', header: t('impex.messages.status_code'), meta: NUMERIC_COLUMN },
+  { accessorKey: 'occurred_at', header: t('impex.messages.when') }
+])
+
 const directionItems = computed(() => CHANNEL_DIRECTIONS.map(direction => ({ label: t(`impex.directions.${direction}`), value: direction })))
 
 function filter(): void {
@@ -41,43 +50,37 @@ function clear(): void {
 
 <template>
   <div class="space-y-4" data-testid="impex-messages">
-    <h1 class="text-xl font-semibold">{{ t('impex.messages.title') }}</h1>
+    <AtriumPageHeader :title="t('impex.messages.title')" />
 
     <AtriumIntegrationScreen screen-key="impex.messages">
       <div class="space-y-4">
-        <form class="atrium-querybar" data-testid="impex-messages-filters" @submit.prevent="filter">
+        <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-messages-filters" @submit="filter">
           <USelect v-model="form.direction" :items="directionItems" :placeholder="t('impex.messages.all_directions')" class="w-44" :aria-label="t('impex.messages.direction')" />
           <UInput v-model="form.channel" name="channel" :placeholder="t('impex.messages.channel')" class="w-48" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-messages-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-messages-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>
-        </form>
+        </UForm>
 
         <ImpexState :error="messages.error.value" :ready="!messages.pending.value || messages.rows.value.length > 0">
-          <p v-if="messages.rows.value.length === 0" class="atrium-empty" data-testid="impex-messages-empty">{{ t('impex.messages.empty') }}</p>
-          <table v-else class="w-full text-left text-sm">
-            <thead class="text-muted">
-              <tr>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.messages.direction') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.messages.channel') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.messages.endpoint') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.messages.status_code') }}</th>
-                <th class="py-2 font-medium">{{ t('impex.messages.when') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-default">
-              <tr v-for="message in messages.rows.value" :key="message.id" :data-testid="`impex-message-row-${message.id}`">
-                <td class="py-2 pr-3">
-                  <RouterLink :to="`/impex/messages/${encodeURIComponent(message.id)}`" class="font-medium hover:underline">
-                    {{ t(`impex.directions.${message.direction}`) }}
-                  </RouterLink>
-                </td>
-                <td class="py-2 pr-3">{{ message.channel }}</td>
-                <td class="max-w-xs truncate py-2 pr-3 font-mono text-xs">{{ message.method }} {{ message.endpoint }}</td>
-                <td class="py-2 pr-3">{{ message.status_code ?? t('impex.common.none') }}</td>
-                <td class="py-2">{{ formatDate(message.occurred_at) }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <UTable :data="messages.rows.value" :columns="columns" :loading="messages.pending.value" data-testid="impex-messages-table">
+            <template #direction-cell="{ row }">
+              <ULink :to="messagePath(row.original.id)" class="font-medium" :data-testid="`impex-message-row-${row.original.id}`">
+                {{ t(`impex.directions.${row.original.direction}`) }}
+              </ULink>
+            </template>
+            <template #endpoint-cell="{ row }">
+              {{ row.original.method }} {{ row.original.endpoint }}
+            </template>
+            <template #status_code-cell="{ row }">
+              {{ row.original.status_code ?? t('impex.common.none') }}
+            </template>
+            <template #occurred_at-cell="{ row }">
+              {{ formatDate(row.original.occurred_at) }}
+            </template>
+            <template #empty>
+              <AtriumState compact :title="t('impex.messages.empty')" data-testid="impex-messages-empty" />
+            </template>
+          </UTable>
 
           <UButton v-if="messages.nextCursor.value" variant="outline" :loading="messages.pending.value" data-testid="impex-load-more" @click="messages.loadMore">
             {{ t('impex.common.load_more') }}

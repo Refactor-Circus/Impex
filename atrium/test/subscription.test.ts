@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SubscriptionPage from '../src/pages/subscriptions/[subscription].vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, type PackageBody, type PackageRoutes, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, delivery, leaveImpex, mountImpexPage, resetImpex, subscription } from './support'
+import { atriumApi, callsTo, delivery, leaveImpex, mountImpexPage, resetImpex, subscription, tableRow } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -50,7 +50,7 @@ describe('impex.subscription', () => {
     expect(callsTo(calls, 'GET', '/subscriptions/{subscription}/deliveries').some(call => call.path === '/subscriptions/sub-1/deliveries')).toBe(true)
     expect(wrapper.find('h1').text()).toBe('products')
     expect(wrapper.find('[data-testid="impex-subscription-details"]').text()).toContain('https://partner.example.com/hook')
-    expect(wrapper.find('[data-testid="impex-delivery-del-1"] a').attributes('href')).toBe('/impex/messages/msg-1')
+    expect(tableRow(wrapper, 'impex-delivery-del-1').find('a').attributes('href')).toBe('/impex/messages/msg-1')
   })
 
   it('asks atrium.screens.show for impex.subscription with the subscription as record and the open tab', async () => {

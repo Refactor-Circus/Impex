@@ -1,9 +1,9 @@
-import { C as e, S as t, _ as n, a as r, f as i } from "./chunks/shared-N5-QMPBo.js";
-import { t as a } from "./chunks/ImpexStatusBadge-ePLj75gE.js";
-import { t as o } from "./chunks/ImpexState-Mg53d6po.js";
+import { T as e, o as t, p as n, w as r, y as i } from "./chunks/shared-Bu5fYXbP.js";
+import { t as a } from "./chunks/ImpexStatusBadge-DCp4DAuy.js";
+import { t as o } from "./chunks/ImpexState-C2BI291k.js";
 import { AtriumErrorCard as s, AtriumNoAccess as c, AtriumStat as l, defineAtriumModule as u, integrationData as d, mergeAtriumMessages as f, useAtriumIntegration as p } from "@refactor-circus/atrium";
-import { UButton as ee, UCard as te, USkeleton as m } from "@refactor-circus/atrium/ui";
-import { Fragment as h, computed as g, createBlock as _, createCommentVNode as v, createElementBlock as y, createElementVNode as b, createTextVNode as ne, createVNode as x, defineComponent as S, openBlock as C, renderList as w, resolveComponent as re, toDisplayString as T, unref as E, withCtx as D } from "vue";
+import { UButton as ee, UCard as te, ULink as ne, USkeleton as m } from "@refactor-circus/atrium/ui";
+import { Fragment as h, computed as g, createBlock as _, createCommentVNode as v, createElementBlock as y, createElementVNode as b, createTextVNode as re, createVNode as x, defineComponent as S, openBlock as C, renderList as w, toDisplayString as T, unref as E, withCtx as D } from "vue";
 import { useI18n as O } from "vue-i18n";
 // src/components/MessageVolumeWidget.vue?vue&type=script&setup=true&lang.ts
 var k = {
@@ -64,7 +64,7 @@ var k = {
 	setup(t) {
 		let { t: r } = O(), a = e(), o = g(() => a.data.value?.runs.recent_failures ?? null);
 		return (e, t) => {
-			let l = c, u = s, d = m, f = re("RouterLink");
+			let l = c, u = s, d = m, f = ne;
 			return C(), y("div", P, [E(a).forbidden.value ? (C(), _(l, {
 				key: 0,
 				compact: ""
@@ -75,13 +75,13 @@ var k = {
 				key: e.id,
 				class: "flex items-center justify-between gap-2 py-1.5"
 			}, [x(f, {
-				to: E(n)(e.id),
-				class: "truncate font-medium hover:underline",
+				to: E(i)(e.id),
+				class: "truncate font-medium",
 				"data-testid": `impex-failure-${e.id}`
 			}, {
-				default: D(() => [ne(T(e.flow), 1)]),
+				default: D(() => [re(T(e.flow), 1)]),
 				_: 2
-			}, 1032, ["to", "data-testid"]), b("span", L, T(E(i)(e.finished_at)), 1)]))), 128))])) : (C(), _(d, {
+			}, 1032, ["to", "data-testid"]), b("span", L, T(E(n)(e.finished_at)), 1)]))), 128))])) : (C(), _(d, {
 				key: 2,
 				class: "h-16"
 			}))]);
@@ -99,17 +99,17 @@ var k = {
 		data: {},
 		settings: {}
 	},
-	setup(t) {
-		let { t: n } = O(), i = e(), o = g(() => i.data.value?.runs ?? null);
-		return (e, t) => {
+	setup(n) {
+		let { t: r } = O(), i = e(), o = g(() => i.data.value?.runs ?? null);
+		return (e, n) => {
 			let l = c, u = s, d = m;
 			return C(), y("div", z, [E(i).forbidden.value ? (C(), _(l, {
 				key: 0,
 				compact: ""
 			})) : E(i).status.value === "error" ? (C(), _(u, {
 				key: 1,
-				message: E(n)("atrium.widget.failed")
-			}, null, 8, ["message"])) : E(o) ? (C(), y("div", B, [b("p", V, T(E(n)("impex.widgets.active", { count: E(o).active })), 1), b("ul", H, [(C(!0), y(h, null, w(E(r), (e) => (C(), y("li", {
+				message: E(r)("atrium.widget.failed")
+			}, null, 8, ["message"])) : E(o) ? (C(), y("div", B, [b("p", V, T(E(r)("impex.widgets.active", { count: E(o).active })), 1), b("ul", H, [(C(!0), y(h, null, w(E(t), (e) => (C(), y("li", {
 				key: e,
 				class: "flex items-center justify-between gap-2",
 				"data-testid": `impex-run-status-${e}`
@@ -123,113 +123,113 @@ var k = {
 	__name: "SettingsPanel",
 	props: { data: {} },
 	setup(e) {
-		let { t: n } = O(), r = t(async (e) => d(await e.GET("/settings-summary")).data), i = (e) => n("impex.settings.days", { count: e }), a = (e) => n("impex.settings.seconds", { count: e }), s = (e) => n("impex.settings.bytes", { count: e }), c = g(() => {
-			let e = r.data.value;
+		let { t } = O(), n = r(async (e) => d(await e.GET("/settings-summary")).data), i = (e) => t("impex.settings.days", { count: e }), a = (e) => t("impex.settings.seconds", { count: e }), s = (e) => t("impex.settings.bytes", { count: e }), c = g(() => {
+			let e = n.data.value;
 			return e ? [
 				{
 					key: "retention",
-					title: n("impex.settings.retention"),
+					title: t("impex.settings.retention"),
 					rows: [
 						{
 							key: "completed_runs_days",
-							label: n("impex.settings.completed_runs"),
+							label: t("impex.settings.completed_runs"),
 							value: i(e.retention.completed_runs_days)
 						},
 						{
 							key: "failed_runs_days",
-							label: n("impex.settings.failed_runs"),
+							label: t("impex.settings.failed_runs"),
 							value: i(e.retention.failed_runs_days)
 						},
 						{
 							key: "messages_days",
-							label: n("impex.settings.messages"),
+							label: t("impex.settings.messages"),
 							value: i(e.retention.messages_days)
 						},
 						{
 							key: "artifacts_days",
-							label: n("impex.settings.artifacts"),
+							label: t("impex.settings.artifacts"),
 							value: i(e.retention.artifacts_days)
 						},
 						{
 							key: "events_days",
-							label: n("impex.settings.events"),
+							label: t("impex.settings.events"),
 							value: i(e.retention.events_days)
 						},
 						{
 							key: "deliveries_days",
-							label: n("impex.settings.deliveries"),
+							label: t("impex.settings.deliveries"),
 							value: i(e.retention.deliveries_days)
 						}
 					]
 				},
 				{
 					key: "limits",
-					title: n("impex.settings.limits"),
+					title: t("impex.settings.limits"),
 					rows: [
 						{
 							key: "max_step_seconds",
-							label: n("impex.settings.max_step"),
+							label: t("impex.settings.max_step"),
 							value: a(e.limits.max_step_seconds)
 						},
 						{
 							key: "resume_margin_seconds",
-							label: n("impex.settings.resume_margin"),
+							label: t("impex.settings.resume_margin"),
 							value: a(e.limits.resume_margin_seconds)
 						},
 						{
 							key: "lease_seconds",
-							label: n("impex.settings.lease"),
+							label: t("impex.settings.lease"),
 							value: a(e.limits.lease_seconds)
 						},
 						{
 							key: "lock_seconds",
-							label: n("impex.settings.lock"),
+							label: t("impex.settings.lock"),
 							value: a(e.limits.lock_seconds)
 						},
 						{
 							key: "max_resumptions",
-							label: n("impex.settings.max_resumptions"),
+							label: t("impex.settings.max_resumptions"),
 							value: String(e.limits.max_resumptions)
 						},
 						{
 							key: "fan_out_max",
-							label: n("impex.settings.fan_out_max"),
+							label: t("impex.settings.fan_out_max"),
 							value: String(e.limits.fan_out_max)
 						},
 						{
 							key: "sync_seconds",
-							label: n("impex.settings.sync"),
+							label: t("impex.settings.sync"),
 							value: a(e.limits.sync_seconds)
 						}
 					]
 				},
 				{
 					key: "artifacts",
-					title: n("impex.settings.artifact_storage"),
+					title: t("impex.settings.artifact_storage"),
 					rows: [
 						{
 							key: "disk",
-							label: n("impex.settings.disk"),
-							value: e.artifacts.disk ?? n("impex.settings.default_disk")
+							label: t("impex.settings.disk"),
+							value: e.artifacts.disk ?? t("impex.settings.default_disk")
 						},
 						{
 							key: "path",
-							label: n("impex.settings.path"),
+							label: t("impex.settings.path"),
 							value: e.artifacts.path
 						},
 						{
 							key: "inline_threshold",
-							label: n("impex.settings.inline_threshold"),
+							label: t("impex.settings.inline_threshold"),
 							value: s(e.artifacts.inline_threshold)
 						},
 						{
 							key: "memo_bytes",
-							label: n("impex.settings.memo"),
+							label: t("impex.settings.memo"),
 							value: s(e.artifacts.memo_bytes)
 						},
 						{
 							key: "preview_bytes",
-							label: n("impex.settings.preview_bytes"),
+							label: t("impex.settings.preview_bytes"),
 							value: s(e.preview_bytes)
 						}
 					]
@@ -237,12 +237,12 @@ var k = {
 			] : [];
 		});
 		return (e, t) => {
-			let n = te;
+			let r = te;
 			return C(), y("div", G, [x(o, {
-				error: E(r).error.value,
-				ready: E(r).data.value !== null
+				error: E(n).error.value,
+				ready: E(n).data.value !== null
 			}, {
-				default: D(() => [b("div", K, [(C(!0), y(h, null, w(E(c), (e) => (C(), _(n, {
+				default: D(() => [b("div", K, [(C(!0), y(h, null, w(E(c), (e) => (C(), _(r, {
 					key: e.key,
 					"data-testid": `impex-settings-${e.key}`
 				}, {
@@ -507,52 +507,52 @@ var X = /* @__PURE__ */ S({
 	{
 		path: "/impex/channels/:name",
 		name: "impex-channels-name",
-		component: () => import("./chunks/_name_-axbgmjiq.js")
+		component: () => import("./chunks/_name_-B3e0XkgK.js")
 	},
 	{
 		path: "/impex/channels/create",
 		name: "impex-channels-create",
-		component: () => import("./chunks/create-CSemm9pr.js")
+		component: () => import("./chunks/create-DD31r2ZB.js")
 	},
 	{
 		path: "/impex/channels",
 		name: "impex-channels",
-		component: () => import("./chunks/channels-Db4T_mvI.js")
+		component: () => import("./chunks/channels-L6TjAU0J.js")
 	},
 	{
 		path: "/impex/flows",
 		name: "impex-flows",
-		component: () => import("./chunks/flows-C0nhkDYK.js")
+		component: () => import("./chunks/flows-Bmw_84hJ.js")
 	},
 	{
 		path: "/impex/messages/:message",
 		name: "impex-messages-message",
-		component: () => import("./chunks/_message_-B3tEy3pn.js")
+		component: () => import("./chunks/_message_-Da0OaAxN.js")
 	},
 	{
 		path: "/impex/messages",
 		name: "impex-messages",
-		component: () => import("./chunks/messages-CV7PL5m6.js")
+		component: () => import("./chunks/messages-ANLOZGto.js")
 	},
 	{
 		path: "/impex/runs/:run",
 		name: "impex-runs-run",
-		component: () => import("./chunks/_run_-Df5OE-2R.js")
+		component: () => import("./chunks/_run_-CX0Uz8H-.js")
 	},
 	{
 		path: "/impex/runs",
 		name: "impex-runs",
-		component: () => import("./chunks/runs-C8rC3vYe.js")
+		component: () => import("./chunks/runs-Y0719fWl.js")
 	},
 	{
 		path: "/impex/subscriptions/:subscription",
 		name: "impex-subscriptions-subscription",
-		component: () => import("./chunks/_subscription_-BGYOUQ4o.js")
+		component: () => import("./chunks/_subscription_-Cafaobgw.js")
 	},
 	{
 		path: "/impex/subscriptions",
 		name: "impex-subscriptions",
-		component: () => import("./chunks/subscriptions-Beu1ZWUn.js")
+		component: () => import("./chunks/subscriptions-5Fvkbn5f.js")
 	}
 ], Z = {
 	"impex.runs": "impex-runs",
@@ -567,8 +567,8 @@ var X = /* @__PURE__ */ S({
 	"impex.subscription": "impex-subscriptions-subscription"
 };
 async function Q(e, t) {
-	let { client: r } = p("impex");
-	return r ? d(await r.GET("/search", { params: { query: {
+	let { client: n } = p("impex");
+	return n ? d(await n.GET("/search", { params: { query: {
 		q: e,
 		limit: t.limit
 	} } })).data.slice(0, t.limit).map((e) => ({
@@ -577,7 +577,7 @@ async function Q(e, t) {
 		icon: null,
 		group: null,
 		link: {
-			path: n(e.id),
+			path: i(e.id),
 			external: !1
 		}
 	})) : [];

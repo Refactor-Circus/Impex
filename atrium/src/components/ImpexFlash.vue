@@ -20,10 +20,14 @@ const errors = computed(() => Object.entries(props.action.errors.value))
     <UAlert v-if="notice" color="success" variant="subtle" :title="notice" data-testid="impex-notice" />
     <AtriumNoAccess v-if="forbidden" compact :description="t('impex.common.action_forbidden')" />
     <AtriumErrorCard v-if="failure" :message="failure" />
-    <ul v-if="errors.length" class="space-y-1 rounded-md border border-error/40 p-3 text-sm text-error" role="alert" data-testid="impex-field-errors">
-      <li v-for="[field, messages] in errors" :key="field" :data-field="field">
-        {{ messages.join(' ') }}
-      </li>
-    </ul>
+    <UAlert v-if="errors.length" color="error" variant="subtle" icon="i-lucide-circle-alert" role="alert" data-testid="impex-field-errors">
+      <template #description>
+        <ul class="space-y-1">
+          <li v-for="[field, messages] in errors" :key="field" :data-field="field">
+            {{ messages.join(' ') }}
+          </li>
+        </ul>
+      </template>
+    </UAlert>
   </div>
 </template>

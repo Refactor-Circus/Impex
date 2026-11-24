@@ -3,6 +3,7 @@ import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { formatDate, queryValue, RUN_STATUSES, RUN_TRIGGERS, runPath, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
+import type { TableColumn } from '@nuxt/ui'
 
 /**
  * `impex.runs`: every run the user may see, newest first, filtered by
@@ -30,6 +31,14 @@ const runs = useImpexList(
   filters
 )
 
+const columns = computed<TableColumn<(typeof runs.rows.value)[number]>[]>(() => [
+  { accessorKey: 'flow', header: t('impex.runs.flow') },
+  { accessorKey: 'status', header: t('impex.runs.status') },
+  { accessorKey: 'trigger', header: t('impex.runs.trigger') },
+  { accessorKey: 'started_at', header: t('impex.runs.started') },
+  { accessorKey: 'finished_at', header: t('impex.runs.finished') }
+])
+
 const statusItems = computed(() => RUN_STATUSES.map(status => ({ label: t(`impex.statuses.${status}`), value: status })))
 const triggerItems = computed(() => RUN_TRIGGERS.map(trigger => ({ label: trigger, value: trigger })))
 
@@ -44,42 +53,36 @@ function clear(): void {
 
 <template>
   <div class="space-y-4" data-testid="impex-runs">
-    <h1 class="text-xl font-semibold">{{ t('impex.runs.title') }}</h1>
+    <AtriumPageHeader :title="t('impex.runs.title')" />
 
     <AtriumIntegrationScreen screen-key="impex.runs">
       <div class="space-y-4">
-        <form class="atrium-querybar" data-testid="impex-runs-filters" @submit.prevent="filter">
+        <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-runs-filters" @submit="filter">
           <USelect v-model="form.status" :items="statusItems" :placeholder="t('impex.runs.all_statuses')" class="w-44" :aria-label="t('impex.runs.status')" />
           <USelect v-model="form.trigger" :items="triggerItems" :placeholder="t('impex.runs.all_triggers')" class="w-40" :aria-label="t('impex.runs.trigger')" />
           <UInput v-model="form.flow" name="flow" :placeholder="t('impex.runs.flow')" class="w-48" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-runs-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-runs-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>
-        </form>
+        </UForm>
 
         <ImpexState :error="runs.error.value" :ready="!runs.pending.value || runs.rows.value.length > 0">
-          <p v-if="runs.rows.value.length === 0" class="atrium-empty" data-testid="impex-runs-empty">{{ t('impex.runs.empty') }}</p>
-          <table v-else class="w-full text-left text-sm">
-            <thead class="text-muted">
-              <tr>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.runs.flow') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.runs.status') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.runs.trigger') }}</th>
-                <th class="py-2 pr-3 font-medium">{{ t('impex.runs.started') }}</th>
-                <th class="py-2 font-medium">{{ t('impex.runs.finished') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-default">
-              <tr v-for="run in runs.rows.value" :key="run.id" :data-testid="`impex-run-row-${run.id}`">
-                <td class="py-2 pr-3">
-                  <RouterLink :to="runPath(run.id)" class="font-medium hover:underline">{{ run.flow }}</RouterLink>
-                </td>
-                <td class="py-2 pr-3"><ImpexStatusBadge :status="run.status" /></td>
-                <td class="py-2 pr-3">{{ run.trigger }}</td>
-                <td class="py-2 pr-3">{{ formatDate(run.started_at) ?? t('impex.common.none') }}</td>
-                <td class="py-2">{{ formatDate(run.finished_at) ?? t('impex.common.none') }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <UTable :data="runs.rows.value" :columns="columns" :loading="runs.pending.value" data-testid="impex-runs-table">
+            <template #flow-cell="{ row }">
+              <ULink :to="runPath(row.original.id)" class="font-medium" :data-testid="`impex-run-row-${row.original.id}`">{{ row.original.flow }}</ULink>
+            </template>
+            <template #status-cell="{ row }">
+              <ImpexStatusBadge :status="row.original.status" />
+            </template>
+            <template #started_at-cell="{ row }">
+              {{ formatDate(row.original.started_at) ?? t('impex.common.none') }}
+            </template>
+            <template #finished_at-cell="{ row }">
+              {{ formatDate(row.original.finished_at) ?? t('impex.common.none') }}
+            </template>
+            <template #empty>
+              <AtriumState compact :title="t('impex.runs.empty')" data-testid="impex-runs-empty" />
+            </template>
+          </UTable>
 
           <UButton v-if="runs.nextCursor.value" variant="outline" :loading="runs.pending.value" data-testid="impex-load-more" @click="runs.loadMore">
             {{ t('impex.common.load_more') }}

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MessagesPage from '../src/pages/messages/index.vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, leaveImpex, message, mountImpexPage, page, resetImpex } from './support'
+import { atriumApi, callsTo, leaveImpex, message, mountImpexPage, page, resetImpex, tableRow } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -32,8 +32,8 @@ describe('impex.messages', () => {
     const wrapper = await mountImpexPage(MessagesPage, '/impex/messages')
 
     expect(callsTo(calls, 'GET', '/messages').length).toBeGreaterThan(0)
-    expect(wrapper.find('[data-testid="impex-message-row-msg-1"] a').attributes('href')).toBe('/impex/messages/msg-1')
-    expect(wrapper.find('[data-testid="impex-message-row-msg-2"]').text()).toContain('webhooks.in')
+    expect(tableRow(wrapper, 'impex-message-row-msg-1').find('a').attributes('href')).toBe('/impex/messages/msg-1')
+    expect(tableRow(wrapper, 'impex-message-row-msg-2').text()).toContain('webhooks.in')
     expect(api).toHaveBeenCalledWith('/screens/impex.messages', { query: { record: undefined, tab: undefined } })
   })
 
@@ -55,7 +55,7 @@ describe('impex.messages', () => {
     await settle()
 
     expect(callsTo(calls, 'GET', '/messages').some(call => call.query.cursor === 'next-1')).toBe(true)
-    expect(wrapper.find('[data-testid="impex-message-row-msg-2"]').exists()).toBe(true)
+    expect(tableRow(wrapper, 'impex-message-row-msg-2').exists()).toBe(true)
   })
 
   it('shows the no-access state on a 403', async () => {

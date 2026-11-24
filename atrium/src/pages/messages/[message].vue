@@ -25,10 +25,11 @@ const signature = computed(() => {
     <AtriumIntegrationScreen screen-key="impex.message" :record="id">
       <ImpexState :error="message.error.value" :ready="message.data.value !== null">
         <div v-if="message.data.value" class="space-y-4">
-          <header>
-            <h1 class="text-xl font-semibold">{{ t(`impex.directions.${message.data.value.direction}`) }} · {{ message.data.value.channel }}</h1>
-            <p class="font-mono text-sm text-muted">{{ message.data.value.method }} {{ message.data.value.endpoint }}</p>
-          </header>
+          <AtriumPageHeader :title="`${t(`impex.directions.${message.data.value.direction}`)} · ${message.data.value.channel}`">
+            <template #meta>
+              <p class="font-mono">{{ message.data.value.method }} {{ message.data.value.endpoint }}</p>
+            </template>
+          </AtriumPageHeader>
 
           <UCard>
             <dl class="grid gap-3 text-sm sm:grid-cols-2" data-testid="impex-message-details">
@@ -40,7 +41,7 @@ const signature = computed(() => {
               <div><dt class="text-muted">{{ t('impex.message.signature') }}</dt><dd data-testid="impex-message-signature">{{ signature }}</dd></div>
               <div v-if="message.data.value.run_id" class="sm:col-span-2">
                 <dt class="text-muted">{{ t('impex.message.run') }}</dt>
-                <dd><RouterLink :to="runPath(message.data.value.run_id)" class="font-mono hover:underline" data-testid="impex-message-run">{{ message.data.value.run_id }}</RouterLink></dd>
+                <dd><ULink :to="runPath(message.data.value.run_id)" class="font-mono" data-testid="impex-message-run">{{ message.data.value.run_id }}</ULink></dd>
               </div>
             </dl>
           </UCard>
