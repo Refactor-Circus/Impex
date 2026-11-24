@@ -2,7 +2,7 @@
 import ImpexState from '../../components/ImpexState.vue'
 import { CHANNEL_DIRECTIONS, formatDate, messagePath, NUMERIC_COLUMN, queryValue, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 
 /**
  * `impex.messages`: everything that crossed the boundary, newest first,
@@ -55,7 +55,7 @@ function clear(): void {
     <AtriumIntegrationScreen screen-key="impex.messages">
       <div class="space-y-4">
         <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-messages-filters" @submit="filter">
-          <USelect v-model="form.direction" :items="directionItems" :placeholder="t('impex.messages.all_directions')" class="w-44" :aria-label="t('impex.messages.direction')" />
+          <AtriumSelect v-model="form.direction" :items="directionItems" :blank="t('impex.messages.all_directions')" class="w-44" :aria-label="t('impex.messages.direction')" data-testid="impex-messages-direction" />
           <UInput v-model="form.channel" name="channel" :placeholder="t('impex.messages.channel')" class="w-48" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-messages-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-messages-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>

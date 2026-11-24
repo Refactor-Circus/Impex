@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import MessagesPage from '../src/pages/messages/index.vue'
-import { settle } from '@refactor-circus/atrium/testing'
+import { chooseOption, selectValues, settle, useRouter } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, leaveImpex, message, mountImpexPage, page, resetImpex, tableRow } from './support'
+import { tableRow } from '@refactor-circus/atrium/testing'
+import { atriumApi, callsTo, leaveImpex, message, mountImpexPage, page, resetImpex } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -43,6 +44,21 @@ describe('impex.messages', () => {
     await mountImpexPage(MessagesPage, '/impex/messages?direction=inbound&channel=webhooks.in')
 
     expect(callsTo(calls, 'GET', '/messages').map(call => call.query)).toContainEqual({ direction: 'inbound', channel: 'webhooks.in' })
+  })
+
+  it('offers "Any direction" first in the direction filter, which sends no direction', async () => {
+    const calls = mockPackageApi('impex', { 'GET /messages': page([message]) })
+
+    const wrapper = await mountImpexPage(MessagesPage, '/impex/messages?direction=inbound')
+
+    expect(selectValues(wrapper, 'impex-messages-direction')).toEqual(['', 'inbound', 'outbound'])
+
+    await chooseOption(wrapper, 'impex-messages-direction', '')
+    await wrapper.find('[data-testid="impex-messages-filters"]').trigger('submit')
+    await settle()
+
+    expect(useRouter().currentRoute.value.query).toEqual({})
+    expect(callsTo(calls, 'GET', '/messages').at(-1)?.query).toEqual({})
   })
 
   it('loads the next page by the cursor the last one gave', async () => {

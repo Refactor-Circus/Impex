@@ -33,13 +33,13 @@ describe('the impex settings panel', () => {
     await settle()
 
     expect(callsTo(calls, 'GET', '/settings-summary')).toHaveLength(1)
-    expect(wrapper.find('[data-testid="impex-settings-retention"] [data-row="completed_runs_days"]').text()).toContain('30 days')
-    expect(wrapper.find('[data-testid="impex-settings-retention"] [data-row="failed_runs_days"]').text()).toContain('90 days')
-    expect(wrapper.find('[data-testid="impex-settings-limits"] [data-row="max_step_seconds"]').text()).toContain('300 seconds')
-    expect(wrapper.find('[data-testid="impex-settings-limits"] [data-row="max_resumptions"]').text()).toContain('50')
-    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-row="disk"]').text()).toContain('The default disk')
-    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-row="path"]').text()).toContain('impex/artifacts')
-    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-row="preview_bytes"]').text()).toContain('2048 bytes')
+    expect(wrapper.find('[data-testid="impex-settings-retention"] [data-testid="atrium-details-completed_runs_days"]').text()).toContain('30 days')
+    expect(wrapper.find('[data-testid="impex-settings-retention"] [data-testid="atrium-details-failed_runs_days"]').text()).toContain('90 days')
+    expect(wrapper.find('[data-testid="impex-settings-limits"] [data-testid="atrium-details-max_step_seconds"]').text()).toContain('300 seconds')
+    expect(wrapper.find('[data-testid="impex-settings-limits"] [data-testid="atrium-details-max_resumptions"]').text()).toContain('50')
+    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-testid="atrium-details-disk"]').text()).toContain('The default disk')
+    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-testid="atrium-details-path"]').text()).toContain('impex/artifacts')
+    expect(wrapper.find('[data-testid="impex-settings-artifacts"] [data-testid="atrium-details-preview_bytes"]').text()).toContain('2048 bytes')
   })
 
   it('names the artifact disk when one is set', async () => {
@@ -48,7 +48,7 @@ describe('the impex settings panel', () => {
     const wrapper = await mountIntegration(SettingsPanel, 'impex', { props: { data: {} } })
     await settle()
 
-    expect(wrapper.find('[data-row="disk"]').text()).toContain('s3')
+    expect(wrapper.find('[data-testid="atrium-details-disk"]').text()).toContain('s3')
   })
 
   it('shows the no-access state on a 403', async () => {

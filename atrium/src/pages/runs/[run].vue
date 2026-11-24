@@ -3,6 +3,7 @@ import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { formatDate, looseBody, messagePath, parseJson, runPath, useImpexAction, useImpexResource } from '../../components/shared'
+import type { AtriumDetailsItem } from '@refactor-circus/atrium'
 import type { components } from '../../../../client/src/schema'
 
 /**
@@ -25,6 +26,26 @@ const action = useImpexAction()
 const signal = reactive({ name: '', payload: '' })
 
 const finished = computed(() => ['completed', 'failed', 'cancelled'].includes(run.data.value?.status ?? ''))
+
+/** The run's facts; the idempotency key, parent, tags and error only when it has them. */
+const details = computed<AtriumDetailsItem[]>(() => {
+  const value = run.data.value
+
+  if (!value) {
+    return []
+  }
+
+  return [
+    { key: 'id', label: t('impex.run.id'), value: value.id, mono: true },
+    { key: 'trigger', label: t('impex.runs.trigger'), value: value.trigger },
+    { key: 'started', label: t('impex.runs.started'), value: formatDate(value.started_at) },
+    { key: 'finished', label: t('impex.runs.finished'), value: formatDate(value.finished_at) },
+    ...(value.idempotency_key ? [{ key: 'idempotency_key', label: t('impex.run.idempotency_key'), value: value.idempotency_key, mono: true }] : []),
+    ...(value.parent_run_id ? [{ key: 'parent', label: t('impex.run.parent'), value: value.parent_run_id, href: runPath(value.parent_run_id), mono: true }] : []),
+    ...(value.tags && Object.keys(value.tags).length ? [{ key: 'tags', label: t('impex.run.tags'), wide: true }] : []),
+    ...(value.error ? [{ key: 'error', label: t('impex.run.error'), wide: true }] : [])
+  ]
+})
 
 async function reload(): Promise<void> {
   await Promise.all([run.reload(), steps.reload(), messages.reload()])
@@ -99,7 +120,8 @@ async function sendSignal(): Promise<void> {
       <ImpexState :error="run.error.value" :ready="run.data.value !== null">
         <div v-if="run.data.value" class="space-y-4">
           <AtriumPageHeader :title="run.data.value.flow">
-            <template #meta>
+            <template #title>
+              <span class="truncate">{{ run.data.value.flow }}</span>
               <ImpexStatusBadge :status="run.data.value.status" />
             </template>
             <UButton v-if="!finished" variant="outline" icon="i-lucide-circle-stop" :loading="action.busy.value" data-testid="impex-run-cancel" @click="cancel">
@@ -113,27 +135,16 @@ async function sendSignal(): Promise<void> {
           <ImpexFlash :action="action" />
 
           <UCard>
-            <dl class="grid gap-3 text-sm sm:grid-cols-2" data-testid="impex-run-details">
-              <div><dt class="text-muted">{{ t('impex.run.id') }}</dt><dd class="font-mono">{{ run.data.value.id }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.runs.trigger') }}</dt><dd>{{ run.data.value.trigger }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.runs.started') }}</dt><dd>{{ formatDate(run.data.value.started_at) ?? t('impex.common.none') }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.runs.finished') }}</dt><dd>{{ formatDate(run.data.value.finished_at) ?? t('impex.common.none') }}</dd></div>
-              <div v-if="run.data.value.idempotency_key"><dt class="text-muted">{{ t('impex.run.idempotency_key') }}</dt><dd class="font-mono">{{ run.data.value.idempotency_key }}</dd></div>
-              <div v-if="run.data.value.parent_run_id">
-                <dt class="text-muted">{{ t('impex.run.parent') }}</dt>
-                <dd><ULink :to="runPath(run.data.value.parent_run_id)" class="font-mono">{{ run.data.value.parent_run_id }}</ULink></dd>
-              </div>
-              <div v-if="run.data.value.tags && Object.keys(run.data.value.tags).length" class="sm:col-span-2">
-                <dt class="text-muted">{{ t('impex.run.tags') }}</dt>
-                <dd class="flex flex-wrap gap-1">
+            <AtriumDetails :items="details" :columns="2" :empty="t('impex.common.none')" data-testid="impex-run-details">
+              <template #tags>
+                <span class="flex flex-wrap gap-1">
                   <UBadge v-for="(value, name) in run.data.value.tags" :key="name" variant="outline" color="neutral">{{ name }}: {{ value }}</UBadge>
-                </dd>
-              </div>
-              <div v-if="run.data.value.error" class="sm:col-span-2">
-                <dt class="text-muted">{{ t('impex.run.error') }}</dt>
-                <dd><pre class="overflow-x-auto rounded-md bg-elevated p-2 text-xs">{{ JSON.stringify(run.data.value.error, null, 2) }}</pre></dd>
-              </div>
-            </dl>
+                </span>
+              </template>
+              <template #error>
+                <pre class="overflow-x-auto rounded-md bg-elevated p-2 text-xs">{{ JSON.stringify(run.data.value.error, null, 2) }}</pre>
+              </template>
+            </AtriumDetails>
           </UCard>
 
           <UCard v-if="!finished">

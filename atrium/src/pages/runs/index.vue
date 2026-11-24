@@ -3,7 +3,7 @@ import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { formatDate, queryValue, RUN_STATUSES, RUN_TRIGGERS, runPath, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 
 /**
  * `impex.runs`: every run the user may see, newest first, filtered by
@@ -58,8 +58,8 @@ function clear(): void {
     <AtriumIntegrationScreen screen-key="impex.runs">
       <div class="space-y-4">
         <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-runs-filters" @submit="filter">
-          <USelect v-model="form.status" :items="statusItems" :placeholder="t('impex.runs.all_statuses')" class="w-44" :aria-label="t('impex.runs.status')" />
-          <USelect v-model="form.trigger" :items="triggerItems" :placeholder="t('impex.runs.all_triggers')" class="w-40" :aria-label="t('impex.runs.trigger')" />
+          <AtriumSelect v-model="form.status" :items="statusItems" :blank="t('impex.runs.all_statuses')" class="w-44" :aria-label="t('impex.runs.status')" data-testid="impex-runs-status" />
+          <AtriumSelect v-model="form.trigger" :items="triggerItems" :blank="t('impex.runs.all_triggers')" class="w-40" :aria-label="t('impex.runs.trigger')" data-testid="impex-runs-trigger" />
           <UInput v-model="form.flow" name="flow" :placeholder="t('impex.runs.flow')" class="w-48" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-runs-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-runs-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>

@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import FlowsPage from '../src/pages/flows/index.vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, flow, leaveImpex, mountImpexPage, resetImpex, run, tableRow } from './support'
+import { tableRow } from '@refactor-circus/atrium/testing'
+import { atriumApi, callsTo, flow, leaveImpex, mountImpexPage, resetImpex, run } from './support'
 import { mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
 
 /*

@@ -3,8 +3,9 @@ import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { endpointOf, formatDate, isOn, messagePath, NUMERIC_COLUMN, useImpexAction, useImpexResource } from '../../components/shared'
+import type { AtriumDetailsItem } from '@refactor-circus/atrium'
 import type { components } from '../../../../client/src/schema'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 
 /**
  * `impex.subscription`: one subscription (`impex.subscriptions.show`) with
@@ -37,6 +38,26 @@ const lastError = computed(() => {
   const message = subscription.data.value?.last_error?.message
 
   return typeof message === 'string' ? message : null
+})
+
+/** The subscription's facts; when it is paused until and its last error only when it has them. */
+const details = computed<AtriumDetailsItem[]>(() => {
+  const value = subscription.data.value
+
+  if (!value) {
+    return []
+  }
+
+  return [
+    { key: 'topics', label: t('impex.subscription.topics'), value: value.topics.join(', ') },
+    { key: 'selection', label: t('impex.subscription.selection'), value: value.selection },
+    { key: 'format', label: t('impex.subscription.format'), value: value.format },
+    { key: 'endpoint', label: t('impex.subscriptions.endpoint'), value: endpoint.value ?? t('impex.subscriptions.feed_only') },
+    { key: 'cursor', label: t('impex.subscription.cursor'), value: value.cursor, mono: true },
+    { key: 'failures', label: t('impex.subscriptions.failures'), value: value.failures, mono: true },
+    ...(value.paused_until ? [{ key: 'paused_until', label: t('impex.subscription.paused_until'), value: formatDate(value.paused_until) }] : []),
+    ...(lastError.value ? [{ key: 'last_error', label: t('impex.subscription.last_error'), value: lastError.value, wide: true }] : [])
+  ]
 })
 
 async function reload(): Promise<void> {
@@ -107,7 +128,8 @@ async function ping(): Promise<void> {
       <ImpexState :error="subscription.error.value" :ready="subscription.data.value !== null">
         <div v-if="subscription.data.value" class="space-y-4">
           <AtriumPageHeader :title="subscription.data.value.stream">
-            <template #meta>
+            <template #title>
+              <span class="truncate">{{ subscription.data.value.stream }}</span>
               <ImpexStatusBadge :status="subscription.data.value.status" />
             </template>
             <UButton v-if="subscription.data.value.status === 'active'" variant="outline" icon="i-lucide-pause" :loading="action.busy.value" data-testid="impex-subscription-pause" @click="pause">
@@ -124,16 +146,7 @@ async function ping(): Promise<void> {
           <ImpexFlash :action="action" />
 
           <UCard>
-            <dl class="grid gap-3 text-sm sm:grid-cols-2" data-testid="impex-subscription-details">
-              <div><dt class="text-muted">{{ t('impex.subscription.topics') }}</dt><dd>{{ subscription.data.value.topics.join(', ') || t('impex.common.none') }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.subscription.selection') }}</dt><dd>{{ subscription.data.value.selection }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.subscription.format') }}</dt><dd>{{ subscription.data.value.format }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.subscriptions.endpoint') }}</dt><dd>{{ endpoint ?? t('impex.subscriptions.feed_only') }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.subscription.cursor') }}</dt><dd class="font-mono">{{ subscription.data.value.cursor }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.subscriptions.failures') }}</dt><dd class="tabular-nums">{{ subscription.data.value.failures }}</dd></div>
-              <div v-if="subscription.data.value.paused_until"><dt class="text-muted">{{ t('impex.subscription.paused_until') }}</dt><dd>{{ formatDate(subscription.data.value.paused_until) }}</dd></div>
-              <div v-if="lastError" class="sm:col-span-2"><dt class="text-muted">{{ t('impex.subscription.last_error') }}</dt><dd>{{ lastError }}</dd></div>
-            </dl>
+            <AtriumDetails :items="details" :columns="2" :empty="t('impex.common.none')" data-testid="impex-subscription-details" />
           </UCard>
 
           <UCard>

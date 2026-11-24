@@ -34,8 +34,8 @@ export const CHANNEL_STATUSES: readonly Schemas['ChannelStatus'][] = ['active', 
 export const BODY_POLICIES: readonly Schemas['BodyPolicy'][] = ['all', 'failures', 'none']
 export const SUBSCRIPTION_STATUSES: readonly Schemas['SubscriptionStatus'][] = ['active', 'paused', 'disabled']
 
-/** A `UTable` column's meta for a number: right-aligned, tabular figures. */
-export const NUMERIC_COLUMN = { class: { th: 'text-right', td: 'text-right tabular-nums' } }
+/** A `UTable` column's meta for a number: right-aligned (Atrium's table theme sets tabular figures). */
+export const NUMERIC_COLUMN = { class: { th: 'text-right', td: 'text-right' } }
 
 type BadgeColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 

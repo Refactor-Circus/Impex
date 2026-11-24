@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ChannelsPage from '../src/pages/channels/index.vue'
 import { mockPackageApi, type PackageBody, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, configuredChannel, leaveImpex, mountImpexPage, resetImpex, storedChannel, tableRow } from './support'
+import { tableRow } from '@refactor-circus/atrium/testing'
+import { atriumApi, callsTo, configuredChannel, leaveImpex, mountImpexPage, resetImpex, storedChannel } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*

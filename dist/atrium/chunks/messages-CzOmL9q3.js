@@ -1,7 +1,7 @@
 import { t as e } from "./ImpexState-C2BI291k.js";
-import { C as t, a as n, g as r, n as i, p as a, v as o } from "./shared-Bu5fYXbP.js";
-import { AtriumIntegrationScreen as s, AtriumPageHeader as c, AtriumState as l, integrationData as u } from "@refactor-circus/atrium";
-import { UButton as d, UForm as f, UInput as p, ULink as m, USelect as h, UTable as g } from "@refactor-circus/atrium/ui";
+import { C as t, a as n, g as r, n as i, p as a, v as o } from "./shared-_UUfUMm3.js";
+import { AtriumIntegrationScreen as s, AtriumPageHeader as c, AtriumSelect as l, AtriumState as u, integrationData as d } from "@refactor-circus/atrium";
+import { UButton as f, UForm as p, UInput as m, ULink as h, UTable as g } from "@refactor-circus/atrium/ui";
 import { computed as _, createBlock as v, createCommentVNode as y, createElementBlock as b, createElementVNode as x, createTextVNode as S, createVNode as C, defineComponent as w, openBlock as T, reactive as E, toDisplayString as D, unref as O, watch as k, withCtx as A } from "vue";
 import { useI18n as j } from "vue-i18n";
 import { useRoute as M, useRouter as N } from "vue-router";
@@ -19,7 +19,7 @@ var P = {
 		k(z, (e) => {
 			Object.assign(B, e);
 		});
-		let V = t(async (e, t) => u(await e.GET("/messages", { params: { query: {
+		let V = t(async (e, t) => d(await e.GET("/messages", { params: { query: {
 			...z.value,
 			cursor: t
 		} } })), z), H = _(() => [
@@ -64,7 +64,7 @@ var P = {
 			} });
 		}
 		return (t, n) => {
-			let i = c, o = h, u = p, _ = d, w = f, E = m, k = l, j = g, M = s;
+			let i = c, o = l, d = m, _ = f, w = p, E = h, k = u, j = g, M = s;
 			return T(), b("div", P, [C(i, { title: O(I)("impex.messages.title") }, null, 8, ["title"]), C(M, { "screen-key": "impex.messages" }, {
 				default: A(() => [x("div", F, [C(w, {
 					state: O(B),
@@ -77,16 +77,17 @@ var P = {
 							modelValue: O(B).direction,
 							"onUpdate:modelValue": n[0] ||= (e) => O(B).direction = e,
 							items: O(U),
-							placeholder: O(I)("impex.messages.all_directions"),
+							blank: O(I)("impex.messages.all_directions"),
 							class: "w-44",
-							"aria-label": O(I)("impex.messages.direction")
+							"aria-label": O(I)("impex.messages.direction"),
+							"data-testid": "impex-messages-direction"
 						}, null, 8, [
 							"modelValue",
 							"items",
-							"placeholder",
+							"blank",
 							"aria-label"
 						]),
-						C(u, {
+						C(d, {
 							modelValue: O(B).channel,
 							"onUpdate:modelValue": n[1] ||= (e) => O(B).channel = e,
 							name: "channel",

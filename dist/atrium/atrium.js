@@ -1,129 +1,129 @@
-import { T as e, o as t, p as n, w as r, y as i } from "./chunks/shared-Bu5fYXbP.js";
-import { t as a } from "./chunks/ImpexStatusBadge-DCp4DAuy.js";
+import { T as e, o as t, p as n, w as r, y as i } from "./chunks/shared-_UUfUMm3.js";
+import { t as a } from "./chunks/ImpexStatusBadge-0Fh6yTGt.js";
 import { t as o } from "./chunks/ImpexState-C2BI291k.js";
-import { AtriumErrorCard as s, AtriumNoAccess as c, AtriumStat as l, defineAtriumModule as u, integrationData as d, mergeAtriumMessages as f, useAtriumIntegration as p } from "@refactor-circus/atrium";
-import { UButton as ee, UCard as te, ULink as ne, USkeleton as m } from "@refactor-circus/atrium/ui";
-import { Fragment as h, computed as g, createBlock as _, createCommentVNode as v, createElementBlock as y, createElementVNode as b, createTextVNode as re, createVNode as x, defineComponent as S, openBlock as C, renderList as w, toDisplayString as T, unref as E, withCtx as D } from "vue";
-import { useI18n as O } from "vue-i18n";
+import { AtriumDetails as s, AtriumErrorCard as c, AtriumNoAccess as l, AtriumStat as u, defineAtriumModule as d, integrationData as f, mergeAtriumMessages as ee, useAtriumIntegration as p } from "@refactor-circus/atrium";
+import { UButton as m, UCard as te, ULink as ne, USkeleton as h } from "@refactor-circus/atrium/ui";
+import { Fragment as g, computed as _, createBlock as v, createCommentVNode as y, createElementBlock as b, createElementVNode as x, createTextVNode as re, createVNode as S, defineComponent as C, openBlock as w, renderList as T, toDisplayString as E, unref as D, withCtx as O } from "vue";
+import { useI18n as k } from "vue-i18n";
 // src/components/MessageVolumeWidget.vue?vue&type=script&setup=true&lang.ts
-var k = {
+var A = {
 	key: 3,
 	class: "grid grid-cols-2 gap-2 text-sm",
 	"data-testid": "impex-message-volume"
-}, A = { "data-testid": "impex-message-volume-inbound" }, j = { "data-testid": "impex-message-volume-outbound" }, M = { class: "col-span-2 text-xs text-muted" }, N = /* @__PURE__ */ S({
+}, j = { "data-testid": "impex-message-volume-inbound" }, M = { "data-testid": "impex-message-volume-outbound" }, N = { class: "col-span-2 text-xs text-muted" }, P = /* @__PURE__ */ C({
 	__name: "MessageVolumeWidget",
 	props: {
 		data: {},
 		settings: {}
 	},
 	setup(t) {
-		let { t: n } = O(), r = e(), i = g(() => r.data.value?.messages ?? null);
+		let { t: n } = k(), r = e(), i = _(() => r.data.value?.messages ?? null);
 		return (e, t) => {
-			let a = c, o = s, u = m, d = l;
-			return E(r).forbidden.value ? (C(), _(a, {
+			let a = l, o = c, s = h, d = u;
+			return D(r).forbidden.value ? (w(), v(a, {
 				key: 0,
 				compact: ""
-			})) : E(r).status.value === "error" ? (C(), _(o, {
+			})) : D(r).status.value === "error" ? (w(), v(o, {
 				key: 1,
-				message: E(n)("atrium.widget.failed")
-			}, null, 8, ["message"])) : E(r).status.value === "success" ? E(i) ? (C(), y("div", k, [
-				x(d, {
-					label: E(n)("impex.widgets.inbound"),
+				message: D(n)("atrium.widget.failed")
+			}, null, 8, ["message"])) : D(r).status.value === "success" ? D(i) ? (w(), b("div", A, [
+				S(d, {
+					label: D(n)("impex.widgets.inbound"),
 					icon: "i-lucide-arrow-down-left",
 					tone: "primary"
 				}, {
-					value: D(() => [b("span", A, T(E(i).inbound), 1)]),
+					value: O(() => [x("span", j, E(D(i).inbound), 1)]),
 					_: 1
 				}, 8, ["label"]),
-				x(d, {
-					label: E(n)("impex.widgets.outbound"),
+				S(d, {
+					label: D(n)("impex.widgets.outbound"),
 					icon: "i-lucide-arrow-up-right"
 				}, {
-					value: D(() => [b("span", j, T(E(i).outbound), 1)]),
+					value: O(() => [x("span", M, E(D(i).outbound), 1)]),
 					_: 1
 				}, 8, ["label"]),
-				b("p", M, T(E(n)("impex.widgets.window", { hours: E(i).window_hours })), 1)
-			])) : v("", !0) : (C(), _(u, {
+				x("p", N, E(D(n)("impex.widgets.window", { hours: D(i).window_hours })), 1)
+			])) : y("", !0) : (w(), v(s, {
 				key: 2,
 				class: "h-10"
 			}));
 		};
 	}
-}), P = { "data-testid": "impex-recent-failures" }, F = {
+}), F = { "data-testid": "impex-recent-failures" }, I = {
 	key: 3,
 	class: "text-sm text-muted"
-}, I = {
+}, L = {
 	key: 4,
 	class: "divide-y divide-default text-sm"
-}, L = { class: "shrink-0 text-xs text-muted" }, R = /* @__PURE__ */ S({
+}, R = { class: "shrink-0 text-xs text-muted" }, z = /* @__PURE__ */ C({
 	__name: "RecentFailuresWidget",
 	props: {
 		data: {},
 		settings: {}
 	},
 	setup(t) {
-		let { t: r } = O(), a = e(), o = g(() => a.data.value?.runs.recent_failures ?? null);
+		let { t: r } = k(), a = e(), o = _(() => a.data.value?.runs.recent_failures ?? null);
 		return (e, t) => {
-			let l = c, u = s, d = m, f = ne;
-			return C(), y("div", P, [E(a).forbidden.value ? (C(), _(l, {
+			let s = l, u = c, d = h, f = ne;
+			return w(), b("div", F, [D(a).forbidden.value ? (w(), v(s, {
 				key: 0,
 				compact: ""
-			})) : E(a).status.value === "error" ? (C(), _(u, {
+			})) : D(a).status.value === "error" ? (w(), v(u, {
 				key: 1,
-				message: E(r)("atrium.widget.failed")
-			}, null, 8, ["message"])) : E(o) ? E(o).length === 0 ? (C(), y("p", F, T(E(r)("impex.widgets.no_failures")), 1)) : (C(), y("ul", I, [(C(!0), y(h, null, w(E(o), (e) => (C(), y("li", {
+				message: D(r)("atrium.widget.failed")
+			}, null, 8, ["message"])) : D(o) ? D(o).length === 0 ? (w(), b("p", I, E(D(r)("impex.widgets.no_failures")), 1)) : (w(), b("ul", L, [(w(!0), b(g, null, T(D(o), (e) => (w(), b("li", {
 				key: e.id,
 				class: "flex items-center justify-between gap-2 py-1.5"
-			}, [x(f, {
-				to: E(i)(e.id),
+			}, [S(f, {
+				to: D(i)(e.id),
 				class: "truncate font-medium",
 				"data-testid": `impex-failure-${e.id}`
 			}, {
-				default: D(() => [re(T(e.flow), 1)]),
+				default: O(() => [re(E(e.flow), 1)]),
 				_: 2
-			}, 1032, ["to", "data-testid"]), b("span", L, T(E(n)(e.finished_at)), 1)]))), 128))])) : (C(), _(d, {
+			}, 1032, ["to", "data-testid"]), x("span", R, E(D(n)(e.finished_at)), 1)]))), 128))])) : (w(), v(d, {
 				key: 2,
 				class: "h-16"
 			}))]);
 		};
 	}
-}), z = { "data-testid": "impex-run-status" }, B = {
+}), B = { "data-testid": "impex-run-status" }, V = {
 	key: 3,
 	class: "space-y-3"
-}, V = {
+}, H = {
 	class: "text-sm text-muted",
 	"data-testid": "impex-run-status-active"
-}, H = { class: "grid grid-cols-2 gap-2 text-sm" }, U = ["data-testid"], W = { class: "font-medium tabular-nums" }, ie = /* @__PURE__ */ S({
+}, U = { class: "grid grid-cols-2 gap-2 text-sm" }, W = ["data-testid"], G = { class: "font-medium tabular-nums" }, K = /* @__PURE__ */ C({
 	__name: "RunStatusWidget",
 	props: {
 		data: {},
 		settings: {}
 	},
 	setup(n) {
-		let { t: r } = O(), i = e(), o = g(() => i.data.value?.runs ?? null);
+		let { t: r } = k(), i = e(), o = _(() => i.data.value?.runs ?? null);
 		return (e, n) => {
-			let l = c, u = s, d = m;
-			return C(), y("div", z, [E(i).forbidden.value ? (C(), _(l, {
+			let s = l, u = c, d = h;
+			return w(), b("div", B, [D(i).forbidden.value ? (w(), v(s, {
 				key: 0,
 				compact: ""
-			})) : E(i).status.value === "error" ? (C(), _(u, {
+			})) : D(i).status.value === "error" ? (w(), v(u, {
 				key: 1,
-				message: E(r)("atrium.widget.failed")
-			}, null, 8, ["message"])) : E(o) ? (C(), y("div", B, [b("p", V, T(E(r)("impex.widgets.active", { count: E(o).active })), 1), b("ul", H, [(C(!0), y(h, null, w(E(t), (e) => (C(), y("li", {
+				message: D(r)("atrium.widget.failed")
+			}, null, 8, ["message"])) : D(o) ? (w(), b("div", V, [x("p", H, E(D(r)("impex.widgets.active", { count: D(o).active })), 1), x("ul", U, [(w(!0), b(g, null, T(D(t), (e) => (w(), b("li", {
 				key: e,
 				class: "flex items-center justify-between gap-2",
 				"data-testid": `impex-run-status-${e}`
-			}, [x(a, { status: e }, null, 8, ["status"]), b("span", W, T(E(o).by_status[e] ?? 0), 1)], 8, U))), 128))])])) : (C(), _(d, {
+			}, [S(a, { status: e }, null, 8, ["status"]), x("span", G, E(D(o).by_status[e] ?? 0), 1)], 8, W))), 128))])])) : (w(), v(d, {
 				key: 2,
 				class: "h-16"
 			}))]);
 		};
 	}
-}), G = { "data-testid": "impex-settings" }, K = { class: "grid gap-4 md:grid-cols-3" }, q = { class: "font-medium" }, J = { class: "space-y-2 text-sm" }, Y = ["data-row"], ae = { class: "text-muted" }, oe = { class: "font-medium tabular-nums" }, se = /* @__PURE__ */ S({
+}), q = { "data-testid": "impex-settings" }, J = { class: "grid gap-4 md:grid-cols-3" }, Y = { class: "font-medium" }, ie = /* @__PURE__ */ C({
 	__name: "SettingsPanel",
 	props: { data: {} },
 	setup(e) {
-		let { t } = O(), n = r(async (e) => d(await e.GET("/settings-summary")).data), i = (e) => t("impex.settings.days", { count: e }), a = (e) => t("impex.settings.seconds", { count: e }), s = (e) => t("impex.settings.bytes", { count: e }), c = g(() => {
+		let { t } = k(), n = r(async (e) => f(await e.GET("/settings-summary")).data), i = (e) => t("impex.settings.days", { count: e }), a = (e) => t("impex.settings.seconds", { count: e }), c = (e) => t("impex.settings.bytes", { count: e }), l = _(() => {
 			let e = n.data.value;
 			return e ? [
 				{
@@ -220,38 +220,34 @@ var k = {
 						{
 							key: "inline_threshold",
 							label: t("impex.settings.inline_threshold"),
-							value: s(e.artifacts.inline_threshold)
+							value: c(e.artifacts.inline_threshold)
 						},
 						{
 							key: "memo_bytes",
 							label: t("impex.settings.memo"),
-							value: s(e.artifacts.memo_bytes)
+							value: c(e.artifacts.memo_bytes)
 						},
 						{
 							key: "preview_bytes",
 							label: t("impex.settings.preview_bytes"),
-							value: s(e.preview_bytes)
+							value: c(e.preview_bytes)
 						}
 					]
 				}
 			] : [];
 		});
 		return (e, t) => {
-			let r = te;
-			return C(), y("div", G, [x(o, {
-				error: E(n).error.value,
-				ready: E(n).data.value !== null
+			let r = s, i = te;
+			return w(), b("div", q, [S(o, {
+				error: D(n).error.value,
+				ready: D(n).data.value !== null
 			}, {
-				default: D(() => [b("div", K, [(C(!0), y(h, null, w(E(c), (e) => (C(), _(r, {
+				default: O(() => [x("div", J, [(w(!0), b(g, null, T(D(l), (e) => (w(), v(i, {
 					key: e.key,
 					"data-testid": `impex-settings-${e.key}`
 				}, {
-					header: D(() => [b("h3", q, T(e.title), 1)]),
-					default: D(() => [b("dl", J, [(C(!0), y(h, null, w(e.rows, (e) => (C(), y("div", {
-						key: e.key,
-						class: "flex justify-between gap-3",
-						"data-row": e.key
-					}, [b("dt", ae, T(e.label), 1), b("dd", oe, T(e.value), 1)], 8, Y))), 128))])]),
+					header: O(() => [x("h3", Y, E(e.title), 1)]),
+					default: O(() => [S(r, { items: e.rows }, null, 8, ["items"])]),
 					_: 2
 				}, 1032, ["data-testid"]))), 128))])]),
 				_: 1
@@ -260,37 +256,37 @@ var k = {
 	}
 });
 // src/components/hooks/hooks.ts
-function ce(e) {
+function ae(e) {
 	return typeof e == "number" && Number.isFinite(e) ? String(e) : typeof e == "string" && e !== "" ? e : null;
 }
-function le(e) {
-	let t = ce(e);
+function oe(e) {
+	let t = ae(e);
 	return t === null ? null : `/impex/runs/${encodeURIComponent(t)}`;
 }
 // src/components/hooks/ImpexRunLink.vue
-var X = /* @__PURE__ */ S({
+var se = /* @__PURE__ */ C({
 	__name: "ImpexRunLink",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, { t: n } = O(), r = g(() => le(t.record));
+		let t = e, { t: n } = k(), r = _(() => oe(t.record));
 		return (e, t) => {
-			let i = ee;
-			return E(r) ? (C(), _(i, {
+			let i = m;
+			return D(r) ? (w(), v(i, {
 				key: 0,
-				to: E(r),
+				to: D(r),
 				size: "xs",
 				color: "neutral",
 				variant: "ghost",
 				icon: "i-lucide-workflow",
-				label: E(n)("hooks.run_link.label"),
+				label: D(n)("hooks.run_link.label"),
 				"data-testid": "hooks-impex-run-link"
-			}, null, 8, ["to", "label"])) : v("", !0);
+			}, null, 8, ["to", "label"])) : y("", !0);
 		};
 	}
-}), ue = { hooks: { run_link: { label: "Run" } } }, de = { impex: {
+}), ce = { hooks: { run_link: { label: "Run" } } }, le = { impex: {
 	common: {
 		not_found_title: "Not found",
 		not_found_description: "It may have been deleted, or the link is wrong.",
@@ -503,56 +499,56 @@ var X = /* @__PURE__ */ S({
 		no_deliveries: "No deliveries yet.",
 		events: "Events"
 	}
-} }, fe = [
+} }, X = [
 	{
 		path: "/impex/channels/:name",
 		name: "impex-channels-name",
-		component: () => import("./chunks/_name_-B3e0XkgK.js")
+		component: () => import("./chunks/_name_-CMK9Q4fd.js")
 	},
 	{
 		path: "/impex/channels/create",
 		name: "impex-channels-create",
-		component: () => import("./chunks/create-DD31r2ZB.js")
+		component: () => import("./chunks/create-C1ZIOd4n.js")
 	},
 	{
 		path: "/impex/channels",
 		name: "impex-channels",
-		component: () => import("./chunks/channels-L6TjAU0J.js")
+		component: () => import("./chunks/channels-DWlf0oGz.js")
 	},
 	{
 		path: "/impex/flows",
 		name: "impex-flows",
-		component: () => import("./chunks/flows-Bmw_84hJ.js")
+		component: () => import("./chunks/flows-CwsmnM7k.js")
 	},
 	{
 		path: "/impex/messages/:message",
 		name: "impex-messages-message",
-		component: () => import("./chunks/_message_-Da0OaAxN.js")
+		component: () => import("./chunks/_message_-CdjSe0s0.js")
 	},
 	{
 		path: "/impex/messages",
 		name: "impex-messages",
-		component: () => import("./chunks/messages-ANLOZGto.js")
+		component: () => import("./chunks/messages-CzOmL9q3.js")
 	},
 	{
 		path: "/impex/runs/:run",
 		name: "impex-runs-run",
-		component: () => import("./chunks/_run_-CX0Uz8H-.js")
+		component: () => import("./chunks/_run_-C0UUt8Yf.js")
 	},
 	{
 		path: "/impex/runs",
 		name: "impex-runs",
-		component: () => import("./chunks/runs-Y0719fWl.js")
+		component: () => import("./chunks/runs-DPTA73YY.js")
 	},
 	{
 		path: "/impex/subscriptions/:subscription",
 		name: "impex-subscriptions-subscription",
-		component: () => import("./chunks/_subscription_-Cafaobgw.js")
+		component: () => import("./chunks/_subscription_-D9ted9No.js")
 	},
 	{
 		path: "/impex/subscriptions",
 		name: "impex-subscriptions",
-		component: () => import("./chunks/subscriptions-5Fvkbn5f.js")
+		component: () => import("./chunks/subscriptions-BkHAmGsw.js")
 	}
 ], Z = {
 	"impex.runs": "impex-runs",
@@ -568,7 +564,7 @@ var X = /* @__PURE__ */ S({
 };
 async function Q(e, t) {
 	let { client: n } = p("impex");
-	return n ? d(await n.GET("/search", { params: { query: {
+	return n ? f(await n.GET("/search", { params: { query: {
 		q: e,
 		limit: t.limit
 	} } })).data.slice(0, t.limit).map((e) => ({
@@ -586,25 +582,25 @@ async function $() {
 	let { client: e } = p("impex");
 	if (!e) return { badge: null };
 	try {
-		let t = d(await e.GET("/stats")).data.runs.active;
+		let t = f(await e.GET("/stats")).data.runs.active;
 		return { badge: t > 0 ? t : null };
 	} catch {
 		return { badge: null };
 	}
 }
-var pe = u({
+var ue = d({
 	key: "impex",
-	routes: fe,
+	routes: X,
 	screens: Z,
 	widgets: {
-		"impex.run-status": ie,
-		"impex.recent-failures": R,
-		"impex.message-volume": N
+		"impex.run-status": K,
+		"impex.recent-failures": z,
+		"impex.message-volume": P
 	},
-	extensions: { "impex.run-link": X },
-	settingsPanels: { impex: se },
+	extensions: { "impex.run-link": se },
+	settingsPanels: { impex: ie },
 	liveResolvers: { "impex.active-runs": $ },
 	searchSources: { impex: Q },
-	messages: { en: f(ue, de) }
+	messages: { en: ee(ce, le) }
 });
-export { $ as activeRuns, pe as default, Z as screens, Q as searchRuns };
+export { $ as activeRuns, ue as default, Z as screens, Q as searchRuns };

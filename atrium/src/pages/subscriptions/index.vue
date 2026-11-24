@@ -3,7 +3,7 @@ import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { endpointOf, formatDate, NUMERIC_COLUMN, queryValue, SUBSCRIPTION_STATUSES, subscriptionPath, useImpexList } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 
 /**
  * `impex.subscriptions`: every subscription the user may see, filtered by
@@ -58,7 +58,7 @@ function clear(): void {
       <div class="space-y-4">
         <UForm :state="form" class="flex flex-wrap items-center gap-2" data-testid="impex-subscriptions-filters" @submit="filter">
           <UInput v-model="form.stream" name="stream" :placeholder="t('impex.subscriptions.stream')" class="w-48" />
-          <USelect v-model="form.status" :items="statusItems" :placeholder="t('impex.subscriptions.all_statuses')" class="w-44" :aria-label="t('impex.subscriptions.status')" />
+          <AtriumSelect v-model="form.status" :items="statusItems" :blank="t('impex.subscriptions.all_statuses')" class="w-44" :aria-label="t('impex.subscriptions.status')" data-testid="impex-subscriptions-status" />
           <UButton type="submit" icon="i-lucide-filter" data-testid="impex-subscriptions-filter">{{ t('impex.common.filter') }}</UButton>
           <UButton variant="ghost" data-testid="impex-subscriptions-clear" @click="clear">{{ t('impex.common.clear') }}</UButton>
         </UForm>

@@ -1,8 +1,8 @@
 import { t as e } from "./ImpexState-C2BI291k.js";
-import { t } from "./ImpexStatusBadge-DCp4DAuy.js";
-import { C as n, a as r, c as i, f as a, p as o, v as s, x as c } from "./shared-Bu5fYXbP.js";
-import { AtriumIntegrationScreen as l, AtriumPageHeader as u, AtriumState as d, integrationData as f } from "@refactor-circus/atrium";
-import { UButton as p, UForm as m, UInput as h, ULink as g, USelect as _, UTable as v } from "@refactor-circus/atrium/ui";
+import { t } from "./ImpexStatusBadge-0Fh6yTGt.js";
+import { C as n, a as r, c as i, f as a, p as o, v as s, x as c } from "./shared-_UUfUMm3.js";
+import { AtriumIntegrationScreen as l, AtriumPageHeader as u, AtriumSelect as d, AtriumState as f, integrationData as p } from "@refactor-circus/atrium";
+import { UButton as m, UForm as h, UInput as g, ULink as _, UTable as v } from "@refactor-circus/atrium/ui";
 import { computed as y, createBlock as b, createCommentVNode as x, createElementBlock as S, createElementVNode as C, createTextVNode as w, createVNode as T, defineComponent as E, openBlock as D, reactive as O, toDisplayString as k, unref as A, watch as j, withCtx as M } from "vue";
 import { useI18n as N } from "vue-i18n";
 import { useRoute as P, useRouter as F } from "vue-router";
@@ -20,7 +20,7 @@ var I = {
 		j(V, (e) => {
 			Object.assign(H, e);
 		});
-		let U = n(async (e, t) => f(await e.GET("/subscriptions", { params: { query: {
+		let U = n(async (e, t) => p(await e.GET("/subscriptions", { params: { query: {
 			...V.value,
 			cursor: t
 		} } })), V), W = y(() => [
@@ -70,7 +70,7 @@ var I = {
 			} });
 		}
 		return (n, r) => {
-			let i = u, s = h, f = _, y = p, E = m, O = g, j = d, N = v, P = l;
+			let i = u, s = g, p = d, y = m, E = h, O = _, j = f, N = v, P = l;
 			return D(), S("div", I, [T(i, { title: A(R)("impex.subscriptions.title") }, null, 8, ["title"]), T(P, { "screen-key": "impex.subscriptions" }, {
 				default: M(() => [C("div", L, [T(E, {
 					state: A(H),
@@ -86,17 +86,18 @@ var I = {
 							placeholder: A(R)("impex.subscriptions.stream"),
 							class: "w-48"
 						}, null, 8, ["modelValue", "placeholder"]),
-						T(f, {
+						T(p, {
 							modelValue: A(H).status,
 							"onUpdate:modelValue": r[1] ||= (e) => A(H).status = e,
 							items: A(G),
-							placeholder: A(R)("impex.subscriptions.all_statuses"),
+							blank: A(R)("impex.subscriptions.all_statuses"),
 							class: "w-44",
-							"aria-label": A(R)("impex.subscriptions.status")
+							"aria-label": A(R)("impex.subscriptions.status"),
+							"data-testid": "impex-subscriptions-status"
 						}, null, 8, [
 							"modelValue",
 							"items",
-							"placeholder",
+							"blank",
 							"aria-label"
 						]),
 						T(y, {

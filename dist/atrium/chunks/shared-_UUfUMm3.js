@@ -31,7 +31,7 @@ var s = [
 	"disabled"
 ], m = { class: {
 	th: "text-right",
-	td: "text-right tabular-nums"
+	td: "text-right"
 } };
 function h(e) {
 	switch (e) {

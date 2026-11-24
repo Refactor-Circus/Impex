@@ -3,7 +3,7 @@ import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import { looseBody, parseJson, runPath, useImpexAction, useImpexResource } from '../../components/shared'
 import type { components } from '../../../../client/src/schema'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 
 /**
  * `impex.flows`: every registered flow (`impex.flows.index`), each with v1's

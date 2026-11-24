@@ -1,8 +1,8 @@
 import { t as e } from "./ImpexState-C2BI291k.js";
-import { t } from "./ImpexStatusBadge-DCp4DAuy.js";
-import { C as n, o as r, p as i, s as a, v as o, y as s } from "./shared-Bu5fYXbP.js";
-import { AtriumIntegrationScreen as c, AtriumPageHeader as l, AtriumState as u, integrationData as d } from "@refactor-circus/atrium";
-import { UButton as f, UForm as p, UInput as m, ULink as h, USelect as g, UTable as _ } from "@refactor-circus/atrium/ui";
+import { t } from "./ImpexStatusBadge-0Fh6yTGt.js";
+import { C as n, o as r, p as i, s as a, v as o, y as s } from "./shared-_UUfUMm3.js";
+import { AtriumIntegrationScreen as c, AtriumPageHeader as l, AtriumSelect as u, AtriumState as d, integrationData as f } from "@refactor-circus/atrium";
+import { UButton as p, UForm as m, UInput as h, ULink as g, UTable as _ } from "@refactor-circus/atrium/ui";
 import { computed as v, createBlock as y, createCommentVNode as b, createElementBlock as x, createElementVNode as S, createTextVNode as C, createVNode as w, defineComponent as T, openBlock as E, reactive as D, toDisplayString as O, unref as k, watch as A, withCtx as j } from "vue";
 import { useI18n as M } from "vue-i18n";
 import { useRoute as N, useRouter as P } from "vue-router";
@@ -21,7 +21,7 @@ var F = {
 		A(B, (e) => {
 			Object.assign(V, e);
 		});
-		let H = n(async (e, t) => d(await e.GET("/runs", { params: { query: {
+		let H = n(async (e, t) => f(await e.GET("/runs", { params: { query: {
 			...B.value,
 			cursor: t
 		} } })), B), U = v(() => [
@@ -69,7 +69,7 @@ var F = {
 			} });
 		}
 		return (n, r) => {
-			let a = l, o = g, d = m, v = f, T = p, D = h, A = u, M = _, N = c;
+			let a = l, o = u, f = h, v = p, T = m, D = g, A = d, M = _, N = c;
 			return E(), x("div", F, [w(a, { title: k(L)("impex.runs.title") }, null, 8, ["title"]), w(N, { "screen-key": "impex.runs" }, {
 				default: j(() => [S("div", I, [w(T, {
 					state: k(V),
@@ -82,29 +82,31 @@ var F = {
 							modelValue: k(V).status,
 							"onUpdate:modelValue": r[0] ||= (e) => k(V).status = e,
 							items: k(W),
-							placeholder: k(L)("impex.runs.all_statuses"),
+							blank: k(L)("impex.runs.all_statuses"),
 							class: "w-44",
-							"aria-label": k(L)("impex.runs.status")
+							"aria-label": k(L)("impex.runs.status"),
+							"data-testid": "impex-runs-status"
 						}, null, 8, [
 							"modelValue",
 							"items",
-							"placeholder",
+							"blank",
 							"aria-label"
 						]),
 						w(o, {
 							modelValue: k(V).trigger,
 							"onUpdate:modelValue": r[1] ||= (e) => k(V).trigger = e,
 							items: k(G),
-							placeholder: k(L)("impex.runs.all_triggers"),
+							blank: k(L)("impex.runs.all_triggers"),
 							class: "w-40",
-							"aria-label": k(L)("impex.runs.trigger")
+							"aria-label": k(L)("impex.runs.trigger"),
+							"data-testid": "impex-runs-trigger"
 						}, null, 8, [
 							"modelValue",
 							"items",
-							"placeholder",
+							"blank",
 							"aria-label"
 						]),
-						w(d, {
+						w(f, {
 							modelValue: k(V).flow,
 							"onUpdate:modelValue": r[2] ||= (e) => k(V).flow = e,
 							name: "flow",

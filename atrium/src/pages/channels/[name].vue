@@ -4,6 +4,7 @@ import ImpexFlash from '../../components/ImpexFlash.vue'
 import ImpexState from '../../components/ImpexState.vue'
 import ImpexStatusBadge from '../../components/ImpexStatusBadge.vue'
 import { channelBody, emptyChannelForm, looseBody, useImpexAction, useImpexResource } from '../../components/shared'
+import type { AtriumDetailsItem } from '@refactor-circus/atrium'
 import type { components } from '../../../../client/src/schema'
 
 /**
@@ -24,6 +25,23 @@ const channel = useImpexResource(async client => integrationData(await client.GE
 const action = useImpexAction()
 const form = reactive(emptyChannelForm())
 const confirmingDelete = ref(false)
+
+/** The channel's facts; the flow it starts only when it has one. */
+const details = computed<AtriumDetailsItem[]>(() => {
+  const value = channel.data.value
+
+  if (!value) {
+    return []
+  }
+
+  return [
+    { key: 'status', label: t('impex.channels.status') },
+    { key: 'body_policy', label: t('impex.channel.body_policy'), value: t(`impex.body_policies.${value.body_policy}`) },
+    { key: 'signature', label: t('impex.message.signature'), value: value.verifies_signatures ? t('impex.message.verified') : t('impex.message.unsigned') },
+    ...(value.flow ? [{ key: 'flow', label: t('impex.channel.flow'), value: value.flow }] : []),
+    { key: 'source', label: t('impex.channels.source'), value: value.stored ? t('impex.channels.stored') : t('impex.channels.from_config') }
+  ]
+})
 
 watch(() => channel.data.value, (value) => {
   if (value) {
@@ -117,13 +135,11 @@ async function destroy(): Promise<void> {
           <ImpexFlash :action="action" />
 
           <UCard>
-            <dl class="grid gap-3 text-sm sm:grid-cols-2" data-testid="impex-channel-details">
-              <div><dt class="text-muted">{{ t('impex.channels.status') }}</dt><dd><ImpexStatusBadge :status="channel.data.value.status" /></dd></div>
-              <div><dt class="text-muted">{{ t('impex.channel.body_policy') }}</dt><dd>{{ t(`impex.body_policies.${channel.data.value.body_policy}`) }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.message.signature') }}</dt><dd>{{ channel.data.value.verifies_signatures ? t('impex.message.verified') : t('impex.message.unsigned') }}</dd></div>
-              <div v-if="channel.data.value.flow"><dt class="text-muted">{{ t('impex.channel.flow') }}</dt><dd>{{ channel.data.value.flow }}</dd></div>
-              <div><dt class="text-muted">{{ t('impex.channels.source') }}</dt><dd>{{ channel.data.value.stored ? t('impex.channels.stored') : t('impex.channels.from_config') }}</dd></div>
-            </dl>
+            <AtriumDetails :items="details" :columns="2" data-testid="impex-channel-details">
+              <template #status>
+                <ImpexStatusBadge :status="channel.data.value.status" />
+              </template>
+            </AtriumDetails>
           </UCard>
 
           <UCard v-if="channel.data.value.stored">

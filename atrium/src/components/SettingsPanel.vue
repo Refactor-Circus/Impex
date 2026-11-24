@@ -74,12 +74,7 @@ const sections = computed(() => {
           <template #header>
             <h3 class="font-medium">{{ section.title }}</h3>
           </template>
-          <dl class="space-y-2 text-sm">
-            <div v-for="row in section.rows" :key="row.key" class="flex justify-between gap-3" :data-row="row.key">
-              <dt class="text-muted">{{ row.label }}</dt>
-              <dd class="font-medium tabular-nums">{{ row.value }}</dd>
-            </div>
-          </dl>
+          <AtriumDetails :items="section.rows" />
         </UCard>
       </div>
     </ImpexState>

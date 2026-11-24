@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SubscriptionsPage from '../src/pages/subscriptions/index.vue'
-import { settle } from '@refactor-circus/atrium/testing'
+import { chooseOption, selectValues, settle, useRouter } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, leaveImpex, mountImpexPage, page, resetImpex, subscriptionRow as subscription, tableRow } from './support'
+import { tableRow } from '@refactor-circus/atrium/testing'
+import { atriumApi, callsTo, leaveImpex, mountImpexPage, page, resetImpex, subscriptionRow as subscription } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -44,6 +45,21 @@ describe('impex.subscriptions', () => {
     await mountImpexPage(SubscriptionsPage, '/impex/subscriptions?stream=orders&status=paused')
 
     expect(callsTo(calls, 'GET', '/subscriptions').map(call => call.query)).toContainEqual({ stream: 'orders', status: 'paused' })
+  })
+
+  it('offers "Any status" first in the status filter, which sends no status', async () => {
+    const calls = mockPackageApi('impex', { 'GET /subscriptions': page([feedOnly]) })
+
+    const wrapper = await mountImpexPage(SubscriptionsPage, '/impex/subscriptions?stream=orders&status=paused')
+
+    expect(selectValues(wrapper, 'impex-subscriptions-status')).toEqual(['', 'active', 'paused', 'disabled'])
+
+    await chooseOption(wrapper, 'impex-subscriptions-status', '')
+    await wrapper.find('[data-testid="impex-subscriptions-filters"]').trigger('submit')
+    await settle()
+
+    expect(useRouter().currentRoute.value.query).toEqual({ stream: 'orders' })
+    expect(callsTo(calls, 'GET', '/subscriptions').at(-1)?.query).toEqual({ stream: 'orders' })
   })
 
   it('loads the next page by the cursor the last one gave', async () => {

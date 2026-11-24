@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SubscriptionPage from '../src/pages/subscriptions/[subscription].vue'
 import { settle } from '@refactor-circus/atrium/testing'
 import { mockPackageApi, type PackageBody, type PackageRoutes, reply } from '@refactor-circus/atrium/testing'
-import { atriumApi, callsTo, delivery, leaveImpex, mountImpexPage, resetImpex, subscription, tableRow } from './support'
+import { tableRow } from '@refactor-circus/atrium/testing'
+import { atriumApi, callsTo, delivery, leaveImpex, mountImpexPage, resetImpex, subscription } from './support'
 import { mockAtriumApi } from '@refactor-circus/atrium/testing'
 
 /*
@@ -48,7 +49,8 @@ describe('impex.subscription', () => {
 
     expect(callsTo(calls, 'GET', '/subscriptions/{subscription}').some(call => call.path === '/subscriptions/sub-1')).toBe(true)
     expect(callsTo(calls, 'GET', '/subscriptions/{subscription}/deliveries').some(call => call.path === '/subscriptions/sub-1/deliveries')).toBe(true)
-    expect(wrapper.find('h1').text()).toBe('products')
+    expect(wrapper.find('h1 .truncate').text()).toBe('products')
+    expect(wrapper.find('h1').text()).toContain('Active')
     expect(wrapper.find('[data-testid="impex-subscription-details"]').text()).toContain('https://partner.example.com/hook')
     expect(tableRow(wrapper, 'impex-delivery-del-1').find('a').attributes('href')).toBe('/impex/messages/msg-1')
   })

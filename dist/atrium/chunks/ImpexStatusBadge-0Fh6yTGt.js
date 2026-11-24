@@ -1,4 +1,4 @@
-import { b as e } from "./shared-Bu5fYXbP.js";
+import { b as e } from "./shared-_UUfUMm3.js";
 import { UBadge as t } from "@refactor-circus/atrium/ui";
 import { computed as n, createBlock as r, createTextVNode as i, defineComponent as a, openBlock as o, toDisplayString as s, unref as c, withCtx as l } from "vue";
 import { useI18n as u } from "vue-i18n";
