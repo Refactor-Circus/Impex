@@ -1,13 +1,18 @@
 # Dashboard
 
-Impex ships no UI. Since v2.0.0 it is a JSON API and an MCP server only, and
+Impex ships no PHP UI. Since v2.0.0 it is a JSON API and an MCP server, and
 the optional dashboard is [Atrium v2](https://github.com/Refactor-Circus/Atrium).
 
 ## Atrium v2
 
-Atrium v2's Impex integration renders the screens, widgets, search and the
-settings panel that Impex 0.x drew itself: runs, a run's steps, owners and
-signals, the message ledger, flows, channels and subscriptions. It calls
+Impex ships its own Atrium front-end module, which renders the screens,
+widgets, search and the settings panel that Impex 0.x drew itself: runs, a
+run's steps, owners and signals, the message ledger, flows, channels and
+subscriptions. Its Vue sources live in `atrium/` and build into the committed
+`dist/atrium/` (`atrium.js`, its chunks and `atrium.css`), which `composer.json`
+declares under `extra.atrium`. Atrium discovers the module from Composer's
+metadata and injects it into its page, so hosts never run Node; Impex has no
+Composer dependency on Atrium. The module calls
 Impex's [HTTP API](09-api.md) through the generated
 `@refactor-circus/impex-client` TypeScript package, so the dashboard and the
 API can never disagree.

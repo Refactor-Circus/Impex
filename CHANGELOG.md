@@ -4,7 +4,7 @@
 
 ## [v2.0.0](https://github.com/Refactor-Circus/Impex/compare/v0.1.0...v2.0.0)
 
-Impex is now a JSON API and an MCP server only. The Atrium UI is gone; Atrium v2 renders Impex through the new TypeScript client.
+Impex is now a JSON API and an MCP server, with no PHP UI. The Atrium PHP plugin is gone; Impex ships its Atrium front-end module (built JavaScript, declared in `extra.atrium`), which Atrium v2 loads and which calls the API through the new TypeScript client.
 
 ### Upgrading: the Atrium UI moved to Atrium v2
 
@@ -14,7 +14,7 @@ Impex is now a JSON API and an MCP server only. The Atrium UI is gone; Atrium v2
 - **The `impex-views` and `impex-lang` publish tags were removed**, with `resources/views` and `lang/`. Every view and translation belonged to the Atrium UI. Delete any published copies under `resources/views/vendor/impex` and `lang/vendor/impex`.
 - **Operator mode has no API equivalent yet (see D-006 in `docs/agent/specs/2026-11-23-0943-impex-v2-api-and-mcp-only/decisions.md`).** `impex.atrium.show_all` let dashboard operators see and handle every run. Nothing replaces it in this release: with `impex.authorization` on, lists, stats and search cover the caller's own runs; with it off, nothing is scoped. A host that needs operators can serve the API with authorization off on an operator-only route stack, or wait for a follow-up that adds a policy ability for it.
 - **`@impexCan` and `RefactorCircus\Impex\Atrium\ScreenAccess` were removed.** Ask the Gate about Impex's models directly (`Gate::allows('cancel', $run)`), which reaches the policies in `impex.policies`.
-- **Atrium and PennantPlus are no longer suggested.** `refactor-circus/atrium` is gone from `suggest` and `conflict`, `refactor-circus/pennantplus` from `suggest`, and there is no `extra.atrium`. `refactor-circus/keystone` is still Impex's only suite dependency.
+- **Atrium and PennantPlus are no longer suggested.** `refactor-circus/atrium` is gone from `suggest` and `conflict`, `refactor-circus/pennantplus` from `suggest`. `extra.atrium` now declares only the built front-end module (no plugin class). `refactor-circus/keystone` is still Impex's only suite dependency.
 
 ### Added
 
@@ -26,6 +26,7 @@ Impex is now a JSON API and an MCP server only. The Atrium UI is gone; Atrium v2
   They call `ShowRunStatsAction`, `SearchRunsAction` and `ShowSettingsSummaryAction`, which dispatch `RunStatsShowingActionEvent`/`RunStatsShownActionEvent`, `RunsSearchingActionEvent`/`RunsSearchedActionEvent` and `SettingsSummaryShowingActionEvent`/`SettingsSummaryShownActionEvent`. They have no MCP tools: they are declared exceptions to the parity rule, and agents use `list-runs-tool`.
 - **`openapi.json`**, an OpenAPI 3.1 document of the operator API committed at the package root. Each operation's `operationId` is its route name. It is exported by `dedoc/scramble` (a development dependency only) from the Testbench workbench.
 - **`@refactor-circus/impex-client`** (2.0.0) in `client/`: a typed TypeScript client generated from `openapi.json` with `openapi-typescript`. `createImpexClient({ baseUrl, ...})` wraps `openapi-fetch`'s `createClient<paths>`, and the `paths`, `components` and `operations` types are exported. It ships TypeScript source with no build step and is installed as a git dependency on the release tag (pnpm: `github:refactor-circus/impex#v2.0.0&path:/client`).
+- **Ships its Atrium module.** The Vue sources of Impex's Atrium front end (pages, widgets, tabs, settings panel, search and live resolvers) moved from Atrium into `atrium/` and build with Atrium's Vite preset into the committed `dist/atrium/` (`atrium.js`, `chunks/`, `atrium.css`, `build.json`). `composer.json` declares it under `extra.atrium` (`key`, `scripts`, `styles`); Atrium v2 discovers it and injects it into its page. It is JavaScript only, with no Composer dependency on Atrium. A Pest test checks the declared files exist and the build is fresh, and the CI `ui` job type-checks, tests, rebuilds and diffs it.
 - **`composer client:generate`** regenerates `openapi.json`, `client/src/schema.d.ts` and `client/openapi.sha256` in that order; `composer openapi:generate` exports the document alone. A Pest test fails when `openapi.json` or its checksum is stale, and the CI `client` job regenerates everything, fails on any diff and type-checks the client.
 
 ### Removed
@@ -34,7 +35,7 @@ Impex is now a JSON API and an MCP server only. The Atrium UI is gone; Atrium v2
 - `ImpexSupportFeature`.
 - The `impex.ui` and `impex.atrium` config sections (`impex.ui.enabled`, `impex.atrium.features`, `impex.atrium.show_all`, `impex.atrium.run_link.screens`).
 - The `impex-views` and `impex-lang` publish tags, and the `@impexCan` Blade directive.
-- `refactor-circus/atrium` from `suggest` and `conflict`, `refactor-circus/pennantplus` from `suggest`, and `extra.atrium`.
+- `refactor-circus/atrium` from `suggest` and `conflict`, `refactor-circus/pennantplus` from `suggest`, and the Atrium plugin registration in `extra.atrium` (which now declares the front-end module only).
 - `composer test:without-atrium`, `phpunit.without-atrium.xml` and the `without-atrium` CI lane. An arch test that no `RefactorCircus\Impex` class uses `RefactorCircus\Atrium` takes their place.
 
 ## [v0.1.0](https://github.com/Refactor-Circus/Impex/commits/v0.1.0) - 2026-10-30

@@ -5,7 +5,9 @@ declare(strict_types=1);
 /*
  * Impex requires only Keystone from the suite. The dashboard is Atrium v2's,
  * so neither Atrium nor PennantPlus is a dependency, a suggestion or a
- * conflict, and Showroom never is (criterion 13).
+ * conflict, and Showroom never is (criterion 13). Impex ships its Atrium
+ * front-end module as built JavaScript and declares it in `extra.atrium`,
+ * which Atrium reads from Composer's metadata: still no dependency.
  */
 
 /**
@@ -43,8 +45,12 @@ it('never names atrium as a dependency, suggestion or conflict', function (strin
     expect(impexComposerSection($section))->not->toHaveKey('refactor-circus/atrium');
 })->with(['require', 'require-dev', 'suggest', 'conflict']);
 
-it('registers no atrium plugin', function (): void {
-    expect(impexComposerSection('extra'))->not->toHaveKey('atrium');
+it('declares only its built atrium module in extra, with no atrium plugin', function (): void {
+    expect(impexComposerSection('extra')['atrium'] ?? null)->toBe([
+        'key' => 'impex',
+        'scripts' => ['dist/atrium/atrium.js'],
+        'styles' => ['dist/atrium/atrium.css'],
+    ]);
 });
 
 it('never names pennantplus as a dev dependency or suggestion', function (string $section): void {

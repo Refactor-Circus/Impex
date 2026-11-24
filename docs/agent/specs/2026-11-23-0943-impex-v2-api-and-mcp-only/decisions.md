@@ -103,3 +103,9 @@
 - Rationale: The user said "i'd like everything release as v2 to match". This supersedes any earlier choice to keep `^0.1` constraints or release Keystone as v0.2.0.
 - Date: 2026-11-23
 - Raised by: user
+
+## D-016: Who owns Impex's Atrium front end?
+- Choice: Impex does. The Vue module staged in Atrium (`ui/modules/impex`) moved into `atrium/` here (`@refactor-circus/impex-atrium`, the Atrium SDK a dev dependency pinned to a commit), typed by Impex's own `client/src/schema.d.ts` (the vendored copy is dropped). It builds into the committed `dist/atrium/`, declared in `composer.json` under `extra.atrium`, which Atrium discovers and injects into its Blade page. It is JavaScript only: still no Atrium PHP, no Composer require or suggest of Atrium, and nothing in `src/`, `config/`, `database/` or workbench PHP names Atrium. The "no Atrium" tests were narrowed to that, not deleted; `tests/Feature/AtriumModuleTest.php` checks the declared files and the build's source hash, and the CI `ui` job type-checks, tests, rebuilds and diffs it.
+- Rationale: The user said "move the vue files for each module back into their respective modules. modules need to register their js. js should be injected into the blade file. modules are responsible for their own frontend and cjs clients from now on". It refines the spec's "API and MCP only, no UI" to "no PHP UI".
+- Date: 2026-11-24
+- Raised by: user

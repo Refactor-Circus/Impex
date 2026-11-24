@@ -7,8 +7,11 @@ use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Finder\Finder;
 
 /*
- * Impex 2.0 ships its JSON API and MCP server only: the dashboard moved to
- * Atrium v2, which calls the API (criteria 10, 11 and 12).
+ * Impex 2.0 ships its JSON API and MCP server, and no Atrium PHP: the
+ * dashboard is Atrium v2's, which calls the API (criteria 10, 11 and 12).
+ * Its Atrium front-end module is JavaScript only (`atrium/`, built to
+ * `dist/atrium/`, declared in composer.json's `extra.atrium`), so the PHP
+ * code (src/, config/, database/ and the workbench) still never names Atrium.
  */
 
 it('registers no route under the old dashboard names', function (): void {
@@ -28,12 +31,12 @@ it('ships no dashboard code, views or translations', function (string $path): vo
     'lang',
 ]);
 
-it('names atrium nowhere in its source or config', function (): void {
+it('names atrium nowhere in its PHP source, config, database or workbench code', function (): void {
     $root = dirname(__DIR__, 2);
 
     $offenders = [];
 
-    foreach (Finder::create()->files()->in([$root.'/src', $root.'/config']) as $file) {
+    foreach (Finder::create()->files()->in([$root.'/src', $root.'/config', $root.'/database'])->append(Finder::create()->files()->in($root.'/workbench')->name('*.php')) as $file) {
         if (stripos((string) file_get_contents($file->getPathname()), 'atrium') !== false) {
             $offenders[] = substr($file->getPathname(), strlen($root) + 1);
         }

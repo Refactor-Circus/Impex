@@ -19,10 +19,12 @@ application can send through channels, record its mail, receive webhooks, run
 flows and offer subscriptions to its own data. A package such as refactor-circus/showroom
 uses Impex by registering a stream; Impex does not know it exists.
 
-Impex 2 ships two surfaces and no UI: a JSON API, described by the committed
-`openapi.json` and the typed `@refactor-circus/impex-client` TypeScript
-package, and an MCP server. Both call the same Actions. The optional UI is
-[Atrium v2](#ui-atrium-v2-optional), which renders Impex through that client.
+Impex 2 ships two surfaces and no PHP UI: a JSON API, described by the
+committed `openapi.json` and the typed `@refactor-circus/impex-client`
+TypeScript package, and an MCP server. Both call the same Actions. The optional
+UI is [Atrium v2](#ui-atrium-v2-optional), which loads Impex's own Atrium
+front-end module (built JavaScript in `dist/atrium`) and renders Impex through
+that client.
 
 > **Status: v2.0.0.** Everything below is built and tested: engine, ledger,
 > JSON API, OpenAPI document, TypeScript client and MCP server.
@@ -595,13 +597,22 @@ About how it works:
 
 ## UI: Atrium v2 (optional)
 
-Impex ships no UI. [Atrium v2](https://github.com/Refactor-Circus/Atrium) is
-the optional one: its Impex integration renders runs, the ledger, flows,
-channels and subscriptions, the dashboard widgets, search and the settings
-panel by calling this package's JSON API through
-`@refactor-circus/impex-client`. Install and configure it on Atrium's side;
-its settings live under `atrium.integrations.impex.*`, and Impex itself needs
-none.
+Impex ships no PHP UI. [Atrium v2](https://github.com/Refactor-Circus/Atrium)
+is the optional one. Impex ships its Atrium front-end module: the pages for
+runs, the ledger, flows, channels and subscriptions, the dashboard widgets,
+search and the settings panel, built from `atrium/` into the committed
+`dist/atrium/` (JavaScript and CSS only) and declared in `composer.json` under
+`extra.atrium`. Atrium discovers it from Composer's metadata and injects it into
+its page; the module calls this package's JSON API through
+`@refactor-circus/impex-client`. Install and configure Atrium on its side; its
+settings live under `atrium.integrations.impex.*`, and Impex itself needs none.
+Hosts never run Node.
+
+To change the module, edit `atrium/` and rebuild it with pnpm 10.18:
+`pnpm -C atrium install`, `pnpm -C atrium typecheck`, `pnpm -C atrium test`,
+`pnpm -C atrium build`, then commit `dist/atrium/`. A Pest test fails when the
+committed build is older than its sources, and the CI `ui` job rebuilds and
+diffs it.
 
 What a viewer sees follows the API's own authorization: `impex.routes.middleware`
 decides who may call it, and with `impex.authorization` on each call is checked
@@ -609,8 +620,8 @@ against the policies in `impex.policies` and scoped to the caller's own runs.
 There is no operator mode that shows every run yet; a host that needs one can
 serve the API with `impex.authorization` off on an operator-only route stack.
 
-Impex needs nothing from Atrium, and an arch test checks that no Impex class
-uses one. See [Dashboard](docs/11-dashboard.md).
+Impex needs nothing from Atrium at run time: it is no Composer dependency,
+and an arch test checks that no Impex class uses one. See [Dashboard](docs/11-dashboard.md).
 
 > **Gate the API carefully.** It reads every payload that has crossed your
 > application boundary.
@@ -804,7 +815,7 @@ The code is organised into domain modules under `src/Domains`, each with its own
 | `Subscription` | Streams, subscribers, subscriptions, change detection, fan-out, delivery, the feed |
 | `Artifact` | Artifacts and the `PayloadStore` |
 
-Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows` and `impex:prune`. There is no UI code: the stats, search and settings summary endpoints live in the `Run` domain.
+Package-wide pieces stay at the top level: `ImpexServiceProvider`, the `Impex` class and facade, `ImpexException`, `Mcp\ImpexServer` and its history tool, `Support` (locks, job middleware and the base policy), `Contracts\JobMiddlewareFactory`, `Testing\Flows` and `impex:prune`. There is no PHP UI code: the stats, search and settings summary endpoints live in the `Run` domain, and the Atrium front-end module lives in `atrium/` (built to `dist/atrium/`).
 
 Impex stands on [refactor-circus/keystone](https://github.com/Refactor-Circus/Keystone), the shared runtime of the Refactor Circus suite. The event contracts, the model-event trait, the base HTTP and MCP requests, the MCP tool and server bases, the authorizer, the Cortex bridge and the domain service provider base come from it (`RefactorCircus\Keystone\...`), so every package of the suite behaves the same way. The queued jobs keep their `RefactorCircus\Impex\Jobs` names, because those names are inside job payloads already on a queue.
 

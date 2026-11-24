@@ -170,10 +170,12 @@ repeat a side effect.
 
 ### 9. Watch it
 
-Impex is a JSON API plus an MCP server; it ships no UI, views or Blade, and
-no Impex class may use Atrium (an arch test checks it). For a UI, install
-Atrium v2: its Impex integration calls the API through the generated
-`@refactor-circus/impex-client` package, and its settings live under
+Impex is a JSON API plus an MCP server; it ships no PHP UI, views or Blade,
+and no Impex class may use Atrium (an arch test checks it). For a UI, install
+Atrium v2: it loads the Atrium front-end module Impex ships (built JavaScript
+in `dist/atrium`, declared in `composer.json` under `extra.atrium`), which calls
+the API through the generated `@refactor-circus/impex-client` package. Its
+settings live under
 `atrium.integrations.impex.*` on Atrium's side, never in `config/impex.php`.
 `impex.routes.middleware` decides who may call the API, and with
 `impex.authorization` on every call asks the policies and lists only the
