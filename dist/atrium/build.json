@@ -1,0 +1,13 @@
+{
+  "key": "impex",
+  "shared_api": "1.0",
+  "root": "../../atrium",
+  "inputs": [
+    "src",
+    "../client/src",
+    "package.json",
+    "vite.config.ts",
+    "pnpm-lock.yaml"
+  ],
+  "hash": "657378f973f75e796f75d97de8e49698f7d7d7e18d036a3c25e4bcc89c9ecf95"
+}

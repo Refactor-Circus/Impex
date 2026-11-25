@@ -5,7 +5,14 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use RefactorCircus\Impex\Domains\Run\Http\Controllers\RunController;
 use RefactorCircus\Impex\Domains\Run\Http\Controllers\RunOwnerController;
+use RefactorCircus\Impex\Domains\Run\Http\Controllers\RunSearchController;
+use RefactorCircus\Impex\Domains\Run\Http\Controllers\RunStatsController;
 use RefactorCircus\Impex\Domains\Run\Http\Controllers\RunStepController;
+use RefactorCircus\Impex\Domains\Run\Http\Controllers\SettingsSummaryController;
+
+Route::get('stats', [RunStatsController::class, 'show'])->name('stats.show');
+Route::get('search', [RunSearchController::class, 'index'])->name('search.index');
+Route::get('settings-summary', [SettingsSummaryController::class, 'show'])->name('settings-summary.show');
 
 Route::get('runs', [RunController::class, 'index'])->name('runs.index');
 Route::get('runs/{run}', [RunController::class, 'show'])->name('runs.show');

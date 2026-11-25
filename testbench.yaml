@@ -1,25 +1,21 @@
 laravel: '@testbench'
 
 providers:
-  - RefactorCircus\Atrium\AtriumServiceProvider
   - RefactorCircus\Impex\ImpexServiceProvider
   - Workbench\App\Providers\WorkbenchServiceProvider
 
 migrations:
   - database/migrations
   - workbench/database/migrations
-  # refactor-circus/pennantplus (dev dependency, auto-discovered) decides ImpexSupportFeature
-  # through Pennant, whose features table lives here.
-  - vendor/laravel/pennant/database/migrations
-  # refactor-circus/cortex (dev dependency, auto-discovered) adds its own dashboard
-  # screens, whose tables live here.
+  # refactor-circus/cortex (dev dependency, auto-discovered) keeps its
+  # registry in tables that live here.
   - vendor/refactor-circus/cortex/database/migrations
 
 seeders:
   - Workbench\Database\Seeders\DatabaseSeeder
 
 workbench:
-  start: '/atrium'
+  start: '/docs/api'
   user: test@example.com
   install: true
   health: false
@@ -37,7 +33,6 @@ workbench:
     - migrate-fresh
   assets:
     - laravel-assets
-    - atrium-assets
   sync:
     - from: storage
       to: workbench/storage

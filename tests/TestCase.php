@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Impex\Tests;
 
-use Illuminate\Routing\Router;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use RefactorCircus\Atrium\AtriumServiceProvider;
 use RefactorCircus\Impex\ImpexServiceProvider;
-use Workbench\App\Http\Controllers\TestHostScreenController;
 
 abstract class TestCase extends Orchestra
 {
@@ -20,17 +17,12 @@ abstract class TestCase extends Orchestra
     {
         return [
             McpServiceProvider::class,
-            AtriumServiceProvider::class,
             ImpexServiceProvider::class,
         ];
     }
 
     protected function defineEnvironment($app): void
     {
-        // refactor-circus/cortex is a dev dependency, so Atrium discovers its plugin here
-        // without its migrations; its navigation would query missing tables.
-        $app['config']->set('atrium.disabled', ['cortex']);
-
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing.foreign_key_constraints', true);
@@ -39,18 +31,6 @@ abstract class TestCase extends Orchestra
         $app['config']->set('cache.default', 'array');
         $app['config']->set('impex.cache.store', 'array');
         $app['config']->set('filesystems.default', 'local');
-    }
-
-    /**
-     * Another package's list screen for Impex's screen extensions to land on,
-     * so Showroom is never a dependency: `GET test-host/{key}`, named
-     * `test-host`. Tests key it `showroom.transfers`.
-     *
-     * @param  Router  $router
-     */
-    protected function defineRoutes($router): void
-    {
-        $router->middleware('web')->get('test-host/{key}', TestHostScreenController::class)->name('test-host');
     }
 
     protected function defineDatabaseMigrations(): void

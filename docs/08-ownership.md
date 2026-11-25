@@ -133,7 +133,8 @@ With it on, every call acts as the authenticated user:
   so only an operator with authorization off can read it.
 - **`ArtifactPolicy`**: reading needs `view` on the artifact's run.
 - **`FlowOverridePolicy`**: anyone signed in may read the flow catalogue.
-  Changing a flow is left to the dashboard, behind Atrium's gate.
+  Impex's API offers no call that changes a flow; edit its `impex_flows` row
+  from your own code.
 
 The child policies ask the Gate about the run, so they follow whichever run
 policy is registered.
@@ -145,6 +146,9 @@ policy is registered.
 | `GET flows` | `list-flows-tool` | `viewAny` on `FlowOverrideModel` |
 | `POST flows/{flow}/runs` | `run-flow-tool` | `create` on `RunModel`, with the slug |
 | `GET runs` | `list-runs-tool` | `viewAny` on `RunModel` |
+| `GET stats` | none | `viewAny` on `RunModel`; its `messages` block also needs `viewAny` on `MessageModel`, and is `null` without it |
+| `GET search` | none | `viewAny` on `RunModel` |
+| `GET settings-summary` | none | `viewAny` on `RunModel` |
 | `GET runs/{run}` | `show-run-tool` | `view` on the run |
 | `POST runs/{run}/cancel` | `cancel-run-tool` | `cancel` on the run |
 | `POST runs/{run}/retry` | `retry-run-tool` | `retry` on the run |
@@ -184,9 +188,10 @@ channels/{channel}` authenticates each request with the channel's signing
 secret: an upstream has no user, so a policy there would lock out the senders
 the endpoint exists to receive.
 
-The dashboard asks the same policies, past Atrium's own middleware and gate,
-except for operators named by `impex.atrium.show_all`, who see and may act on
-every run there — and only there. See [Dashboard](11-dashboard.md#who-sees-what).
+A dashboard such as Atrium v2 calls this API, so it asks the same policies and
+sees only what the signed-in user may. There is no operator mode that shows
+every run: to give operators that view, serve the API with `authorization` off
+on an operator-only route stack. See [Dashboard](11-dashboard.md#who-sees-what).
 
 ### Replacing a policy
 

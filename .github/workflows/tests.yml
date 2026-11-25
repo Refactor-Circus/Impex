@@ -77,15 +77,12 @@ jobs:
         if: runner.os == 'Windows'
         run: vendor/bin/pest
 
-  # The authoritative proof that Impex runs without Atrium (it is suggested,
-  # not required): uninstall Atrium and every dev dependency that pulls it in,
-  # resolve again, and run the WithoutAtrium suite. Unlike the in-process
-  # `composer test:without-atrium` run inside `composer test`, this one also
-  # catches Composer `files` and classmap leaks.
-  without-atrium:
+  # Regenerates openapi.json and the TypeScript client (client/) and fails
+  # when either differs from what is committed, then type-checks the client.
+  client:
     runs-on: ubuntu-latest
 
-    name: P8.5 - L13.* - without Atrium
+    name: Client - P8.5 - Node LTS
 
     steps:
       - name: Checkout code
@@ -100,26 +97,19 @@ jobs:
           tools: composer:v2
           coverage: none
 
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: lts/*
+
       - name: Install dependencies
-        run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts
+        run: composer update --prefer-dist --no-interaction --no-progress
 
-      - name: Remove Atrium and the dev dependencies that require it
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Every package that requires Atrium, directly or through another.
-          dependents=$(composer why refactor-circus/atrium --recursive --no-interaction | awk '{print $1}' | sort -u)
-          # Only the root's own dev dependencies can be removed here.
-          root_dev=$(php -r 'echo implode(PHP_EOL, array_keys(json_decode(file_get_contents("composer.json"), true)["require-dev"] ?? []));' | sort -u)
-          remove=$(comm -12 <(echo "$dependents") <(echo "$root_dev") | grep -vx 'refactor-circus/atrium' || true)
-          if [ -n "$remove" ]; then
-            echo "Removing dev dependencies that require Atrium: $remove"
-            composer remove --dev $remove --no-update --no-interaction
-          fi
-          composer remove --dev refactor-circus/atrium --no-update --no-interaction
-          # Resolve again rather than editing the lock, so nothing drifts.
-          composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-scripts
-          test ! -e vendor/refactor-circus/atrium
+      - name: Regenerate the OpenAPI document and the client
+        run: composer client:generate
 
-      - name: Test Suite without Atrium
-        run: composer test:without-atrium
+      - name: Check the committed copies are fresh
+        run: git diff --exit-code -- openapi.json client
+
+      - name: Type-check the client
+        run: npm --prefix client run typecheck

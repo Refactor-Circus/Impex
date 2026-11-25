@@ -20,7 +20,7 @@ wins over a package's runtime registration — see [Extending](12-extending.md).
 ```
 
 Cron expressions keyed by slug. A `schedule` value on the flow's `impex_flows`
-row takes precedence, so the dashboard can reschedule without a deploy.
+row takes precedence, so a flow can be rescheduled without a deploy.
 
 ## `queue`
 
@@ -182,7 +182,7 @@ A guest is refused with `401`, a signed-in user without the ability with `403`.
 
 | Key | Default | |
 | --- | --- | --- |
-| `enabled` | `true` | Impex keeps no audit log of its own. With refactor-circus/keen installed, Keen records every change Impex makes and Impex shows the history (its Atrium pages, `GET /impex/history`, `list-impex-history-tool`). Set to `false` to keep Impex out of the audit log even while Keen is installed. |
+| `enabled` | `true` | Impex keeps no audit log of its own. With refactor-circus/keen installed, Keen records every change Impex makes and Impex shows the history (`GET /impex/history`, `list-impex-history-tool`). Set to `false` to keep Impex out of the audit log even while Keen is installed. |
 
 ## `policies`
 
@@ -215,6 +215,11 @@ config that lists only some tables keeps the defaults for the rest.
 | `channel_middleware` | `['api']` |
 | `subscriber_middleware` | `['api']` |
 
+The operator API under `{prefix}` is described by `openapi.json` and the
+`@refactor-circus/impex-client` package (see
+[HTTP API](09-api.md#openapi-and-the-typescript-client)); a UI such as Atrium
+v2 reads it, so keep `enabled` on to serve one.
+
 Add authentication to `middleware` before exposing these. `channel_middleware`
 is the separate stack for the inbound channel receive endpoints, which
 authenticate with the channel's signing secret rather than a user, so keep
@@ -246,33 +251,6 @@ Both ship disabled.
 | `tools` | `null` | `null` for every tool, or a list of tool names such as `['list-runs-tool', 'show-run-tool']`. |
 
 Cortex is optional; without it these keys do nothing.
-
-## `ui`
-
-```php
-'ui' => [
-    'enabled' => true, // register Impex with the Atrium dashboard
-],
-```
-
-Atrium owns the dashboard's path, middleware and authorization gate, so this is
-the only setting. Turning it off keeps the JSON API serving.
-
-See [Dashboard](11-dashboard.md).
-
-## `atrium`
-
-```php
-'atrium' => [
-    'features' => [ImpexSupportFeature::class],
-    'show_all' => false,
-],
-```
-
-| Key | Default | Meaning |
-|---|---|---|
-| `features` | `[ImpexSupportFeature::class]` | Features that switch Impex in Atrium on and off as a whole. Classes that are not installed are skipped. |
-| `show_all` | `false` | Dashboard operators. `true`: everyone past Atrium's gate; a string: those the named Gate ability allows. An operator sees every run, message, count, widget and search result and may use every Impex control, on the Atrium screens only. Ignored with `authorization` off. |
 
 ## `streams`
 

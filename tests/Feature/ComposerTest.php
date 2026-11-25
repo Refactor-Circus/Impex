@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 /*
- * Impex requires only Keystone from the suite. Atrium is suggested, installed
- * for development, and refused when it is older than the screen-extensions
- * registry; Showroom is never a dependency.
+ * Impex requires only Keystone from the suite. The dashboard is Atrium v2's,
+ * so neither Atrium nor PennantPlus is a dependency, a suggestion or a
+ * conflict, and Showroom never is (criterion 13). Impex ships its Atrium
+ * front-end module as built JavaScript plus its integration manifest and
+ * declares them in `extra.atrium`, which Atrium reads from Composer's
+ * metadata: still no dependency.
  */
 
 /**
@@ -20,11 +23,11 @@ function impexComposer(): array
 }
 
 /**
- * @return array<string, string>
+ * @return array<string, mixed>
  */
 function impexComposerSection(string $section): array
 {
-    /** @var array<string, string> $entries */
+    /** @var array<string, mixed> $entries */
     $entries = impexComposer()[$section] ?? [];
 
     return $entries;
@@ -39,39 +42,37 @@ it('requires keystone and no other suite package', function (): void {
     expect($suite)->toBe(['refactor-circus/keystone']);
 });
 
-it('suggests atrium, naming the registry release as the minimum and keen for history', function (): void {
-    $suggest = impexComposerSection('suggest');
+it('never names atrium as a dependency, suggestion or conflict', function (string $section): void {
+    expect(impexComposerSection($section))->not->toHaveKey('refactor-circus/atrium');
+})->with(['require', 'require-dev', 'suggest', 'conflict']);
 
-    expect($suggest)->toHaveKey('refactor-circus/atrium')
-        ->and($suggest['refactor-circus/atrium'])->toContain('screen-extensions registry')
-        ->and($suggest['refactor-circus/atrium'])->toContain('0.1.0')
-        ->and($suggest['refactor-circus/atrium'])->toContain('refactor-circus/keen')
-        ->and($suggest['refactor-circus/atrium'])->toContain('History');
+it('declares only its built atrium module in extra, with no atrium plugin', function (): void {
+    expect(impexComposerSection('extra')['atrium'] ?? null)->toBe([
+        'key' => 'impex',
+        'integration' => 'dist/atrium/integration.json',
+        'scripts' => ['dist/atrium/atrium.js'],
+        'styles' => ['dist/atrium/atrium.css'],
+    ]);
 });
 
-it('installs atrium for development on its main branch', function (): void {
-    expect(impexComposerSection('require-dev'))->toHaveKey('refactor-circus/atrium', '^0.1');
-});
+it('never names pennantplus as a dev dependency or suggestion', function (string $section): void {
+    expect(impexComposerSection($section))->not->toHaveKey('refactor-circus/pennantplus');
+})->with(['require-dev', 'suggest']);
 
-it('refuses an atrium older than the screen-extensions registry', function (): void {
-    expect(impexComposerSection('conflict'))->toHaveKey('refactor-circus/atrium', '<0.1.0');
-});
+it('never depends on showroom', function (string $section): void {
+    expect(impexComposerSection($section))->not->toHaveKey('refactor-circus/showroom');
+})->with(['require', 'require-dev', 'suggest']);
 
-it('never depends on showroom', function (): void {
-    foreach (['require', 'require-dev', 'suggest'] as $section) {
-        expect(impexComposerSection($section))->not->toHaveKey('refactor-circus/showroom');
-    }
-});
-
-it('runs the no-atrium suite inside composer test, after the unit suite', function (): void {
+it('has no no-atrium suite, and composer test does not run one', function (): void {
     /** @var array<string, list<string>> $scripts */
-    $scripts = impexComposer()['scripts'];
+    $scripts = impexComposerSection('scripts');
 
-    $test = $scripts['test'];
-    $unit = array_search('@test:unit', $test, true);
-    $withoutAtrium = array_search('@test:without-atrium', $test, true);
+    expect($scripts)->not->toHaveKey('test:without-atrium')
+        ->and($scripts['test'])->not->toContain('@test:without-atrium')
+        ->and($scripts['test'])->toContain('@test:unit');
+});
 
-    expect($scripts)->toHaveKey('test:without-atrium')
-        ->and($unit)->toBeInt()
-        ->and($withoutAtrium)->toBe($unit + 1);
+it('exports the OpenAPI document with scramble, a development dependency', function (): void {
+    expect(impexComposerSection('require-dev'))->toHaveKey('dedoc/scramble')
+        ->and(impexComposerSection('require'))->not->toHaveKey('dedoc/scramble');
 });

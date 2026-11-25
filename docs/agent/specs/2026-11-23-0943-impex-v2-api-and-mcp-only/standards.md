@@ -1,0 +1,18 @@
+# Standards for Impex v2: API and MCP only
+
+| Standard | File | Source | Why it applies |
+| --- | --- | --- | --- |
+| http/routes | vendor/refactor-circus/standards/standards/http/routes.md | refactor-circus/standards@dev-main | New `stats`, `search` and `settings-summary` routes in `Domains/Run/routes.php`, named `impex.*`, loaded by `loadApiRoutesFrom()` |
+| http/request-persist | vendor/refactor-circus/standards/standards/http/request-persist.md | refactor-circus/standards@dev-main | `ShowRunStatsRequest`, `IndexRunSearchRequest` and `ShowSettingsSummaryRequest` authorize, validate from Data rules and call one action in `persist()` |
+| http/resources | vendor/refactor-circus/standards/standards/http/resources.md | refactor-circus/standards@dev-main | Final `RunStatsResource` and `SettingsSummaryResource` (model-less, in `Domains/Run/Http/Resources/`); search reuses `RunResource` |
+| http/authorization | vendor/refactor-circus/standards/standards/http/authorization.md | refactor-circus/standards@dev-main | Stats, search and settings summary authorize through `RunPolicy::viewAny` (and `MessagePolicy::viewAny` for the message volume); guest 401 vs 403 |
+| actions/actions-events | vendor/refactor-circus/standards/standards/actions/actions-events.md | refactor-circus/standards@dev-main | New `ShowRunStatsAction`, `SearchRunsAction`, `ShowSettingsSummaryAction` with starting and finished event pairs (the package's arch test requires them on read actions too) |
+| data/data-objects | vendor/refactor-circus/standards/standards/data/data-objects.md | refactor-circus/standards@dev-main | `SearchRunsData` with `rules()` and `fromValidated()` |
+| data/value-objects | vendor/refactor-circus/standards/standards/data/value-objects.md | refactor-circus/standards@dev-main | `RunStats` and `SettingsSummary` value objects the actions return |
+| architecture/naming | vendor/refactor-circus/standards/standards/architecture/naming.md | refactor-circus/standards@dev-main | Names of the new requests, controllers, actions, events and resources |
+| architecture/domain-modules | vendor/refactor-circus/standards/standards/architecture/domain-modules.md | refactor-circus/standards@dev-main | New code lives in `src/Domains/Run`; `src/Atrium` (a non-domain top-level layer) is deleted |
+| architecture/dependencies | vendor/refactor-circus/standards/standards/architecture/dependencies.md | refactor-circus/standards@dev-main | No Atrium reference left in `src/`; Keystone stays the only suite `require`; Scramble is `require-dev` only; PennantPlus dropped with the feature class |
+| architecture/configuration | vendor/refactor-circus/standards/standards/architecture/configuration.md | refactor-circus/standards@dev-main | `impex.ui` and `impex.atrium` sections removed; settings summary reads config with casts and hard defaults; routes banner mentions the OpenAPI document |
+| architecture/service-providers | vendor/refactor-circus/standards/standards/architecture/service-providers.md | refactor-circus/standards@dev-main | `ImpexServiceProvider` loses the Atrium registration, views, translations and their publish tags |
+| testing/test-layers | vendor/refactor-circus/standards/standards/testing/test-layers.md | refactor-circus/standards@dev-main | Behavior tested once at the new actions; API tests cover wiring only (status, validation, authorization, payload), by route name |
+| testing/arch-tests | vendor/refactor-circus/standards/standards/testing/arch-tests.md | refactor-circus/standards@dev-main | The "only the Atrium layer uses Atrium" rule becomes "nothing uses Atrium"; parity rule gets three declared MCP exceptions |
